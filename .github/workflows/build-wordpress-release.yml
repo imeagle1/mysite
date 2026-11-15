@@ -1,0 +1,37 @@
+name: Build & Package WordPress Theme + Plugin ZIPs
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-wordpress-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build WordPress Assets Bundle
+        run: npm run build:wp
+
+      - name: Package Theme & Plugin ZIPs
+        run: node scripts/package-wordpress.mjs
+
+      - name: Upload Downloadable ZIP Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iramo-ai-wordpress-bundle
+          path: release-wp/*.zip

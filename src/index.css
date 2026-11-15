@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-fa: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+    --font-en-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-en-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html,
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  html[dir="rtl"] body {
+    font-family: var(--font-fa);
+  }
+
+  html[dir="ltr"] body {
+    font-family: var(--font-en-body);
+  }
+
+  html[dir="ltr"] h1,
+  html[dir="ltr"] h2,
+  html[dir="ltr"] h3,
+  html[dir="ltr"] .font-display {
+    font-family: var(--font-en-display);
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Clean inner-only scrollbar for rounded modals (never pokes out of rounded corners) */
+.iramo-inner-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.35) transparent;
+}
+
+.iramo-inner-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.iramo-inner-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 8px;
+}
+
+.iramo-inner-scroll::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.28);
+  border-radius: 9999px;
+}
+
+.iramo-inner-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.5);
+}
+
+/* Hide scrollbars globally on outer wrappers unless explicitly marked */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}

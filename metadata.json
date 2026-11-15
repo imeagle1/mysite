@@ -1,0 +1,6 @@
+{
+  "name": "iRamo.Ai LMS & WordPress Elementor Suite",
+  "description": "پلتفرم آموزش آنلاین (LMS) اختصاصی iRamo.Ai با طراحی دوگانه دارک زمردی و لایت مدرن، کتابخانه دوره‌ها، دایرکتوری ابزارهای هوش مصنوعی و خروجی آماده برای وردپرس و المنتور پرو.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

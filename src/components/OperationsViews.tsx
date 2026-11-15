@@ -1,0 +1,461 @@
+import React, { useState } from 'react';
+import {
+  Bot,
+  Check,
+  CheckCircle2,
+  Copy,
+  KeyRound,
+  Send,
+  ShieldCheck,
+  Upload,
+} from 'lucide-react';
+import { Assignment, Course, Lang, Transaction } from '../types/lms';
+import { formatPrice, toLocaleDigits } from '../utils/formatters';
+
+/* 1. Assignments View */
+interface AssignmentsViewProps {
+  lang: Lang;
+  assignments: Assignment[];
+  courses: Course[];
+  onSubmitAssignment: (assignmentId: string, url: string) => void;
+}
+
+export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
+  lang,
+  assignments,
+  courses,
+  onSubmitAssignment,
+}) => {
+  const isFa = lang === 'fa';
+  const [urls, setUrls] = useState<Record<string, string>>({});
+
+  const getCourseTitle = (courseId: string) => {
+    const c = courses.find((item) => item.id === courseId);
+    if (!c) return courseId;
+    return isFa ? c.title.fa : c.title.en;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
+          {isFa ? 'تکالیف و پروژه‌های عملی' : 'Practical Labs & Assignments'}
+        </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          {isFa
+            ? 'لینک گیت‌هاب یا فایل پروژه خود را ارسال کنید تا توسط مدرس بررسی و در بله و تلگرام نمره‌دهی شود.'
+            : 'Submit your GitHub repo or project file link for instructor review and instant Messenger feedback.'}
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {assignments.map((asg) => {
+          const statusText =
+            asg.status === 'graded'
+              ? isFa
+                ? `نمره‌دهی شده · ${toLocaleDigits(asg.score ?? 0, lang)} از ${toLocaleDigits(asg.maxScore, lang)}`
+                : `Graded · ${asg.score}/${asg.maxScore}`
+              : asg.status === 'submitted'
+              ? isFa
+                ? 'ارسال شده (در انتظار بررسی)'
+                : 'Submitted · Pending Review'
+              : isFa
+              ? 'در انتظار ارسال'
+              : 'Action Required';
+
+          return (
+            <div
+              key={asg.id}
+              className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <p className="text-[11px] font-medium text-slate-500 dark:text-emerald-300/75 tabular-nums">
+                    {getCourseTitle(asg.courseId)} ·{' '}
+                    {isFa ? `مهلت: ${asg.dueDate.fa}` : `Due ${asg.dueDate.en}`}
+                  </p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                    {isFa ? asg.title.fa : asg.title.en}
+                  </h3>
+                </div>
+                <span
+                  className={`text-xs font-semibold tabular-nums shrink-0 ${
+                    asg.status === 'graded'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : asg.status === 'submitted'
+                      ? 'text-blue-600 dark:text-sky-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {statusText}
+                </span>
+              </div>
+
+              {asg.feedback && (
+                <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#060E0B] p-3 rounded-xl border border-slate-200/70 dark:border-emerald-500/15">
+                  {isFa ? asg.feedback.fa : asg.feedback.en}
+                </p>
+              )}
+
+              {asg.status === 'pending' && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const val = (urls[asg.id] || '').trim();
+                    if (!val) return;
+                    onSubmitAssignment(asg.id, val);
+                  }}
+                  className="flex flex-col sm:flex-row gap-2 pt-1"
+                >
+                  <input
+                    type="url"
+                    required
+                    value={urls[asg.id] || ''}
+                    onChange={(e) =>
+                      setUrls((prev) => ({ ...prev, [asg.id]: e.target.value }))
+                    }
+                    placeholder={
+                      isFa
+                        ? 'لینک گیت‌هاب یا فایل پروژه (https://...)'
+                        : 'Paste project or GitHub URL (https://...)'
+                    }
+                    className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{isFa ? 'ارسال تمرین' : 'Submit Lab'}</span>
+                  </button>
+                </form>
+              )}
+
+              {asg.submittedUrl && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  {isFa ? 'فایل ارسالی: ' : 'Submitted: '}
+                  <span dir="ltr">{asg.submittedUrl}</span>
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* 2. Telegram & Bale Bot Connect View */
+interface BotConnectViewProps {
+  lang: Lang;
+}
+
+export const BotConnectView: React.FC<BotConnectViewProps> = ({ lang }) => {
+  const isFa = lang === 'fa';
+  const [tgHandle, setTgHandle] = useState('@amir_iramo');
+  const [baleId, setBaleId] = useState('09120004412');
+  const [otpSent, setOtpSent] = useState<'telegram' | 'bale' | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [verifiedPlatform, setVerifiedPlatform] = useState<string[]>([
+    'telegram',
+  ]);
+  const [prefs, setPrefs] = useState({
+    autoLicense: true,
+    lessonAlerts: true,
+    otpLogin: true,
+  });
+
+  const handleVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpSent || otpCode.trim().length < 4) return;
+    if (!verifiedPlatform.includes(otpSent)) {
+      setVerifiedPlatform((prev) => [...prev, otpSent]);
+    }
+    setOtpSent(null);
+    setOtpCode('');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
+        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+          <Bot className="w-4 h-4" />
+          <span>
+            {isFa
+              ? 'پل یکپارچه تلگرام و پیام‌رسان بله'
+              : 'Unified Telegram & Bale Bot API Sync'}
+          </span>
+        </div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          {isFa
+            ? 'اتصال حساب کاربری به ربات‌های تلگرام و بله'
+            : 'Connect Your Telegram & Bale Messengers'}
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300/80 leading-relaxed max-w-3xl">
+          {isFa
+            ? 'با اتصال اکانت تلگرام یا پیام‌رسان بله، دسترسی آنی به تمام دوره‌های خریداری‌شده، کلید لایسنس محصولات نرم‌افزاری، لینک مستقیم جلسات جدید و کد ورود دو مرحله‌ای برای شما ارسال می‌شود.'
+            : 'Receive instant WooCommerce course unlocks, software license keys, new lesson alerts, and zero-cost OTP authentication directly in Telegram or Bale.'}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              {isFa ? 'ربات تلگرام (@iRamoAcademyBot)' : 'Telegram Bot (@iRamoAcademyBot)'}
+            </h3>
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>
+                {verifiedPlatform.includes('telegram')
+                  ? isFa
+                    ? 'متصل'
+                    : 'Connected'
+                  : isFa
+                  ? 'نیاز به تایید'
+                  : 'Unverified'}
+              </span>
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs text-slate-500 dark:text-slate-400 block">
+              {isFa ? 'آیدی یا شناسه چت تلگرام' : 'Telegram Username or Chat ID'}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                dir="ltr"
+                value={tgHandle}
+                onChange={(e) => setTgHandle(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => setOtpSent('telegram')}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
+              >
+                {isFa ? 'تست ارسال کد' : 'Send Test OTP'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              {isFa ? 'ربات پیام‌رسان بله' : 'Bale Messenger Bot'}
+            </h3>
+            <span
+              className={`text-xs font-semibold inline-flex items-center gap-1 ${
+                verifiedPlatform.includes('bale')
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>
+                {verifiedPlatform.includes('bale')
+                  ? isFa
+                    ? 'متصل'
+                    : 'Connected'
+                  : isFa
+                  ? 'آماده تایید'
+                  : 'Ready to Verify'}
+              </span>
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs text-slate-500 dark:text-slate-400 block">
+              {isFa ? 'شماره موبایل یا شناسه بله' : 'Bale Phone or Chat ID'}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                dir="ltr"
+                value={baleId}
+                onChange={(e) => setBaleId(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => setOtpSent('bale')}
+                className="px-3.5 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
+              >
+                {isFa ? 'ارسال کد تایید' : 'Verify Bale'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {otpSent && (
+        <form
+          onSubmit={handleVerify}
+          className="rounded-2xl p-5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/35 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-slate-900 dark:text-white">
+              {isFa
+                ? `کد تایید آزمایشی به ${otpSent === 'bale' ? 'پیام‌رسان بله' : 'ربات تلگرام'} ارسال شد (مثلاً ${toLocaleDigits('48291', lang)} را وارد کنید)`
+                : `Verification code sent via ${otpSent} bot (enter any 5 digits, e.g. 48291)`}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              dir="ltr"
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value)}
+              placeholder="48291"
+              className="w-32 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-400 text-xs text-center text-slate-900 dark:text-white focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold cursor-pointer"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{isFa ? 'تایید اتصال' : 'Confirm'}</span>
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+          {isFa ? 'تنظیمات تحویل خودکار پیام‌رسان' : 'Automated Bot Delivery Rules'}
+        </h3>
+        <div className="divide-y divide-slate-100 dark:divide-emerald-500/10">
+          {(
+            [
+              {
+                key: 'autoLicense',
+                fa: 'ارسال خودکار کلید لایسنس و لینک دانلود بلافاصله بعد از خرید ووکامرس',
+                en: 'Deliver software license keys & download links immediately after WooCommerce checkout',
+              },
+              {
+                key: 'lessonAlerts',
+                fa: 'اطلاع‌رسانی انتشار جلسات جدید و نمره تکالیف در تلگرام و بله',
+                en: 'Send notifications when new course lessons or assignment grades are posted',
+              },
+              {
+                key: 'otpLogin',
+                fa: 'فعال‌سازی ورود دو مرحله‌ای بدون نیاز به پیامک',
+                en: 'Enable zero-cost two-factor OTP authentication via Messenger Bot',
+              },
+            ] as const
+          ).map((item) => (
+            <label
+              key={item.key}
+              className="py-3 flex items-center justify-between gap-4 text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
+              <span>{isFa ? item.fa : item.en}</span>
+              <input
+                type="checkbox"
+                checked={prefs[item.key]}
+                onChange={() =>
+                  setPrefs((p) => ({ ...p, [item.key]: !p[item.key] }))
+                }
+                className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+              />
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* 3. Transactions & Licenses View */
+interface TransactionsViewProps {
+  lang: Lang;
+  transactions: Transaction[];
+}
+
+export const TransactionsView: React.FC<TransactionsViewProps> = ({
+  lang,
+  transactions,
+}) => {
+  const isFa = lang === 'fa';
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyLicense = (id: string, key: string) => {
+    navigator.clipboard.writeText(key);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1600);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
+          {isFa ? 'تراکنش‌ها و کلیدهای لایسنس نرم‌افزار' : 'Transactions & Software Licenses'}
+        </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          {isFa
+            ? 'تاریخچه سفارش‌های ووکامرس و کلیدهای فعال‌سازی نرم‌افزارهای حسابیار و پکیج‌های آموزشی.'
+            : 'WooCommerce order history and active license keys synced with Telegram & Bale.'}
+        </p>
+      </div>
+
+      <div className="rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-start border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-emerald-500/15 text-[11px] font-semibold text-slate-500 dark:text-emerald-200/60 bg-slate-50/70 dark:bg-[#08110E]">
+                <th className="py-3 px-4 text-start">{isFa ? 'شماره فاکتور' : 'Invoice'}</th>
+                <th className="py-3 px-4 text-start">{isFa ? 'محصول / دوره' : 'Item'}</th>
+                <th className="py-3 px-4 text-start">{isFa ? 'تاریخ' : 'Date'}</th>
+                <th className="py-3 px-4 text-end">{isFa ? 'مبلغ' : 'Amount'}</th>
+                <th className="py-3 px-4 text-start">{isFa ? 'لایسنس / وضعیت' : 'License / Status'}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-emerald-500/10 text-xs">
+              {transactions.map((tx) => (
+                <tr
+                  key={tx.id}
+                  className="hover:bg-slate-50/70 dark:hover:bg-emerald-950/20 transition-colors"
+                >
+                  <td className="py-3.5 px-4 tabular-nums font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {toLocaleDigits(tx.invoiceNo, lang)}
+                  </td>
+                  <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                    {isFa ? tx.item.fa : tx.item.en}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
+                    {isFa ? tx.date.fa : tx.date.en}
+                  </td>
+                  <td className="py-3.5 px-4 text-end tabular-nums font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                    {formatPrice(tx.amountToman, tx.amountUsd, lang)}
+                  </td>
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    {tx.licenseKey ? (
+                      <button
+                        type="button"
+                        onClick={() => handleCopyLicense(tx.id, tx.licenseKey!)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-slate-800 dark:text-emerald-300 font-mono text-[11px] cursor-pointer"
+                      >
+                        <KeyRound className="w-3 h-3 text-amber-500" />
+                        <span>{tx.licenseKey}</span>
+                        {copiedId === tx.id ? (
+                          <Check className="w-3 h-3 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-3 h-3 opacity-60" />
+                        )}
+                      </button>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                        {isFa ? 'پرداخت موفق · تحویل در ربات' : 'Paid · Bot Delivered'}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
