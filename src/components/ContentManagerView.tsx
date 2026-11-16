@@ -169,7 +169,6 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
     (p) => p.isDemo !== false && p.id.startsWith('prod-')
   ).length;
   const demoCoursesCount = courses.filter((c) => c.isDemo !== false).length;
-  const demoToolsCount = tools.filter((t) => t.isDemo !== false).length;
   const demoArticlesCount = articles.filter((a) => a.isDemo !== false).length;
 
   const triggerFeedback = (msg: string) => {
@@ -183,8 +182,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
     triggerFeedback(
       confirmTarget === 'all'
         ? isFa
-          ? 'تمام داده‌های نمونه (از جمله ابزارک نکات سریع مقالات) با موفقیت پاکسازی شدند.'
-          : 'All demo data has been cleared.'
+          ? 'تمام داده‌های نمونه (از جمله ابزارک نکات سریع مقالات) پاکسازی شدند و ابزارهای واقعی هوش مصنوعی دست‌نخورده باقی ماندند.'
+          : 'All demo data cleared while real AI Tools directory remained intact.'
         : isFa
         ? 'داده‌های نمونه این بخش پاکسازی شدند.'
         : 'Selected demo data cleared.'
@@ -1285,24 +1284,28 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
               icon: <Layers className="w-4 h-4 text-[#FFBA00]" />,
               label: isFa ? 'محصولات نرم‌افزاری' : 'Products',
               count: demoProductsCount,
+              protectedDir: false,
             },
             {
               key: 'courses' as const,
               icon: <BookOpen className="w-4 h-4 text-emerald-500" />,
               label: isFa ? 'دوره‌های آموزشی' : 'Courses',
               count: demoCoursesCount,
+              protectedDir: false,
             },
             {
               key: 'tools' as const,
               icon: <Cpu className="w-4 h-4 text-blue-500" />,
               label: isFa ? 'ابزارهای هوش مصنوعی' : 'AI Tools',
-              count: demoToolsCount,
+              count: tools.length,
+              protectedDir: true,
             },
             {
               key: 'articles' as const,
               icon: <FileText className="w-4 h-4 text-purple-500" />,
               label: isFa ? 'مقالات و ابزارک‌ها' : 'Articles & Tips',
               count: demoArticlesCount,
+              protectedDir: false,
             },
           ].map((box) => (
             <div
@@ -1315,11 +1318,20 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   <span>{box.label}</span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
-                  {toLocaleDigits(box.count, lang)}{' '}
-                  {isFa ? 'مورد نمونه فعال' : 'demo items'}
+                  {box.protectedDir ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      {toLocaleDigits(box.count, lang)}{' '}
+                      {isFa ? 'ابزار واقعی (محفوظ در پاکسازی دمو)' : 'real tools (protected)'}
+                    </span>
+                  ) : (
+                    <>
+                      {toLocaleDigits(box.count, lang)}{' '}
+                      {isFa ? 'مورد نمونه فعال' : 'demo items'}
+                    </>
+                  )}
                 </p>
               </div>
-              {box.count > 0 && (
+              {!box.protectedDir && box.count > 0 && (
                 <button
                   type="button"
                   onClick={() => setConfirmTarget(box.key)}
@@ -1328,6 +1340,12 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
+              )}
+              {box.protectedDir && (
+                <CheckCircle2
+                  className="w-4 h-4 text-emerald-500 shrink-0"
+                  aria-label={isFa ? 'محفوظ در پاکسازی دمو' : 'Protected directory'}
+                />
               )}
             </div>
           ))}

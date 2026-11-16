@@ -40,6 +40,7 @@ interface WebsiteShellProps {
   currentUser: UserProfile | null;
   onOpenAuth: () => void;
   siteConfig: SiteConfig;
+  wpRestUrl?: string;
   children: React.ReactNode;
 }
 
@@ -78,6 +79,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
   currentUser,
   onOpenAuth,
   siteConfig,
+  wpRestUrl,
   children,
 }) => {
   const isFa = lang === 'fa';
@@ -85,9 +87,22 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
   const [footerEmail, setFooterEmail] = useState('');
   const [footerSubscribed, setFooterSubscribed] = useState(false);
 
-  const handleFooterNewsletter = (e: React.FormEvent) => {
+  const handleFooterNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!footerEmail.includes('@')) return;
+    const cleaned = footerEmail.trim();
+    if (!cleaned.includes('@')) return;
+    if (wpRestUrl) {
+      try {
+        const base = wpRestUrl.replace(/\/$/, '');
+        await fetch(`${base}/newsletter`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channel: 'email', handle: cleaned }),
+        });
+      } catch {
+        // Keep graceful UX feedback
+      }
+    }
     setFooterSubscribed(true);
     setFooterEmail('');
   };

@@ -328,12 +328,11 @@ export default function App() {
         ? {
             products: true,
             courses: true,
-            tools: true,
             articles: true,
             ops: true,
           }
         : {}
-      : saved.clearedSections || {}
+      : { ...(saved.clearedSections || {}), tools: false }
   );
   const [customArticles, setCustomArticles] = useState<Article[]>(
     saved.customArticles || []
@@ -407,7 +406,7 @@ export default function App() {
   const tools: AITool[] = [
     ...wpTools,
     ...customTools,
-    ...(clearedSections.tools ? [] : AI_TOOLS_DATA),
+    ...AI_TOOLS_DATA,
   ];
 
   const articles: Article[] = [
@@ -644,7 +643,6 @@ export default function App() {
       setClearedSections({
         products: true,
         courses: true,
-        tools: true,
         articles: true,
         ops: true,
       });
@@ -656,7 +654,7 @@ export default function App() {
       if (wpRestUrl && currentUser?.isAdmin) {
         postWpEndpoint('admin/settings', { demoCleared: true });
       }
-    } else {
+    } else if (section !== 'tools') {
       setClearedSections((prev) => ({ ...prev, [section]: true }));
       if (section === 'articles') {
         setSiteConfig((prev) => ({
@@ -717,6 +715,7 @@ export default function App() {
           currentUser={currentUser}
           onOpenAuth={() => setAuthModalOpen(true)}
           siteConfig={siteConfig}
+          wpRestUrl={wpRestUrl}
         >
           {sitePage === 'home' && (
             <WebsiteHomeView
@@ -781,7 +780,9 @@ export default function App() {
             />
           )}
 
-          {sitePage === 'services' && <ServicesConsultationView lang={lang} />}
+          {sitePage === 'services' && (
+            <ServicesConsultationView lang={lang} wpRestUrl={wpRestUrl} />
+          )}
         </WebsiteShell>
 
         <AuthModal

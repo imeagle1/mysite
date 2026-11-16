@@ -522,6 +522,47 @@ add_action( 'rest_api_init', function() {
         },
     ] );
 
+    register_rest_route( 'iramo/v1', '/consultation', [
+        'methods'             => 'POST',
+        'permission_callback' => '__return_true',
+        'callback'            => function( WP_REST_Request $request ) {
+            $name    = sanitize_text_field( $request->get_param( 'name' ) );
+            $contact = sanitize_text_field( $request->get_param( 'contact' ) );
+            $type    = sanitize_text_field( $request->get_param( 'serviceType' ) ?: 'bot' );
+            $details = sanitize_textarea_field( $request->get_param( 'details' ) );
+
+            if ( empty( $name ) || empty( $contact ) ) {
+                return new WP_Error( 'missing_fields', 'نام و اطلاعات تماس الزامی است.', [ 'status' => 400 ] );
+            }
+
+            $leads = get_option( 'iramo_consultation_leads', [] );
+            if ( ! is_array( $leads ) ) $leads = [];
+            $leads[] = [
+                'name'        => $name,
+                'contact'     => $contact,
+                'serviceType' => $type,
+                'details'     => $details,
+                'created_at'  => current_time( 'mysql' ),
+            ];
+            update_option( 'iramo_consultation_leads', array_slice( $leads, -100 ) );
+
+            $admin_chat = get_option( 'iramo_admin_chat_id' );
+            if ( $admin_chat && class_exists( 'iRamo_Messenger_Bridge' ) ) {
+                $msg = sprintf(
+                    "<b>درخواست مشاوره جدید از سایت iRamoAi</b>\\nنام: %s\\nتماس: %s\\nحوزه: %s\\nتوضیحات: %s",
+                    esc_html( $name ),
+                    esc_html( $contact ),
+                    esc_html( $type ),
+                    esc_html( $details ?: '-' )
+                );
+                iRamo_Messenger_Bridge::send_message( 'telegram', $admin_chat, $msg );
+                iRamo_Messenger_Bridge::send_message( 'bale', $admin_chat, $msg );
+            }
+
+            return rest_ensure_response( [ 'success' => true ] );
+        },
+    ] );
+
     register_rest_route( 'iramo/v1', '/admin/settings', [
         'methods'             => 'POST',
         'permission_callback' => function() { return current_user_can( 'manage_options' ); },
@@ -1031,7 +1072,7 @@ function iramo_render_admin_control_page() {
     <div class="wrap" dir="rtl" style="max-width: 900px; font-family: Tahoma, sans-serif;">
         <h1>پنل کنترل کامل قالب و افزونه iRamoAi</h1>
         <?php if ( $status === 'purged' ) : ?>
-            <div class="notice notice-success is-dismissible"><p>تمام داده‌های نمونه (دوره‌ها، مقالات، نکات سریع روز و ابزارهای پیش‌فرض) با موفقیت پاکسازی شدند.</p></div>
+            <div class="notice notice-success is-dismissible"><p>تمام داده‌های نمونه (دوره‌ها، محصولات آزمایشی، مقالات و نکات سریع روز) پاکسازی شدند و پلتفرم‌های واقعی صفحه «ابزارهای هوش مصنوعی» دست‌نخورده حفظ شدند.</p></div>
         <?php elseif ( $status === 'installed' ) : ?>
             <div class="notice notice-success is-dismissible"><p>داده‌های نمونه مجدداً نصب شدند.</p></div>
         <?php endif; ?>
@@ -1185,7 +1226,7 @@ function iramo_render_admin_control_page() {
 
         <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
             <h2>مدیریت و پاکسازی داده‌های نمونه (Demo Data)</h2>
-            <p>در هر زمان می‌توانید تمام دوره‌ها، مقالات و ابزارهای نمونه اولیه را با یک کلیک حذف کنید تا سایت برای محتوای اختصاصی شما آماده شود.</p>
+            <p>در هر زمان می‌توانید دوره‌ها، محصولات و مقالات نمونه اولیه را با یک کلیک حذف کنید تا سایت برای محتوای اختصاصی شما آماده شود (لیست ابزارهای واقعی صفحه هوش مصنوعی همیشه حفظ می‌شود).</p>
             <div style="display:flex;gap:12px;margin-top:14px;">
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                     <?php wp_nonce_field( 'iramo_demo_nonce' ); ?>
@@ -1851,18 +1892,30 @@ permissions:
 jobs:
   build-wordpress-packages:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: '22'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --legacy-peer-deps --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund
+          else
+            npm install --legacy-peer-deps --no-audit --no-fund
+          fi
+
+      - name: Auto-activate uploaded custom fonts
+        run: node scripts/generate-custom-font-css.mjs
+
+      - name: TypeScript typecheck
+        run: npm run lint
 
       - name: Build WordPress Assets Bundle
         run: npm run build:wp
@@ -1875,4 +1928,5 @@ jobs:
         with:
           name: iramo-ai-wordpress-bundle
           path: release-wp/*.zip
+          if-no-files-found: error
 `;

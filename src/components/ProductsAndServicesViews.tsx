@@ -804,10 +804,12 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
 /* 3. Services & Project Consultation Page */
 interface ServicesConsultationViewProps {
   lang: Lang;
+  wpRestUrl?: string;
 }
 
 export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> = ({
   lang,
+  wpRestUrl,
 }) => {
   const isFa = lang === 'fa';
   const [name, setName] = useState('');
@@ -816,9 +818,26 @@ export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> =
   const [details, setDetails] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !contact.trim()) return;
+    if (wpRestUrl) {
+      try {
+        const base = wpRestUrl.replace(/\/$/, '');
+        await fetch(`${base}/consultation`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            contact: contact.trim(),
+            serviceType,
+            details: details.trim(),
+          }),
+        });
+      } catch {
+        // Fallback smoothly without blocking form confirmation
+      }
+    }
     setSubmitted(true);
   };
 

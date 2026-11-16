@@ -8,32 +8,31 @@ const releaseDir = path.join(root, 'release-wp');
 
 fs.mkdirSync(releaseDir, { recursive: true });
 
-// Read templates cleanly from src/data/wordpressPackage.ts by importing or extracting
+// Evaluate exports directly so PHP/CSS template escape sequences match TypeScript runtime identically
 const pkgSource = fs.readFileSync(
   path.join(root, 'src', 'data', 'wordpressPackage.ts'),
   'utf8'
 );
+const pkgExports = await import(
+  'data:text/javascript;base64,' + Buffer.from(pkgSource, 'utf8').toString('base64')
+);
 
-function extractTemplateLiteral(name) {
-  const regex = new RegExp(`export const ${name} = \`([\\s\\S]*?)\`;`);
-  const match = pkgSource.match(regex);
-  if (!match) {
-    throw new Error(`Missing constant ${name} in wordpressPackage.ts`);
+function getPackageString(name) {
+  const value = pkgExports[name];
+  if (typeof value !== 'string') {
+    throw new Error(`Missing export ${name} in wordpressPackage.ts`);
   }
-  return match[1]
-    .replace(/\\\\n/g, '\\n')
-    .replace(/\\\\Elementor/g, '\\Elementor')
-    .replace(/\\\\WP_Query/g, '\\WP_Query');
+  return value;
 }
 
 async function buildPluginZip() {
   const zip = new JSZip();
   const base = zip.folder('iramo-ai-suite');
 
-  base.file('iramo-ai-suite.php', extractTemplateLiteral('WP_PLUGIN_CORE_PHP'));
-  base.file('includes/admin-settings.php', extractTemplateLiteral('WP_ADMIN_SETTINGS_PHP'));
-  base.file('includes/elementor-widgets.php', extractTemplateLiteral('WP_ELEMENTOR_WIDGETS_PHP'));
-  base.file('includes/bot-bridge.php', extractTemplateLiteral('WP_BOT_BRIDGE_PHP'));
+  base.file('iramo-ai-suite.php', getPackageString('WP_PLUGIN_CORE_PHP'));
+  base.file('includes/admin-settings.php', getPackageString('WP_ADMIN_SETTINGS_PHP'));
+  base.file('includes/elementor-widgets.php', getPackageString('WP_ELEMENTOR_WIDGETS_PHP'));
+  base.file('includes/bot-bridge.php', getPackageString('WP_BOT_BRIDGE_PHP'));
 
   const assetsFolder = base.folder('assets');
   if (fs.existsSync(distAssetsDir)) {
@@ -79,13 +78,14 @@ async function buildThemeZip() {
   const zip = new JSZip();
   const base = zip.folder('iramo-ai-theme');
 
-  base.file('style.css', extractTemplateLiteral('WP_THEME_STYLE_CSS'));
-  base.file('functions.php', extractTemplateLiteral('WP_THEME_FUNCTIONS_PHP'));
-  base.file('index.php', extractTemplateLiteral('WP_THEME_INDEX_PHP'));
-  base.file('header.php', extractTemplateLiteral('WP_THEME_HEADER_PHP'));
-  base.file('footer.php', extractTemplateLiteral('WP_THEME_FOOTER_PHP'));
-  base.file('page.php', extractTemplateLiteral('WP_THEME_INDEX_PHP'));
-  base.file('templates/template-canvas.php', extractTemplateLiteral('WP_THEME_CANVAS_TEMPLATE_PHP'));
+  base.file('style.css', getPackageString('WP_THEME_STYLE_CSS'));
+  base.file('functions.php', getPackageString('WP_THEME_FUNCTIONS_PHP'));
+  base.file('index.php', getPackageString('WP_THEME_INDEX_PHP'));
+  base.file('header.php', getPackageString('WP_THEME_HEADER_PHP'));
+  base.file('footer.php', getPackageString('WP_THEME_FOOTER_PHP'));
+  base.file('page.php', getPackageString('WP_THEME_INDEX_PHP'));
+  base.file('templates/template-canvas.php', getPackageString('WP_THEME_CANVAS_TEMPLATE_PHP'));
+  base.file('elementor-templates/iramo-canvas-template.json', getPackageString('ELEMENTOR_TEMPLATE_JSON'));
 
   const out = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(releaseDir, 'iramo-ai-theme.zip'), out);
