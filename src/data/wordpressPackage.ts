@@ -56,6 +56,20 @@ add_action( 'init', function() {
         'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields' ],
     ] );
 
+    register_post_type( 'iramo_product', [
+        'labels' => [
+            'name'          => __( 'محصولات نرم‌افزاری iRamo', 'iramo-ai' ),
+            'singular_name' => __( 'محصول نرم‌افزاری', 'iramo-ai' ),
+            'add_new_item'  => __( 'افزودن محصول جدید', 'iramo-ai' ),
+        ],
+        'public'       => true,
+        'show_in_rest' => true,
+        'menu_icon'    => 'dashicons-products',
+        'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ],
+        'has_archive'  => true,
+        'rewrite'      => [ 'slug' => 'products' ],
+    ] );
+
     register_post_type( 'iramo_article', [
         'labels' => [
             'name'          => __( 'مقالات تخصصی iRamo', 'iramo-ai' ),
@@ -74,6 +88,185 @@ add_action( 'init', function() {
         'show_in_rest' => true,
         'hierarchical' => true,
     ] );
+} );
+
+/**
+ * 1.5 Native Meta Boxes for WooCommerce Products, iramo_product & iramo_ai_tool
+ * Every product or AI tool added here automatically inherits the iRamoAi card & 6-section landing page.
+ */
+add_action( 'add_meta_boxes', function() {
+    add_meta_box(
+        'iramo_product_landing_box',
+        __( 'تنظیمات لندینگ‌پیج خودکار iRamoAi', 'iramo-ai' ),
+        function( $post ) {
+            wp_nonce_field( 'iramo_save_product_meta', 'iramo_product_meta_nonce' );
+            $tagline       = get_post_meta( $post->ID, '_iramo_tagline', true );
+            $price_toman   = get_post_meta( $post->ID, '_iramo_price_toman', true );
+            $price_usd     = get_post_meta( $post->ID, '_iramo_price_usd', true );
+            $billing_label = get_post_meta( $post->ID, '_iramo_billing_label', true );
+            $accent        = get_post_meta( $post->ID, '_iramo_accent', true ) ?: 'emerald';
+            $linked_course = get_post_meta( $post->ID, '_iramo_linked_course_id', true );
+            $highlights    = get_post_meta( $post->ID, '_iramo_highlights', true );
+            $metrics       = get_post_meta( $post->ID, '_iramo_metrics', true );
+            ?>
+            <div dir="rtl" style="display:grid;gap:12px;">
+                <p class="description">هر محصولی که اینجا ثبت کنید، به‌صورت خودکار با قالب کارت، دکمه قیمت و لندینگ‌پیج ۶ بخشی iRamoAi نمایش داده می‌شود.</p>
+                <p><label><strong>شعار کوتاه زیر عنوان (Tagline):</strong></label><br/>
+                <input type="text" name="iramo_tagline" value="<?php echo esc_attr( $tagline ); ?>" style="width:100%;" placeholder="مثلاً: اتوماسیون کامل صدور فاکتور با دقت ۹۹٪" /></p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <p style="flex:1;min-width:160px;"><label><strong>قیمت تومان (اگر ووکامرس نباشد):</strong></label><br/>
+                    <input type="number" name="iramo_price_toman" value="<?php echo esc_attr( $price_toman ); ?>" style="width:100%;" placeholder="2900000" /></p>
+                    <p style="flex:1;min-width:140px;"><label><strong>قیمت دلار (اختیاری):</strong></label><br/>
+                    <input type="number" name="iramo_price_usd" value="<?php echo esc_attr( $price_usd ); ?>" style="width:100%;" placeholder="49" /></p>
+                    <p style="flex:1;min-width:160px;"><label><strong>نوع لایسنس:</strong></label><br/>
+                    <input type="text" name="iramo_billing_label" value="<?php echo esc_attr( $billing_label ); ?>" style="width:100%;" placeholder="لایسنس دائمی" /></p>
+                    <p style="flex:1;min-width:140px;"><label><strong>رنگ تاکیدی کارت:</strong></label><br/>
+                    <select name="iramo_accent" style="width:100%;">
+                        <option value="emerald" <?php selected( $accent, 'emerald' ); ?>>سبز زمردی</option>
+                        <option value="blue" <?php selected( $accent, 'blue' ); ?>>آبی برند</option>
+                        <option value="amber" <?php selected( $accent, 'amber' ); ?>>طلایی</option>
+                        <option value="indigo" <?php selected( $accent, 'indigo' ); ?>>نیلی</option>
+                    </select></p>
+                </div>
+                <p><label><strong>ویژگی‌های کلیدی (هر ویژگی در یک خط):</strong></label><br/>
+                <textarea name="iramo_highlights" rows="3" style="width:100%;" placeholder="پشتیبانی ۲۴ ساعته&#10;اتصال به تلگرام و بله&#10;نصب خودکار در ۵ دقیقه"><?php echo esc_textarea( $highlights ); ?></textarea></p>
+                <p><label><strong>آمار و متریک‌ها (فرمت: برچسب | مقدار در هر خط):</strong></label><br/>
+                <textarea name="iramo_metrics" rows="2" style="width:100%;" placeholder="دقت پردازش | ۹۹.۲٪&#10;صرفه‌جویی زمان | ۱۲ ساعت در هفته"><?php echo esc_textarea( $metrics ); ?></textarea></p>
+                <p><label><strong>آیدی دوره متصل آکادمی (برای باندل و ثبت‌نام خودکار):</strong></label><br/>
+                <input type="text" dir="ltr" name="iramo_linked_course_id" value="<?php echo esc_attr( $linked_course ); ?>" style="width:260px;" placeholder="course-ai-zero-pro" /></p>
+            </div>
+            <?php
+        },
+        [ 'product', 'iramo_product' ],
+        'normal',
+        'high'
+    );
+
+    add_meta_box(
+        'iramo_ai_tool_specs_box',
+        __( 'مشخصات و برچسب‌های دایرکتوری ابزار AI', 'iramo-ai' ),
+        function( $post ) {
+            wp_nonce_field( 'iramo_save_tool_meta', 'iramo_tool_meta_nonce' );
+            $provider    = get_post_meta( $post->ID, '_iramo_provider', true );
+            $tagline     = get_post_meta( $post->ID, '_iramo_tagline', true );
+            $task        = get_post_meta( $post->ID, '_iramo_task', true ) ?: 'AI Assistant';
+            $input       = get_post_meta( $post->ID, '_iramo_input', true ) ?: 'Text';
+            $output      = get_post_meta( $post->ID, '_iramo_output', true ) ?: 'Text';
+            $pricing     = get_post_meta( $post->ID, '_iramo_pricing', true ) ?: 'Freemium';
+            $tool_url    = get_post_meta( $post->ID, '_iramo_url', true );
+            $has_api     = get_post_meta( $post->ID, '_iramo_has_api', true );
+            $has_mobile  = get_post_meta( $post->ID, '_iramo_has_mobile', true );
+            $features    = get_post_meta( $post->ID, '_iramo_features', true );
+            $steps       = get_post_meta( $post->ID, '_iramo_steps', true );
+            $prompt_ex   = get_post_meta( $post->ID, '_iramo_sample_prompt', true );
+            ?>
+            <div dir="rtl" style="display:grid;gap:12px;">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <p style="flex:1;min-width:180px;"><label><strong>نام شرکت / پلتفرم سازنده:</strong></label><br/>
+                    <input type="text" name="iramo_provider" value="<?php echo esc_attr( $provider ); ?>" style="width:100%;" placeholder="OpenAI / Anthropic" /></p>
+                    <p style="flex:2;min-width:240px;"><label><strong>توضیح کوتاه کارت:</strong></label><br/>
+                    <input type="text" name="iramo_tagline" value="<?php echo esc_attr( $tagline ); ?>" style="width:100%;" /></p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <p style="flex:1;"><label><strong>دسته‌بندی (Task):</strong></label><br/>
+                    <select name="iramo_task" style="width:100%;">
+                        <?php foreach ( [ 'AI Assistant', 'Art & Image', 'Video Generation', '3D & Avatar', 'Code Assistant', 'Audio & Music', 'Data & Finance', 'Automation & Agents', 'Writing & SEO', 'Research & Study' ] as $opt ) : ?>
+                            <option value="<?php echo esc_attr( $opt ); ?>" <?php selected( $task, $opt ); ?>><?php echo esc_html( $opt ); ?></option>
+                        <?php endforeach; ?>
+                    </select></p>
+                    <p style="flex:1;"><label><strong>ورودی (Input):</strong></label><br/>
+                    <select name="iramo_input" style="width:100%;">
+                        <?php foreach ( [ 'Text', 'Prompt', 'Image', 'Audio', 'Video', 'Spreadsheet', 'Document' ] as $opt ) : ?>
+                            <option value="<?php echo esc_attr( $opt ); ?>" <?php selected( $input, $opt ); ?>><?php echo esc_html( $opt ); ?></option>
+                        <?php endforeach; ?>
+                    </select></p>
+                    <p style="flex:1;"><label><strong>خروجی (Output):</strong></label><br/>
+                    <select name="iramo_output" style="width:100%;">
+                        <?php foreach ( [ 'Text', 'Image', 'Video', '3D Model', 'Audio', 'Code', 'Dashboard', 'Workflow', 'Presentation' ] as $opt ) : ?>
+                            <option value="<?php echo esc_attr( $opt ); ?>" <?php selected( $output, $opt ); ?>><?php echo esc_html( $opt ); ?></option>
+                        <?php endforeach; ?>
+                    </select></p>
+                    <p style="flex:1;"><label><strong>مدل قیمت (Pricing):</strong></label><br/>
+                    <select name="iramo_pricing" style="width:100%;">
+                        <?php foreach ( [ 'Free', 'Freemium', 'Free Trial', 'Paid' ] as $opt ) : ?>
+                            <option value="<?php echo esc_attr( $opt ); ?>" <?php selected( $pricing, $opt ); ?>><?php echo esc_html( $opt ); ?></option>
+                        <?php endforeach; ?>
+                    </select></p>
+                </div>
+                <p><label><strong>لینک مستقیم ابزار (URL):</strong></label><br/>
+                <input type="url" dir="ltr" name="iramo_url" value="<?php echo esc_attr( $tool_url ); ?>" style="width:100%;" placeholder="https://..." /></p>
+                <p>
+                    <label style="margin-left:16px;"><input type="checkbox" name="iramo_has_api" value="1" <?php checked( $has_api, '1' ); ?> /> دارای API رسمی</label>
+                    <label><input type="checkbox" name="iramo_has_mobile" value="1" <?php checked( $has_mobile, '1' ); ?> /> دارای اپلیکیشن موبایل</label>
+                </p>
+                <p><label><strong>ویژگی‌های کلیدی صفحه جزئیات (هر مورد در یک خط):</strong></label><br/>
+                <textarea name="iramo_features" rows="3" style="width:100%;"><?php echo esc_textarea( $features ); ?></textarea></p>
+                <p><label><strong>مراحل گام‌به‌گام استفاده (هر مرحله در یک خط):</strong></label><br/>
+                <textarea name="iramo_steps" rows="3" style="width:100%;"><?php echo esc_textarea( $steps ); ?></textarea></p>
+                <p><label><strong>نمونه پرامپت آماده (اختیاری):</strong></label><br/>
+                <input type="text" name="iramo_sample_prompt" value="<?php echo esc_attr( $prompt_ex ); ?>" style="width:100%;" /></p>
+            </div>
+            <?php
+        },
+        'iramo_ai_tool',
+        'normal',
+        'high'
+    );
+} );
+
+add_action( 'save_post', function( $post_id ) {
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    if ( ! current_user_can( 'edit_post', $post_id ) ) return;
+
+    if ( isset( $_POST['iramo_product_meta_nonce'] ) && wp_verify_nonce( $_POST['iramo_product_meta_nonce'], 'iramo_save_product_meta' ) ) {
+        $text_keys = [
+            '_iramo_tagline'          => 'iramo_tagline',
+            '_iramo_price_toman'      => 'iramo_price_toman',
+            '_iramo_price_usd'        => 'iramo_price_usd',
+            '_iramo_billing_label'    => 'iramo_billing_label',
+            '_iramo_accent'           => 'iramo_accent',
+            '_iramo_linked_course_id' => 'iramo_linked_course_id',
+        ];
+        foreach ( $text_keys as $meta_key => $field ) {
+            if ( isset( $_POST[ $field ] ) ) {
+                update_post_meta( $post_id, $meta_key, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+            }
+        }
+        if ( isset( $_POST['iramo_highlights'] ) ) {
+            update_post_meta( $post_id, '_iramo_highlights', sanitize_textarea_field( wp_unslash( $_POST['iramo_highlights'] ) ) );
+        }
+        if ( isset( $_POST['iramo_metrics'] ) ) {
+            update_post_meta( $post_id, '_iramo_metrics', sanitize_textarea_field( wp_unslash( $_POST['iramo_metrics'] ) ) );
+        }
+    }
+
+    if ( isset( $_POST['iramo_tool_meta_nonce'] ) && wp_verify_nonce( $_POST['iramo_tool_meta_nonce'], 'iramo_save_tool_meta' ) ) {
+        $tool_fields = [
+            '_iramo_provider'      => 'iramo_provider',
+            '_iramo_tagline'       => 'iramo_tagline',
+            '_iramo_task'          => 'iramo_task',
+            '_iramo_input'         => 'iramo_input',
+            '_iramo_output'        => 'iramo_output',
+            '_iramo_pricing'       => 'iramo_pricing',
+            '_iramo_sample_prompt' => 'iramo_sample_prompt',
+        ];
+        foreach ( $tool_fields as $meta_key => $field ) {
+            if ( isset( $_POST[ $field ] ) ) {
+                update_post_meta( $post_id, $meta_key, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+            }
+        }
+        if ( isset( $_POST['iramo_url'] ) ) {
+            update_post_meta( $post_id, '_iramo_url', esc_url_raw( wp_unslash( $_POST['iramo_url'] ) ) );
+        }
+        update_post_meta( $post_id, '_iramo_has_api', ! empty( $_POST['iramo_has_api'] ) ? '1' : '0' );
+        update_post_meta( $post_id, '_iramo_has_mobile', ! empty( $_POST['iramo_has_mobile'] ) ? '1' : '0' );
+        if ( isset( $_POST['iramo_features'] ) ) {
+            update_post_meta( $post_id, '_iramo_features', sanitize_textarea_field( wp_unslash( $_POST['iramo_features'] ) ) );
+        }
+        if ( isset( $_POST['iramo_steps'] ) ) {
+            update_post_meta( $post_id, '_iramo_steps', sanitize_textarea_field( wp_unslash( $_POST['iramo_steps'] ) ) );
+        }
+    }
 } );
 
 /**
@@ -133,6 +326,257 @@ add_action( 'rest_api_init', function() {
 } );
 
 /**
+ * 3.5 Serialize Published WooCommerce & CPT Items into App Data Payloads
+ */
+function iramo_collect_wp_products() {
+    $posts = get_posts( [
+        'post_type'      => [ 'product', 'iramo_product' ],
+        'post_status'    => 'publish',
+        'posts_per_page' => 50,
+    ] );
+    $items = [];
+    foreach ( $posts as $p ) {
+        $pid       = $p->ID;
+        $title     = get_the_title( $pid );
+        $excerpt   = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $p->post_content, 28 ) );
+        $thumb     = get_the_post_thumbnail_url( $pid, 'large' ) ?: '';
+        $tagline   = get_post_meta( $pid, '_iramo_tagline', true ) ?: $excerpt;
+        $price_tom = (int) get_post_meta( $pid, '_iramo_price_toman', true );
+        $price_usd = (int) get_post_meta( $pid, '_iramo_price_usd', true );
+        $cat_label = 'محصول نرم‌افزاری';
+
+        if ( $p->post_type === 'product' && function_exists( 'wc_get_product' ) ) {
+            $wc = wc_get_product( $pid );
+            if ( $wc ) {
+                if ( ! $price_tom && $wc->get_price() !== '' ) {
+                    $price_tom = (int) $wc->get_price();
+                }
+                if ( ! $tagline && $wc->get_short_description() ) {
+                    $tagline = wp_strip_all_tags( $wc->get_short_description() );
+                }
+            }
+            $terms = get_the_terms( $pid, 'product_cat' );
+            if ( is_array( $terms ) && ! empty( $terms ) ) {
+                $cat_label = $terms[0]->name;
+            }
+        }
+        if ( ! $price_usd && $price_tom > 0 ) {
+            $price_usd = max( 9, (int) round( $price_tom / 60000 ) );
+        }
+
+        $raw_hl     = get_post_meta( $pid, '_iramo_highlights', true );
+        $highlights = array_values( array_filter( array_map( 'trim', explode( "\\n", $raw_hl ) ) ) );
+        if ( empty( $highlights ) ) {
+            $highlights = [
+                'نصب سریع و آماده استفاده در سایت و پنل کاربری',
+                'اتصال یکپارچه با سیستم ثبت‌نام و درگاه پرداخت ووکامرس',
+                'پشتیبانی فنی و به‌روزرسانی منظم در پنل اختصاصی',
+            ];
+        }
+
+        $raw_metrics = get_post_meta( $pid, '_iramo_metrics', true );
+        $metrics     = [];
+        foreach ( array_filter( array_map( 'trim', explode( "\\n", $raw_metrics ) ) ) as $line ) {
+            $parts = array_map( 'trim', explode( '|', $line ) );
+            if ( count( $parts ) >= 2 ) {
+                $metrics[] = [
+                    'label' => [ 'fa' => $parts[0], 'en' => $parts[0] ],
+                    'value' => [ 'fa' => $parts[1], 'en' => $parts[1] ],
+                ];
+            }
+        }
+        if ( empty( $metrics ) ) {
+            $metrics = [
+                [ 'label' => [ 'fa' => 'راه‌اندازی', 'en' => 'Setup' ], 'value' => [ 'fa' => 'فوری', 'en' => 'Instant' ] ],
+                [ 'label' => [ 'fa' => 'پشتیبانی', 'en' => 'Support' ], 'value' => [ 'fa' => 'تیکت و ربات', 'en' => '24/7' ] ],
+            ];
+        }
+
+        $billing = get_post_meta( $pid, '_iramo_billing_label', true ) ?: 'لایسنس دائمی';
+        $accent  = get_post_meta( $pid, '_iramo_accent', true ) ?: 'emerald';
+        $linked  = get_post_meta( $pid, '_iramo_linked_course_id', true );
+
+        $checkout_url = ( $p->post_type === 'product' && function_exists( 'wc_get_checkout_url' ) )
+            ? add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() )
+            : get_permalink( $pid );
+
+        $items[] = [
+            'id'             => 'wp-prod-' . $pid,
+            'slug'           => $p->post_name ?: ( 'wp-prod-' . $pid ),
+            'name'           => [ 'fa' => $title, 'en' => $title ],
+            'category'       => [ 'fa' => $cat_label, 'en' => $cat_label ],
+            'tagline'        => [ 'fa' => $tagline ?: $title, 'en' => $tagline ?: $title ],
+            'description'    => [ 'fa' => $excerpt ?: $tagline, 'en' => $excerpt ?: $tagline ],
+            'accent'         => in_array( $accent, [ 'emerald', 'blue', 'amber', 'indigo' ], true ) ? $accent : 'emerald',
+            'thumbnail'      => $thumb,
+            'priceToman'     => $price_tom ?: 1900000,
+            'priceUsd'       => $price_usd ?: 29,
+            'billingLabel'   => [ 'fa' => $billing, 'en' => $billing ],
+            'highlights'     => [ 'fa' => $highlights, 'en' => $highlights ],
+            'demoMetrics'    => $metrics,
+            'linkedCourseId' => $linked ?: null,
+            'checkoutUrl'    => $checkout_url,
+            'isDemo'         => false,
+        ];
+    }
+    return $items;
+}
+
+function iramo_collect_wp_tools() {
+    $posts = get_posts( [
+        'post_type'      => 'iramo_ai_tool',
+        'post_status'    => 'publish',
+        'posts_per_page' => 100,
+    ] );
+    $items = [];
+    foreach ( $posts as $p ) {
+        $pid       = $p->ID;
+        $title     = get_the_title( $pid );
+        $desc      = wp_strip_all_tags( $p->post_content ?: get_the_excerpt( $pid ) );
+        $tagline   = get_post_meta( $pid, '_iramo_tagline', true ) ?: wp_trim_words( $desc, 16 );
+        $features  = array_values( array_filter( array_map( 'trim', explode( "\\n", get_post_meta( $pid, '_iramo_features', true ) ) ) ) );
+        $steps     = array_values( array_filter( array_map( 'trim', explode( "\\n", get_post_meta( $pid, '_iramo_steps', true ) ) ) ) );
+        $prompt_ex = get_post_meta( $pid, '_iramo_sample_prompt', true );
+
+        $items[] = [
+            'id'              => 'wp-tool-' . $pid,
+            'name'            => $title,
+            'provider'        => get_post_meta( $pid, '_iramo_provider', true ) ?: 'iRamo Partner',
+            'tagline'         => [ 'fa' => $tagline ?: $title, 'en' => $tagline ?: $title ],
+            'task'            => get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant',
+            'input'           => get_post_meta( $pid, '_iramo_input', true ) ?: 'Text',
+            'output'          => get_post_meta( $pid, '_iramo_output', true ) ?: 'Text',
+            'pricing'         => get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium',
+            'hasApi'          => get_post_meta( $pid, '_iramo_has_api', true ) === '1',
+            'hasMobileApp'    => get_post_meta( $pid, '_iramo_has_mobile', true ) === '1',
+            'verified'        => true,
+            'popularityScore' => 94,
+            'thumbnail'       => get_the_post_thumbnail_url( $pid, 'medium' ) ?: '',
+            'isDemo'          => false,
+            'url'             => get_post_meta( $pid, '_iramo_url', true ) ?: get_permalink( $pid ),
+            'description'     => [ 'fa' => $desc ?: $tagline, 'en' => $desc ?: $tagline ],
+            'longDescription' => [ 'fa' => [ $desc ?: $tagline ], 'en' => [ $desc ?: $tagline ] ],
+            'keyFeatures'     => ! empty( $features ) ? [ 'fa' => $features, 'en' => $features ] : null,
+            'steps'           => ! empty( $steps ) ? [ 'fa' => $steps, 'en' => $steps ] : null,
+            'samplePrompt'    => $prompt_ex ? [ 'fa' => $prompt_ex, 'en' => $prompt_ex ] : null,
+        ];
+    }
+    return $items;
+}
+
+function iramo_collect_wp_courses() {
+    $posts = get_posts( [
+        'post_type'      => 'iramo_course',
+        'post_status'    => 'publish',
+        'posts_per_page' => 50,
+    ] );
+    $items = [];
+    foreach ( $posts as $p ) {
+        $pid     = $p->ID;
+        $title   = get_the_title( $pid );
+        $desc    = wp_strip_all_tags( $p->post_content ?: get_the_excerpt( $pid ) ) ?: $title;
+        $excerpt = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $desc, 16 ) );
+        $author  = get_the_author_meta( 'display_name', $p->post_author ) ?: 'آکادمی iRamoAi';
+        $hours   = (int) ( get_post_meta( $pid, '_iramo_duration_hours', true ) ?: 12 );
+        $items[] = [
+            'id'            => 'wp-course-' . $pid,
+            'slug'          => $p->post_name ?: ( 'wp-course-' . $pid ),
+            'title'         => [ 'fa' => $title, 'en' => $title ],
+            'subtitle'      => [ 'fa' => $excerpt, 'en' => $excerpt ],
+            'description'   => [ 'fa' => $desc, 'en' => $desc ],
+            'category'      => 'AI',
+            'format'        => 'Video',
+            'durationTier'  => $hours > 15 ? 'long' : ( $hours >= 6 ? 'medium' : 'short' ),
+            'totalDuration' => [ 'fa' => $hours . ' ساعت', 'en' => $hours . ' hrs' ],
+            'lessonCount'   => 1,
+            'moduleCount'   => 1,
+            'enrolled'      => false,
+            'featured'      => false,
+            'isDemo'        => false,
+            'accentColor'   => 'emerald',
+            'thumbnail'     => get_the_post_thumbnail_url( $pid, 'large' ) ?: '',
+            'instructor'    => [ 'fa' => $author, 'en' => $author ],
+            'priceToman'    => (int) ( get_post_meta( $pid, '_iramo_price_toman', true ) ?: 2900000 ),
+            'priceUsd'      => (int) ( get_post_meta( $pid, '_iramo_price_usd', true ) ?: 49 ),
+            'modules'       => [
+                [
+                    'id'      => 'wp-mod-' . $pid . '-1',
+                    'title'   => [ 'fa' => 'فصل اول: معرفی و شروع سریع', 'en' => 'Module 1: Overview & Setup' ],
+                    'lessons' => [
+                        [
+                            'id'              => 'wp-lesson-' . $pid . '-1',
+                            'title'           => [ 'fa' => 'معرفی و شروع سریع دوره', 'en' => 'Course Overview & Setup' ],
+                            'duration'        => '18:00',
+                            'durationMinutes' => 18,
+                            'type'            => 'video',
+                            'isFreePreview'   => true,
+                            'summary'         => [ 'fa' => $excerpt, 'en' => $excerpt ],
+                            'keyTakeaways'    => [
+                                'fa' => [ 'آشنایی کامل با نقشه راه دوره' ],
+                                'en' => [ 'Complete course roadmap overview' ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+    return $items;
+}
+
+function iramo_collect_wp_articles() {
+    $posts = get_posts( [
+        'post_type'      => [ 'iramo_article', 'post' ],
+        'post_status'    => 'publish',
+        'posts_per_page' => 50,
+    ] );
+    $items = [];
+    foreach ( $posts as $p ) {
+        if ( $p->post_type === 'post' && $p->post_name === 'hello-world' ) {
+            continue;
+        }
+        $pid     = $p->ID;
+        $title   = get_the_title( $pid );
+        $content = wp_strip_all_tags( $p->post_content );
+        $excerpt = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $content, 24 ) );
+        $author  = get_the_author_meta( 'display_name', $p->post_author ) ?: 'تحریریه iRamoAi';
+        $wp_tags = get_the_tags( $pid );
+        $tags_fa = [];
+        if ( is_array( $wp_tags ) && ! empty( $wp_tags ) ) {
+            foreach ( array_slice( $wp_tags, 0, 4 ) as $t ) {
+                $tags_fa[] = $t->name;
+            }
+        }
+        if ( empty( $tags_fa ) ) {
+            $tags_fa = [ 'iRamoAi', 'مقاله تخصصی' ];
+        }
+        $items[] = [
+            'id'          => 'wp-art-' . $pid,
+            'slug'        => $p->post_name ?: ( 'wp-art-' . $pid ),
+            'title'       => [ 'fa' => $title, 'en' => $title ],
+            'excerpt'     => [ 'fa' => $excerpt, 'en' => $excerpt ],
+            'category'    => 'AI',
+            'tags'        => [ 'fa' => $tags_fa, 'en' => $tags_fa ],
+            'author'      => [ 'fa' => $author, 'en' => $author ],
+            'publishedAt' => [ 'fa' => get_the_date( 'j F Y', $pid ), 'en' => get_the_date( 'M j, Y', $pid ) ],
+            'readMinutes' => max( 2, (int) ceil( str_word_count( $content ) / 180 ) ),
+            'views'       => 140,
+            'featured'    => false,
+            'isDemo'      => false,
+            'thumbnail'   => get_the_post_thumbnail_url( $pid, 'large' ) ?: '',
+            'sections'    => [
+                [
+                    'id'      => 'sec-' . $pid . '-1',
+                    'heading' => [ 'fa' => $title, 'en' => $title ],
+                    'body'    => [ 'fa' => $content ?: $excerpt, 'en' => $content ?: $excerpt ],
+                ],
+            ],
+        ];
+    }
+    return $items;
+}
+
+/**
  * 4. Shortcode [iramo_lms] & [iramo_site]
  */
 function iramo_render_app_shortcode( $atts ) {
@@ -161,8 +605,12 @@ function iramo_render_app_shortcode( $atts ) {
         'readex'      => 'https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap',
         'noto-arabic' => 'https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap',
     ];
-    if ( $font_choice === 'custom' && ! empty( $options['custom_font_css_url'] ) ) {
-        wp_enqueue_style( 'iramo-custom-font', esc_url_raw( $options['custom_font_css_url'] ), [], null );
+    $custom_font_css_url = ! empty( $options['custom_font_css_url'] )
+        ? esc_url_raw( $options['custom_font_css_url'] )
+        : ( file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ? IRAMO_AI_URL . 'assets/fonts/custom-font.css' : '' );
+
+    if ( $font_choice === 'custom' && ! empty( $custom_font_css_url ) ) {
+        wp_enqueue_style( 'iramo-custom-font', $custom_font_css_url, [], IRAMO_AI_VERSION );
     } elseif ( isset( $font_urls[ $font_choice ] ) ) {
         wp_enqueue_style( 'iramo-active-font', $font_urls[ $font_choice ], [], null );
     }
@@ -205,6 +653,11 @@ function iramo_render_app_shortcode( $atts ) {
         'borderIntensity' => $options['border_intensity'] ?? 'subtle',
     ];
 
+    $wp_products = iramo_collect_wp_products();
+    $wp_tools    = iramo_collect_wp_tools();
+    $wp_courses  = iramo_collect_wp_courses();
+    $wp_articles = iramo_collect_wp_articles();
+
     ob_start();
     ?>
     <div
@@ -214,10 +667,15 @@ function iramo_render_app_shortcode( $atts ) {
       data-view="<?php echo esc_attr( $atts['view'] ); ?>"
       data-font="<?php echo esc_attr( $font_choice ); ?>"
       data-custom-font="<?php echo esc_attr( $options['custom_font_name'] ?? '' ); ?>"
+      data-custom-font-css-url="<?php echo esc_attr( $custom_font_css_url ); ?>"
       data-brand-name="<?php echo esc_attr( $options['brand_name'] ?? 'iRamoAi' ); ?>"
       data-color-config="<?php echo esc_attr( wp_json_encode( $color_config ) ); ?>"
       data-auth-config="<?php echo esc_attr( wp_json_encode( $auth_config ) ); ?>"
       data-quick-tips="<?php echo esc_attr( wp_json_encode( $quick_tips ) ); ?>"
+      data-products="<?php echo esc_attr( wp_json_encode( $wp_products ) ); ?>"
+      data-tools="<?php echo esc_attr( wp_json_encode( $wp_tools ) ); ?>"
+      data-courses="<?php echo esc_attr( wp_json_encode( $wp_courses ) ); ?>"
+      data-articles="<?php echo esc_attr( wp_json_encode( $wp_articles ) ); ?>"
       data-demo-cleared="<?php echo ! empty( $options['demo_cleared'] ) ? '1' : '0'; ?>"
       data-plugin-url="<?php echo esc_url( IRAMO_AI_URL ); ?>"
       data-user="<?php echo esc_attr( wp_json_encode( $user_payload ) ); ?>"
@@ -264,7 +722,7 @@ add_action( 'admin_post_iramo_manage_demo_data', function() {
     check_admin_referer( 'iramo_demo_nonce' );
 
     $action_type = sanitize_text_field( $_POST['demo_action'] ?? '' );
-    $post_types  = [ 'iramo_course', 'iramo_ai_tool', 'iramo_article' ];
+    $post_types  = [ 'iramo_product', 'iramo_course', 'iramo_ai_tool', 'iramo_article' ];
 
     if ( $action_type === 'purge_demo' ) {
         $demo_posts = get_posts( [
@@ -358,9 +816,10 @@ function iramo_render_admin_control_page() {
                     </td>
                 </tr>
                 <tr>
-                    <th>آدرس فایل CSS فونت اختصاصی</th>
+                    <th>آدرس فایل CSS فونت اختصاصی (اختیاری)</th>
                     <td>
-                        <input type="url" dir="ltr" name="iramo_ai_settings[custom_font_css_url]" value="<?php echo esc_attr( $opts['custom_font_css_url'] ?? '' ); ?>" class="regular-text" placeholder="https://yourdomain.ir/wp-content/uploads/fonts/fontface.css" />
+                        <input type="url" dir="ltr" name="iramo_ai_settings[custom_font_css_url]" value="<?php echo esc_attr( $opts['custom_font_css_url'] ?? '' ); ?>" class="regular-text" placeholder="assets/fonts/custom-font.css" />
+                        <p class="description">اگر فایل‌های فونت (.woff2) را در پوشه گیت‌هاب <code>public/fonts/</code> آپلود کرده باشید، به‌صورت خودکار داخل بسته افزونه قرار می‌گیرد و خالی گذاشتن این فیلد کافی است.</p>
                     </td>
                 </tr>
                 <tr>

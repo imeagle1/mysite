@@ -58,6 +58,18 @@ async function buildPluginZip() {
     }
   }
 
+  // Include public/fonts custom uploaded font files inside assets/fonts/
+  const fontsDir = path.join(root, 'public', 'fonts');
+  if (fs.existsSync(fontsDir)) {
+    const pluginFonts = base.folder('assets/fonts');
+    for (const file of fs.readdirSync(fontsDir)) {
+      const fullPath = path.join(fontsDir, file);
+      if (fs.statSync(fullPath).isFile()) {
+        pluginFonts.file(file, fs.readFileSync(fullPath));
+      }
+    }
+  }
+
   const out = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(path.join(releaseDir, 'iramo-ai-plugin.zip'), out);
   console.log('Generated release-wp/iramo-ai-plugin.zip');

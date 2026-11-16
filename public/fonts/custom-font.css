@@ -1,0 +1,41 @@
+/**
+ * iRamoAi Custom Font Stylesheet
+ * -------------------------------------------------------------------
+ * 1. فایل‌های فونت (.woff2) را داخل همین پوشه (public/fonts/) آپلود کنید.
+ * 2. در بلوک‌های زیر نام فایل واقعی فونت و نام Font Family دلخواه خود را وارد کنید.
+ * 3. سپس در تنظیمات قالب/افزونه، گزینه فونت را روی «فونت اختصاصی» گذاشته و نام را وارد نمایید.
+ */
+
+/*
+@font-face {
+  font-family: 'IramoCustomFont';
+  src: url('./CustomFont-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IramoCustomFont';
+  src: url('./CustomFont-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IramoCustomFont';
+  src: url('./CustomFont-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IramoCustomFont';
+  src: url('./CustomFont-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+*/

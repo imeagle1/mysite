@@ -31,6 +31,12 @@ import { SitePage, WebsiteShell } from './components/WebsiteShell';
 import { WordPressExportView } from './components/WordPressExportView';
 import { ARTICLES_DATA } from './data/articlesData';
 import {
+  courseAiImg,
+  courseBotImg,
+  courseHesabyarImg,
+  servicesNeuralImg,
+} from './assets/media';
+import {
   AI_TOOLS_DATA,
   ASSIGNMENTS_DATA,
   COURSES_DATA,
@@ -98,6 +104,7 @@ const DEFAULT_SITE_CONFIG: SiteConfig = {
   themeColors: DEFAULT_THEME_COLORS,
   fontFamily: 'vazirmatn',
   customFontName: '',
+  customFontCssUrl: '',
   showArticles: true,
   showAiTools: true,
   showServices: true,
@@ -128,6 +135,8 @@ interface SavedState {
   };
   customArticles?: Article[];
   customCourses?: Course[];
+  customProducts?: SoftwareProduct[];
+  customTools?: AITool[];
 }
 
 function readInitialState(): SavedState {
@@ -163,6 +172,7 @@ export default function App() {
 
   const wpFont = wpRoot?.dataset.font as PersianFontOption | undefined;
   const wpCustomFont = wpRoot?.dataset.customFont || '';
+  const wpCustomFontCssUrl = wpRoot?.dataset.customFontCssUrl || '';
   const wpBrandName = wpRoot?.dataset.brandName || '';
   let wpAuthConfig: Partial<AuthChannelsConfig> = {};
   if (wpRoot?.dataset.authConfig) {
@@ -193,6 +203,44 @@ export default function App() {
     }
   }
 
+  const parseWpJsonArray = <T,>(raw?: string): T[] => {
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? (parsed as T[]) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const wpProducts: SoftwareProduct[] = parseWpJsonArray<SoftwareProduct>(
+    wpRoot?.dataset.products
+  ).map((p) => ({
+    ...p,
+    thumbnail: p.thumbnail || courseHesabyarImg,
+  }));
+
+  const wpTools: AITool[] = parseWpJsonArray<AITool>(wpRoot?.dataset.tools).map(
+    (t) => ({
+      ...t,
+      thumbnail: t.thumbnail || servicesNeuralImg,
+    })
+  );
+
+  const wpCourses: Course[] = parseWpJsonArray<Course>(
+    wpRoot?.dataset.courses
+  ).map((c) => ({
+    ...c,
+    thumbnail: c.thumbnail || courseBotImg,
+  }));
+
+  const wpArticles: Article[] = parseWpJsonArray<Article>(
+    wpRoot?.dataset.articles
+  ).map((a) => ({
+    ...a,
+    thumbnail: a.thumbnail || courseAiImg,
+  }));
+
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => {
     const savedCfg = saved.siteConfig;
     const rawBrand = savedCfg?.brandTitle || wpBrandName || DEFAULT_SITE_CONFIG.brandTitle;
@@ -210,6 +258,7 @@ export default function App() {
       ...DEFAULT_SITE_CONFIG,
       ...(wpFont ? { fontFamily: wpFont } : {}),
       ...(wpCustomFont ? { customFontName: wpCustomFont } : {}),
+      ...(wpCustomFontCssUrl ? { customFontCssUrl: wpCustomFontCssUrl } : {}),
       ...(savedCfg || {}),
       brandTitle: normalizedBrand,
       themeColors: (() => {
@@ -273,6 +322,12 @@ export default function App() {
   const [customCourses, setCustomCourses] = useState<Course[]>(
     saved.customCourses || []
   );
+  const [customProducts, setCustomProducts] = useState<SoftwareProduct[]>(
+    saved.customProducts || []
+  );
+  const [customTools, setCustomTools] = useState<AITool[]>(
+    saved.customTools || []
+  );
 
   const [enrolledIds, setEnrolledIds] = useState<string[]>(
     saved.enrolledIds ||
@@ -289,12 +344,15 @@ export default function App() {
   );
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
 
-  // Derived active datasets (Demo + Custom)
-  const products: SoftwareProduct[] = clearedSections.products
-    ? []
-    : PRODUCTS_DATA;
+  // Derived active datasets (WordPress DB + Panel Custom + Optional Demo)
+  const products: SoftwareProduct[] = [
+    ...wpProducts,
+    ...customProducts,
+    ...(clearedSections.products ? [] : PRODUCTS_DATA),
+  ];
 
   const baseCourses: Course[] = [
+    ...wpCourses,
     ...customCourses,
     ...(clearedSections.courses ? [] : COURSES_DATA),
   ];
@@ -304,9 +362,14 @@ export default function App() {
     enrolled: enrolledIds.includes(c.id) || c.enrolled,
   }));
 
-  const tools: AITool[] = clearedSections.tools ? [] : AI_TOOLS_DATA;
+  const tools: AITool[] = [
+    ...wpTools,
+    ...customTools,
+    ...(clearedSections.tools ? [] : AI_TOOLS_DATA),
+  ];
 
   const articles: Article[] = [
+    ...wpArticles,
     ...customArticles,
     ...(clearedSections.articles ? [] : ARTICLES_DATA),
   ];
@@ -335,6 +398,31 @@ export default function App() {
           ] || FONT_STACKS.vazirmatn;
     root.style.setProperty('--font-fa', activeFontStack);
 
+    // Dynamically load custom @font-face stylesheet when custom font is selected
+    const customFontLinkId = 'iramo-dynamic-custom-font-css';
+    let customFontLink = document.getElementById(
+      customFontLinkId
+    ) as HTMLLinkElement | null;
+    if (siteConfig.fontFamily === 'custom') {
+      const pluginBase = wpRoot?.dataset.pluginUrl || '';
+      const fallbackCssUrl = pluginBase
+        ? `${pluginBase.replace(/\/$/, '')}/assets/fonts/custom-font.css`
+        : '/fonts/custom-font.css';
+      const resolvedCssUrl =
+        (siteConfig.customFontCssUrl || '').trim() || fallbackCssUrl;
+      if (!customFontLink) {
+        customFontLink = document.createElement('link');
+        customFontLink.id = customFontLinkId;
+        customFontLink.rel = 'stylesheet';
+        document.head.appendChild(customFontLink);
+      }
+      if (customFontLink.getAttribute('href') !== resolvedCssUrl) {
+        customFontLink.setAttribute('href', resolvedCssUrl);
+      }
+    } else if (customFontLink) {
+      customFontLink.remove();
+    }
+
     // Apply 60-30-10 dynamic color theme tokens
     applyThemeColorVariables(siteConfig.themeColors, theme);
 
@@ -351,6 +439,8 @@ export default function App() {
           clearedSections,
           customArticles,
           customCourses,
+          customProducts,
+          customTools,
         })
       );
     } catch {
@@ -366,6 +456,8 @@ export default function App() {
     clearedSections,
     customArticles,
     customCourses,
+    customProducts,
+    customTools,
   ]);
 
   useEffect(() => {
@@ -491,6 +583,14 @@ export default function App() {
     setEnrolledIds((prev) => [...prev, course.id]);
   };
 
+  const handleAddCustomProduct = (product: SoftwareProduct) => {
+    setCustomProducts((prev) => [product, ...prev]);
+  };
+
+  const handleAddCustomTool = (tool: AITool) => {
+    setCustomTools((prev) => [tool, ...prev]);
+  };
+
   const latestEnrolledCourses = courses.filter((c) => c.enrolled);
 
   // Render Public iRamoAi Website (Modern Light & Dark Modes supported)
@@ -532,6 +632,7 @@ export default function App() {
             <ProductsDemoView
               lang={lang}
               products={products}
+              courses={courses}
               selectedProductId={selectedProductId}
               onSelectProduct={setSelectedProductId}
               onOpenCourseInPanel={handleOpenCourseInPanel}
@@ -690,6 +791,8 @@ export default function App() {
                 onRestoreDemoData={handleRestoreDemoData}
                 onAddCustomArticle={handleAddCustomArticle}
                 onAddCustomCourse={handleAddCustomCourse}
+                onAddCustomProduct={handleAddCustomProduct}
+                onAddCustomTool={handleAddCustomTool}
               />
             )}
 

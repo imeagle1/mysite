@@ -29,6 +29,10 @@ import { courseAiImg, servicesNeuralImg } from '../assets/media';
 import { SoftwareProduct } from '../data/lmsData';
 import {
   AITool,
+  AIToolInput,
+  AIToolOutput,
+  AIToolPricing,
+  AIToolTask,
   Article,
   ArticleCategory,
   Course,
@@ -74,6 +78,7 @@ export interface SiteConfig {
   themeColors: ThemeColorConfig;
   fontFamily: PersianFontOption;
   customFontName: string;
+  customFontCssUrl?: string;
   showArticles: boolean;
   showAiTools: boolean;
   showServices: boolean;
@@ -95,6 +100,8 @@ interface ContentManagerViewProps {
   onRestoreDemoData: () => void;
   onAddCustomArticle: (article: Article) => void;
   onAddCustomCourse: (course: Course) => void;
+  onAddCustomProduct: (product: SoftwareProduct) => void;
+  onAddCustomTool: (tool: AITool) => void;
 }
 
 export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
@@ -109,6 +116,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
   onRestoreDemoData,
   onAddCustomArticle,
   onAddCustomCourse,
+  onAddCustomProduct,
+  onAddCustomTool,
 }) => {
   const isFa = lang === 'fa';
   const [confirmTarget, setConfirmTarget] = useState<
@@ -130,7 +139,35 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
   const [tipInputFa, setTipInputFa] = useState('');
   const [tipInputEn, setTipInputEn] = useState('');
 
-  const demoProductsCount = products.filter((p) => p.id.startsWith('prod-')).length;
+  // Quick Add Software Product Form (auto-inherits full Landing Page!)
+  const [prodName, setProdName] = useState('');
+  const [prodCategory, setProdCategory] = useState(
+    isFa ? 'اتوماسیون و هوش مصنوعی' : 'AI Automation'
+  );
+  const [prodTagline, setProdTagline] = useState('');
+  const [prodPriceToman, setProdPriceToman] = useState('1950000');
+  const [prodHighlights, setProdHighlights] = useState('');
+  const [prodLinkedCourse, setProdLinkedCourse] = useState('');
+
+  // Quick Add AI Tool Form (Full directory & feature page fields)
+  const [toolName, setToolName] = useState('');
+  const [toolProvider, setToolProvider] = useState('');
+  const [toolUrl, setToolUrl] = useState('https://');
+  const [toolTask, setToolTask] = useState<AIToolTask>('AI Assistant');
+  const [toolInput, setToolInput] = useState<AIToolInput>('Text');
+  const [toolOutput, setToolOutput] = useState<AIToolOutput>('Text');
+  const [toolPricing, setToolPricing] = useState<AIToolPricing>('Freemium');
+  const [toolTagline, setToolTagline] = useState('');
+  const [toolDesc, setToolDesc] = useState('');
+  const [toolFeatures, setToolFeatures] = useState('');
+  const [toolSteps, setToolSteps] = useState('');
+  const [toolSamplePrompt, setToolSamplePrompt] = useState('');
+  const [toolHasApi, setToolHasApi] = useState(true);
+  const [toolHasMobile, setToolHasMobile] = useState(false);
+
+  const demoProductsCount = products.filter(
+    (p) => p.isDemo !== false && p.id.startsWith('prod-')
+  ).length;
   const demoCoursesCount = courses.filter((c) => c.isDemo !== false).length;
   const demoToolsCount = tools.filter((t) => t.isDemo !== false).length;
   const demoArticlesCount = articles.filter((a) => a.isDemo !== false).length;
@@ -313,6 +350,149 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
     });
   };
 
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prodName.trim()) return;
+    const priceNum = Math.max(0, Number(prodPriceToman) || 0);
+    const parsedHighlights = prodHighlights
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const finalHighlights =
+      parsedHighlights.length > 0
+        ? parsedHighlights
+        : [
+            'نصب سریع روی وردپرس و سازگار با المنتور پرو',
+            'اتصال آماده به ربات تلگرام، پیام‌رسان بله و پنل پیامکی',
+            'دریافت خودکار آپدیت‌ها و پشتیبانی فنی',
+          ];
+
+    const newProd: SoftwareProduct = {
+      id: `custom-prod-${Date.now()}`,
+      slug: `product-${Date.now()}`,
+      name: { fa: prodName.trim(), en: prodName.trim() },
+      category: { fa: prodCategory.trim() || 'نرم‌افزار هوشمند', en: prodCategory.trim() || 'AI Software' },
+      tagline: {
+        fa: prodTagline.trim() || 'محصول نرم‌افزاری اختصاصی متصل به وردپرس و ربات',
+        en: prodTagline.trim() || 'Custom product integrated with WordPress & Messenger bots',
+      },
+      description: {
+        fa:
+          prodTagline.trim() ||
+          'این محصول به‌طور کامل با طراحی لندینگ اختصاصی، دکمه قیمت هوشمند و آزمایشگاه دمو در سایت شما نمایش داده می‌شود.',
+        en:
+          prodTagline.trim() ||
+          'Automatically rendered with the 6-section conversion landing page and sandbox demo.',
+      },
+      accent: 'emerald',
+      thumbnail: courseAiImg,
+      priceToman: priceNum,
+      priceUsd: Math.max(9, Math.round(priceNum / 60000)),
+      billingLabel: { fa: 'لایسنس رسمی + آپدیت', en: 'Pro License + Updates' },
+      highlights: { fa: finalHighlights, en: finalHighlights },
+      demoMetrics: [
+        { label: { fa: 'سرعت استقرار', en: 'Setup Time' }, value: { fa: 'زیر ۲ دقیقه', en: '< 2 min' } },
+        { label: { fa: 'سازگاری', en: 'Compatibility' }, value: { fa: 'وردپرس و ربات', en: 'WP & Bots' } },
+        { label: { fa: 'وضعیت تحویل', en: 'Delivery' }, value: { fa: 'آنی و خودکار', en: 'Instant' } },
+      ],
+      linkedCourseId: prodLinkedCourse || undefined,
+      isDemo: false,
+    };
+
+    onAddCustomProduct(newProd);
+    setProdName('');
+    setProdTagline('');
+    setProdHighlights('');
+    triggerFeedback(
+      isFa
+        ? 'محصول جدید با لندینگ پیج کامل ۶ بخشی به ویترین سایت اضافه شد!'
+        : 'New product with auto-inherited 6-section landing page added!'
+    );
+  };
+
+  const handleCreateTool = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!toolName.trim()) return;
+    const featuresList = toolFeatures
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const stepsList = toolSteps
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const finalFeatures =
+      featuresList.length > 0
+        ? featuresList
+        : ['پاسخگویی سریع و دقیق', 'قابلیت یکپارچه‌سازی با جریان‌های کاری', 'خروجی آماده برای تیم‌ها'];
+    const finalSteps =
+      stepsList.length > 0
+        ? stepsList
+        : ['ورود به سایت ابزار و ساخت حساب کاربری', 'وارد کردن ورودی یا پرامپت هدف', 'دریافت خروجی و استفاده در پروژه'];
+
+    const newTool: AITool = {
+      id: `custom-tool-${Date.now()}`,
+      name: toolName.trim(),
+      provider: toolProvider.trim() || 'Independent AI',
+      tagline: {
+        fa: toolTagline.trim() || 'ابزار هوشمند تخصصی برای افزایش بهره‌وری',
+        en: toolTagline.trim() || 'Specialized AI productivity tool',
+      },
+      task: toolTask,
+      subCategory: { fa: 'ابزار پیشنهادی مدیر', en: 'Curated Tool' },
+      input: toolInput,
+      output: toolOutput,
+      pricing: toolPricing,
+      roles: ['Creator', 'Developer', 'Business'],
+      hasApi: toolHasApi,
+      hasMobileApp: toolHasMobile,
+      verified: true,
+      popularityScore: 95,
+      usersCount: 12000,
+      likes: 48,
+      dislikes: 2,
+      thumbnail: servicesNeuralImg,
+      isDemo: false,
+      url: toolUrl.trim().startsWith('http') ? toolUrl.trim() : `https://${toolUrl.trim()}`,
+      description: {
+        fa: toolDesc.trim() || toolTagline.trim() || 'توضیحات کامل ابزار اضافه شده توسط مدیر سایت.',
+        en: toolDesc.trim() || toolTagline.trim() || 'Full tool details configured by site admin.',
+      },
+      longDescription: {
+        fa: [
+          toolDesc.trim() || `${toolName.trim()} یک ابزار کاربردی در حوزه ${toolTask} است که توسط مدیر سایت به دایرکتوری اضافه شده است.`,
+        ],
+        en: [
+          toolDesc.trim() || `${toolName.trim()} is a specialized tool in ${toolTask} curated in this directory.`,
+        ],
+      },
+      keyFeatures: { fa: finalFeatures, en: finalFeatures },
+      whoIsItFor: {
+        fa: ['توسعه‌دهندگان و سازندگان محتوا', 'کسب‌وکارهای دیجیتال و تیم‌های محصول'],
+        en: ['Creators & Developers', 'Digital Businesses & Product Teams'],
+      },
+      steps: { fa: finalSteps, en: finalSteps },
+      samplePrompt: toolSamplePrompt.trim()
+        ? { fa: toolSamplePrompt.trim(), en: toolSamplePrompt.trim() }
+        : undefined,
+    };
+
+    onAddCustomTool(newTool);
+    setToolName('');
+    setToolProvider('');
+    setToolTagline('');
+    setToolDesc('');
+    setToolFeatures('');
+    setToolSteps('');
+    setToolSamplePrompt('');
+    triggerFeedback(
+      isFa
+        ? 'ابزار هوش مصنوعی جدید با صفحه جزئیات و ویژگی‌های کامل اضافه شد!'
+        : 'New AI Tool added with full feature breakdown page!'
+    );
+  };
+
   const authChannelItems: {
     key: AuthMethodKey;
     fa: string;
@@ -423,19 +603,39 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             </select>
 
             {siteConfig.fontFamily === 'custom' && (
-              <input
-                type="text"
-                dir="ltr"
-                value={siteConfig.customFontName}
-                onChange={(e) =>
-                  onUpdateSiteConfig({
-                    ...siteConfig,
-                    customFontName: e.target.value,
-                  })
-                }
-                placeholder="IRANSansX, YekanBakh, Peyda"
-                className="w-full mt-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[#FFBA00]/50 text-xs text-slate-900 dark:text-white focus:outline-none"
-              />
+              <div className="space-y-2 mt-2">
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={siteConfig.customFontName}
+                  onChange={(e) =>
+                    onUpdateSiteConfig({
+                      ...siteConfig,
+                      customFontName: e.target.value,
+                    })
+                  }
+                  placeholder="IramoCustomFont (نام font-family)"
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[#FFBA00]/50 text-xs text-slate-900 dark:text-white focus:outline-none"
+                />
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={siteConfig.customFontCssUrl || ''}
+                  onChange={(e) =>
+                    onUpdateSiteConfig({
+                      ...siteConfig,
+                      customFontCssUrl: e.target.value,
+                    })
+                  }
+                  placeholder="/fonts/custom-font.css یا لینک فایل CSS فونت"
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none"
+                />
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {isFa
+                    ? 'فایل‌های فونت (.woff2) را در پوشه public/fonts گیت‌هاب یا هاست آپلود کنید و کد @font-face را در /fonts/custom-font.css فعال نمایید.'
+                    : 'Upload .woff2 files to public/fonts/ in GitHub and activate @font-face in /fonts/custom-font.css.'}
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -1229,6 +1429,260 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
           >
             {isFa ? 'افزودن دوره به آکادمی' : 'Add Course'}
           </button>
+        </form>
+      </div>
+
+      {/* 6. Full Add Custom Product (Auto-Inherits 6-Section Landing) & Add AI Tool (Full Features) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <form
+          onSubmit={handleCreateProduct}
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+              <Layers className="w-4 h-4 text-[var(--iramo-primary)]" />
+              <span>{isFa ? 'افزودن محصول نرم‌افزاری جدید (با لندینگ خودکار)' : 'Add Software Product (Auto Landing)'}</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {isFa
+                ? 'هر محصولی که اینجا (یا در ووکامرس وردپرس) بسازید، خودکار با کارت، دکمه قیمت و لندینگ ۶ بخشی کامل نمایش داده می‌شود.'
+                : 'Every product created here (or in WooCommerce) automatically renders with the full 6-section landing page.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="text"
+              required
+              value={prodName}
+              onChange={(e) => setProdName(e.target.value)}
+              placeholder={isFa ? 'نام محصول (مثلاً: ربات منشی کلینیک)...' : 'Product name...'}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+            <input
+              type="text"
+              value={prodCategory}
+              onChange={(e) => setProdCategory(e.target.value)}
+              placeholder={isFa ? 'دسته‌بندی محصول...' : 'Category...'}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="number"
+              min="0"
+              value={prodPriceToman}
+              onChange={(e) => setProdPriceToman(e.target.value)}
+              placeholder={isFa ? 'قیمت به تومان' : 'Price (Toman)'}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+            <select
+              value={prodLinkedCourse}
+              onChange={(e) => setProdLinkedCourse(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            >
+              <option value="">
+                {isFa ? 'اتصال به دوره آموزشی (اختیاری)' : 'Link Course (Optional)'}
+              </option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {isFa ? c.title.fa : c.title.en}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <input
+            type="text"
+            value={prodTagline}
+            onChange={(e) => setProdTagline(e.target.value)}
+            placeholder={isFa ? 'تیتر ارزش پیشنهادی و معرفی کوتاه...' : 'Headline value proposition...'}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+          />
+
+          <textarea
+            rows={3}
+            value={prodHighlights}
+            onChange={(e) => setProdHighlights(e.target.value)}
+            placeholder={
+              isFa
+                ? 'ویژگی‌های کلیدی محصول (هر ویژگی در یک خط جدید)...'
+                : 'Key highlights (one feature per line)...'
+            }
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+          />
+
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-xl bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] text-xs font-bold cursor-pointer transition-colors"
+          >
+            {isFa ? 'ساخت محصول و لندینگ اختصاصی' : 'Create Product + Landing Page'}
+          </button>
+        </form>
+
+        <form
+          onSubmit={handleCreateTool}
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+              <Cpu className="w-4 h-4 text-[#FFBA00]" />
+              <span>{isFa ? 'افزودن ابزار هوش مصنوعی با ویژگی‌های کامل' : 'Add AI Tool with Full Features'}</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {isFa
+                ? 'ابزار جدید مستقیماً به دایرکتوری اضافه می‌شود و هنگام کلیک، صفحه کامل جزئیات، ویژگی‌ها، مراحل و پرامپت نمونه را نشان می‌دهد.'
+                : 'Appears in the AI Tools Hub with a complete detail page, steps, and sample prompt.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input
+              type="text"
+              required
+              value={toolName}
+              onChange={(e) => setToolName(e.target.value)}
+              placeholder={isFa ? 'نام ابزار (مثلاً Cursor AI)...' : 'Tool name...'}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+            <input
+              type="text"
+              value={toolProvider}
+              onChange={(e) => setToolProvider(e.target.value)}
+              placeholder={isFa ? 'شرکت سازنده...' : 'Provider...'}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+            <input
+              type="text"
+              dir="ltr"
+              value={toolUrl}
+              onChange={(e) => setToolUrl(e.target.value)}
+              placeholder="https://example.ai"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <select
+              value={toolTask}
+              onChange={(e) => setToolTask(e.target.value as AIToolTask)}
+              className="w-full px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-[11px] text-slate-900 dark:text-white focus:outline-none"
+            >
+              <option value="AI Assistant">AI Assistant</option>
+              <option value="Video Generation">Video Generation</option>
+              <option value="Art & Image">Art & Image</option>
+              <option value="Code Assistant">Code Assistant</option>
+              <option value="Audio & Music">Audio & Music</option>
+              <option value="Data & Finance">Data & Finance</option>
+              <option value="Automation & Agents">Automation & Agents</option>
+              <option value="Writing & SEO">Writing & SEO</option>
+              <option value="Research & Study">Research & Study</option>
+              <option value="3D & Avatar">3D & Avatar</option>
+            </select>
+
+            <select
+              value={toolInput}
+              onChange={(e) => setToolInput(e.target.value as AIToolInput)}
+              className="w-full px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-[11px] text-slate-900 dark:text-white focus:outline-none"
+            >
+              <option value="Text">{isFa ? 'ورودی: متن' : 'In: Text'}</option>
+              <option value="Prompt">{isFa ? 'ورودی: پرامپت' : 'In: Prompt'}</option>
+              <option value="Image">{isFa ? 'ورودی: تصویر' : 'In: Image'}</option>
+              <option value="Video">{isFa ? 'ورودی: ویدیو' : 'In: Video'}</option>
+              <option value="Audio">{isFa ? 'ورودی: صدا' : 'In: Audio'}</option>
+              <option value="Document">{isFa ? 'ورودی: سند/PDF' : 'In: Doc'}</option>
+              <option value="Spreadsheet">{isFa ? 'ورودی: اکسل' : 'In: Sheet'}</option>
+            </select>
+
+            <select
+              value={toolOutput}
+              onChange={(e) => setToolOutput(e.target.value as AIToolOutput)}
+              className="w-full px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-[11px] text-slate-900 dark:text-white focus:outline-none"
+            >
+              <option value="Text">{isFa ? 'خروجی: متن' : 'Out: Text'}</option>
+              <option value="Code">{isFa ? 'خروجی: کد' : 'Out: Code'}</option>
+              <option value="Image">{isFa ? 'خروجی: تصویر' : 'Out: Image'}</option>
+              <option value="Video">{isFa ? 'خروجی: ویدیو' : 'Out: Video'}</option>
+              <option value="Audio">{isFa ? 'خروجی: صدا' : 'Out: Audio'}</option>
+              <option value="Workflow">{isFa ? 'خروجی: اتوماسیون' : 'Out: Workflow'}</option>
+              <option value="Dashboard">{isFa ? 'خروجی: داشبورد' : 'Out: Dashboard'}</option>
+            </select>
+
+            <select
+              value={toolPricing}
+              onChange={(e) => setToolPricing(e.target.value as AIToolPricing)}
+              className="w-full px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-[11px] text-slate-900 dark:text-white focus:outline-none"
+            >
+              <option value="Free">{isFa ? 'رایگان' : 'Free'}</option>
+              <option value="Freemium">{isFa ? 'فریمیوم' : 'Freemium'}</option>
+              <option value="Free Trial">{isFa ? 'تست رایگان' : 'Free Trial'}</option>
+              <option value="Paid">{isFa ? 'پولی' : 'Paid'}</option>
+            </select>
+          </div>
+
+          <input
+            type="text"
+            value={toolTagline}
+            onChange={(e) => setToolTagline(e.target.value)}
+            placeholder={isFa ? 'معرفی یک‌خطی ابزار...' : 'One-line tagline...'}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <textarea
+              rows={2}
+              value={toolFeatures}
+              onChange={(e) => setToolFeatures(e.target.value)}
+              placeholder={
+                isFa
+                  ? 'ویژگی‌های ابزار (هر مورد در یک خط)...'
+                  : 'Key features (one per line)...'
+              }
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+            <textarea
+              rows={2}
+              value={toolSteps}
+              onChange={(e) => setToolSteps(e.target.value)}
+              placeholder={
+                isFa
+                  ? 'مراحل کار با ابزار (هر مرحله در یک خط)...'
+                  : 'How-to steps (one per line)...'
+              }
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-300">
+              <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={toolHasApi}
+                  onChange={() => setToolHasApi((v) => !v)}
+                  className="accent-[#FFBA00] rounded"
+                />
+                <span>{isFa ? 'دارای API' : 'Has API'}</span>
+              </label>
+              <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={toolHasMobile}
+                  onChange={() => setToolHasMobile((v) => !v)}
+                  className="accent-[#FFBA00] rounded"
+                />
+                <span>{isFa ? 'اپلیکیشن موبایل' : 'Mobile App'}</span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="px-4 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
+            >
+              {isFa ? 'افزودن ابزار به دایرکتوری AI' : 'Add AI Tool'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

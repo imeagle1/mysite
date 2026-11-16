@@ -31,6 +31,11 @@ export interface SoftwareProduct {
   highlights: { fa: string[]; en: string[] };
   demoMetrics: { label: BiText; value: { fa: string; en: string } }[];
   linkedCourseId?: string;
+  howItWorks?: { title: BiText; desc: BiText }[];
+  whoIsItFor?: { fa: string[]; en: string[] };
+  faqs?: { q: BiText; a: BiText }[];
+  checkoutUrl?: string;
+  isDemo?: boolean;
 }
 
 export const PRODUCTS_DATA: SoftwareProduct[] = [
