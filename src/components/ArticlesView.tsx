@@ -28,6 +28,7 @@ interface ArticlesViewProps {
   quickTips: QuickTipItem[];
   featuredProduct: SoftwareProduct | null;
   authChannels: AuthChannelsConfig;
+  wpRestUrl?: string;
   onOpenCourseInPanel: (courseId: string) => void;
   onNavigateToProducts: () => void;
 }
@@ -38,6 +39,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
   quickTips,
   featuredProduct,
   authChannels,
+  wpRestUrl,
   onOpenCourseInPanel,
   onNavigateToProducts,
 }) => {
@@ -119,6 +121,16 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterHandle.trim()) return;
+    if (wpRestUrl) {
+      fetch(`${wpRestUrl.replace(/\/$/, '')}/newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: newsletterChannel,
+          handle: newsletterHandle.trim(),
+        }),
+      }).catch(() => {});
+    }
     setNewsletterSubscribed(true);
   };
 

@@ -155,6 +155,24 @@ export default function App() {
       ? document.getElementById('iramo-lms-root')
       : null;
   const wpDemoCleared = wpRoot?.dataset.demoCleared === '1';
+  const wpRestUrl = wpRoot?.dataset.restUrl || '';
+  const initialWpNonce = wpRoot?.dataset.wpNonce || '';
+
+  let wpUser: UserProfile | null = null;
+  if (wpRoot?.dataset.user && wpRoot.dataset.user !== 'null') {
+    try {
+      const parsedUser = JSON.parse(wpRoot.dataset.user);
+      if (parsedUser && typeof parsedUser === 'object' && parsedUser.name) {
+        wpUser = parsedUser as UserProfile;
+      }
+    } catch {
+      wpUser = null;
+    }
+  }
+
+  const [wpNonce, setWpNonce] = useState<string>(
+    wpUser?.nonce || initialWpNonce
+  );
 
   const [lang, setLang] = useState<Lang>(
     saved.lang || (wpRoot?.dataset.lang === 'en' ? 'en' : 'fa')
@@ -163,7 +181,7 @@ export default function App() {
     saved.theme || (wpRoot?.dataset.theme === 'dark' ? 'dark' : 'light')
   );
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(
-    saved.user ?? null
+    wpRestUrl ? wpUser : saved.user ?? null
   );
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingCourseAfterAuth, setPendingCourseAfterAuth] = useState<
@@ -305,8 +323,8 @@ export default function App() {
     articles?: boolean;
     ops?: boolean;
   }>(
-    saved.clearedSections ||
-      (wpDemoCleared
+    wpRestUrl
+      ? wpDemoCleared
         ? {
             products: true,
             courses: true,
@@ -314,7 +332,8 @@ export default function App() {
             articles: true,
             ops: true,
           }
-        : {})
+        : {}
+      : saved.clearedSections || {}
   );
   const [customArticles, setCustomArticles] = useState<Article[]>(
     saved.customArticles || []
@@ -329,18 +348,41 @@ export default function App() {
     saved.customTools || []
   );
 
-  const [enrolledIds, setEnrolledIds] = useState<string[]>(
-    saved.enrolledIds ||
+  const [enrolledIds, setEnrolledIds] = useState<string[]>(() => {
+    if (wpRestUrl) {
+      const wpEnrolled = wpUser?.enrolled || [];
+      if (wpDemoCleared) return wpEnrolled;
+      return Array.from(
+        new Set([
+          ...wpEnrolled,
+          ...COURSES_DATA.filter((c) => c.enrolled).map((c) => c.id),
+        ])
+      );
+    }
+    return (
+      saved.enrolledIds ||
       COURSES_DATA.filter((c) => c.enrolled).map((c) => c.id)
-  );
-  const [completedLessons, setCompletedLessons] = useState<string[]>(
-    saved.completedLessons || ['ai-l1', 'bot-l1', 'hes-l1']
-  );
+    );
+  });
 
-  const [assignments, setAssignments] =
-    useState<Assignment[]>(ASSIGNMENTS_DATA);
+  const [completedLessons, setCompletedLessons] = useState<string[]>(() => {
+    if (wpRestUrl) {
+      return wpUser?.completed || [];
+    }
+    return saved.completedLessons || ['ai-l1', 'bot-l1', 'hes-l1'];
+  });
+
+  const [assignments, setAssignments] = useState<Assignment[]>(() => {
+    if (wpRestUrl && wpUser?.assignments) {
+      return wpUser.assignments;
+    }
+    return wpDemoCleared ? [] : ASSIGNMENTS_DATA;
+  });
+  const [wpTransactions, setWpTransactions] = useState<Transaction[]>(
+    wpUser?.transactions || []
+  );
   const [notifications, setNotifications] = useState<NotificationItem[]>(
-    INITIAL_NOTIFICATIONS
+    wpDemoCleared ? [] : INITIAL_NOTIFICATIONS
   );
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
 
@@ -374,8 +416,24 @@ export default function App() {
     ...(clearedSections.articles ? [] : ARTICLES_DATA),
   ];
 
-  const activeAssignments: Assignment[] = clearedSections.ops ? [] : assignments;
-  const activeTransactions: Transaction[] = clearedSections.ops
+  const activeAssignments: Assignment[] = wpRestUrl
+    ? [
+        ...assignments,
+        ...(!clearedSections.ops && !wpUser?.assignments?.length
+          ? ASSIGNMENTS_DATA.filter(
+              (da) => !assignments.some((a) => a.id === da.id)
+            )
+          : []),
+      ]
+    : clearedSections.ops
+    ? []
+    : assignments;
+
+  const activeTransactions: Transaction[] = wpRestUrl
+    ? clearedSections.ops
+      ? wpTransactions
+      : [...wpTransactions, ...TRANSACTIONS_DATA]
+    : clearedSections.ops
     ? []
     : TRANSACTIONS_DATA;
 
@@ -491,8 +549,32 @@ export default function App() {
     setActiveCourseId(courseId);
   };
 
+  const postWpEndpoint = (
+    endpoint: string,
+    payload: Record<string, unknown>,
+    nonceOverride?: string
+  ) => {
+    if (!wpRestUrl) return;
+    const base = wpRestUrl.replace(/\/$/, '');
+    const activeNonce = nonceOverride || wpNonce;
+    fetch(`${base}/${endpoint.replace(/^\//, '')}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(activeNonce ? { 'X-WP-Nonce': activeNonce } : {}),
+      },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  };
+
   const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
+    if (user.nonce) setWpNonce(user.nonce);
+    if (Array.isArray(user.enrolled)) setEnrolledIds(user.enrolled);
+    if (Array.isArray(user.completed)) setCompletedLessons(user.completed);
+    if (Array.isArray(user.transactions)) setWpTransactions(user.transactions);
+    if (Array.isArray(user.assignments)) setAssignments(user.assignments);
     setSitePage('lms');
     setActiveSection('course');
     if (pendingCourseAfterAuth) {
@@ -502,23 +584,32 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    if (wpRestUrl) {
+      postWpEndpoint('auth/logout', {});
+    }
     setCurrentUser(null);
     setActiveCourseId(null);
     setSitePage('home');
   };
 
   const handleToggleLessonComplete = (lessonId: string) => {
+    const willComplete = !completedLessons.includes(lessonId);
     setCompletedLessons((prev) =>
-      prev.includes(lessonId)
-        ? prev.filter((id) => id !== lessonId)
-        : [...prev, lessonId]
+      willComplete
+        ? [...prev, lessonId]
+        : prev.filter((id) => id !== lessonId)
     );
+    postWpEndpoint('progress', {
+      lesson_id: lessonId,
+      completed: willComplete,
+    });
   };
 
   const handleEnrollCourse = (courseId: string) => {
     setEnrolledIds((prev) =>
       prev.includes(courseId) ? prev : [...prev, courseId]
     );
+    postWpEndpoint('enroll', { course_id: courseId });
   };
 
   const handleSubmitAssignment = (assignmentId: string, url: string) => {
@@ -529,10 +620,21 @@ export default function App() {
           : a
       )
     );
+    postWpEndpoint('assignments/submit', {
+      assignment_id: assignmentId,
+      url,
+    });
   };
 
   const handleMarkAllRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const handleUpdateSiteConfig = (nextCfg: SiteConfig) => {
+    setSiteConfig(nextCfg);
+    if (wpRestUrl && currentUser?.isAdmin) {
+      postWpEndpoint('admin/settings', nextCfg as unknown as Record<string, unknown>);
+    }
   };
 
   const handleClearDemoSection = (
@@ -551,6 +653,9 @@ export default function App() {
         quickTips: prev.quickTips.filter((t) => !t.isDemo),
       }));
       setActiveCourseId(null);
+      if (wpRestUrl && currentUser?.isAdmin) {
+        postWpEndpoint('admin/settings', { demoCleared: true });
+      }
     } else {
       setClearedSections((prev) => ({ ...prev, [section]: true }));
       if (section === 'articles') {
@@ -572,6 +677,9 @@ export default function App() {
         quickTips: [...missingDemos, ...prev.quickTips],
       };
     });
+    if (wpRestUrl && currentUser?.isAdmin) {
+      postWpEndpoint('admin/settings', { demoCleared: false });
+    }
   };
 
   const handleAddCustomArticle = (article: Article) => {
@@ -667,6 +775,7 @@ export default function App() {
               quickTips={siteConfig.quickTips}
               featuredProduct={products[0] || null}
               authChannels={siteConfig.authChannels}
+              wpRestUrl={wpRestUrl}
               onOpenCourseInPanel={handleOpenCourseInPanel}
               onNavigateToProducts={() => handleNavigatePage('products')}
             />
@@ -684,6 +793,8 @@ export default function App() {
           lang={lang}
           brandTitle={siteConfig.brandTitle}
           authChannels={siteConfig.authChannels}
+          wpRestUrl={wpRestUrl}
+          wpNonce={wpNonce}
           onLoginSuccess={handleLoginSuccess}
         />
 
@@ -772,7 +883,21 @@ export default function App() {
               />
             )}
 
-            {activeSection === 'bot-connect' && <BotConnectView lang={lang} />}
+            {activeSection === 'bot-connect' && (
+              <BotConnectView
+                lang={lang}
+                telegramBotUsername={siteConfig.authChannels.telegramBotUsername}
+                baleBotUsername={siteConfig.authChannels.baleBotUsername}
+                initialTelegramId={currentUser.telegramId}
+                initialBalePhone={currentUser.balePhone}
+                initialPrefs={currentUser.botPrefs}
+                wpRestUrl={wpRestUrl}
+                wpNonce={wpNonce}
+                onUpdateBotBinding={(data) =>
+                  setCurrentUser((prev) => (prev ? { ...prev, ...data } : prev))
+                }
+              />
+            )}
 
             {activeSection === 'transactions' && (
               <TransactionsView lang={lang} transactions={activeTransactions} />
@@ -782,7 +907,7 @@ export default function App() {
               <ContentManagerView
                 lang={lang}
                 siteConfig={siteConfig}
-                onUpdateSiteConfig={setSiteConfig}
+                onUpdateSiteConfig={handleUpdateSiteConfig}
                 products={products}
                 courses={courses}
                 tools={tools}

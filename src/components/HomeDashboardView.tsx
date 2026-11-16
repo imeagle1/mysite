@@ -134,10 +134,22 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <Bot className="w-4 h-4 text-blue-500 dark:text-emerald-400" />
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-white">
-            {isFa ? 'متصل' : 'Linked'}
+            {currentUser.telegramId || currentUser.balePhone
+              ? isFa
+                ? 'متصل'
+                : 'Linked'
+              : isFa
+              ? 'نیاز به اتصال'
+              : 'Not Linked'}
           </p>
           <p className="text-xs text-slate-500 dark:text-emerald-200/60">
-            {isFa ? 'تلگرام و بله فعال' : 'Telegram & Bale synced'}
+            {currentUser.telegramId || currentUser.balePhone
+              ? isFa
+                ? 'تلگرام و بله فعال'
+                : 'Telegram & Bale synced'
+              : isFa
+              ? 'از منوی اتصال ربات فعال کنید'
+              : 'Link via Bot Connect'}
           </p>
         </div>
       </section>

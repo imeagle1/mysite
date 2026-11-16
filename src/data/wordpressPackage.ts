@@ -83,6 +83,18 @@ add_action( 'init', function() {
         'rewrite'      => [ 'slug' => 'articles' ],
     ] );
 
+    register_post_type( 'iramo_assignment', [
+        'labels' => [
+            'name'          => __( 'تکالیف و پروژه‌ها', 'iramo-ai' ),
+            'singular_name' => __( 'تکلیف', 'iramo-ai' ),
+        ],
+        'public'       => false,
+        'show_ui'      => true,
+        'show_in_rest' => true,
+        'menu_icon'    => 'dashicons-clipboard',
+        'supports'     => [ 'title', 'editor', 'custom-fields' ],
+    ] );
+
     register_taxonomy( 'iramo_tool_task', 'iramo_ai_tool', [
         'label'        => __( 'نوع کار (Task)', 'iramo-ai' ),
         'show_in_rest' => true,
@@ -270,7 +282,7 @@ add_action( 'save_post', function( $post_id ) {
 } );
 
 /**
- * 2. WooCommerce Order Completed -> Auto Enroll Student & Trigger Bot Bridge
+ * 2. WooCommerce Order Completed -> Auto Enroll Student, Generate License Key & Trigger Bot Bridge
  */
 add_action( 'woocommerce_order_status_completed', function( $order_id ) {
     if ( ! function_exists( 'wc_get_order' ) ) return;
@@ -283,20 +295,135 @@ add_action( 'woocommerce_order_status_completed', function( $order_id ) {
     $enrolled = get_user_meta( $user_id, '_iramo_enrolled_courses', true );
     if ( ! is_array( $enrolled ) ) $enrolled = [];
 
-    foreach ( $order->get_items() as $item ) {
-        $product_id = $item->get_product_id();
-        $linked_course_id = get_post_meta( $product_id, '_iramo_linked_course_id', true );
-        if ( $linked_course_id && ! in_array( (int) $linked_course_id, $enrolled, true ) ) {
-            $enrolled[] = (int) $linked_course_id;
+    $licenses = $order->get_meta( '_iramo_license_keys' );
+    if ( ! is_array( $licenses ) ) $licenses = [];
+
+    foreach ( $order->get_items() as $item_id => $item ) {
+        $product_id       = $item->get_product_id();
+        $linked_course_id = trim( (string) get_post_meta( $product_id, '_iramo_linked_course_id', true ) );
+        if ( $linked_course_id !== '' ) {
+            $normalized_course_id = is_numeric( $linked_course_id ) ? ( 'wp-course-' . $linked_course_id ) : $linked_course_id;
+            if ( ! in_array( $normalized_course_id, $enrolled, true ) ) {
+                $enrolled[] = $normalized_course_id;
+            }
+        }
+        if ( empty( $licenses[ $item_id ] ) ) {
+            $licenses[ $item_id ] = strtoupper( 'IRAMO-' . wp_generate_password( 4, false, false ) . '-' . wp_generate_password( 4, false, false ) . '-' . $order_id );
         }
     }
 
-    update_user_meta( $user_id, '_iramo_enrolled_courses', $enrolled );
+    $order->update_meta_data( '_iramo_license_keys', $licenses );
+    $order->save();
+
+    update_user_meta( $user_id, '_iramo_enrolled_courses', array_values( array_unique( $enrolled ) ) );
     do_action( 'iramo_lms_order_delivered', $order_id, $user_id, $enrolled );
 } );
 
 /**
- * 3. REST API for Progress Tracking, Site Config & Demo Data
+ * Helper: Build Authenticated WP User Payload (Profile, Courses, WC Transactions, Assignments)
+ */
+function iramo_build_user_payload( $user_id ) {
+    $user = get_userdata( $user_id );
+    if ( ! $user ) return null;
+
+    $enrolled  = get_user_meta( $user_id, '_iramo_enrolled_courses', true );
+    if ( ! is_array( $enrolled ) ) $enrolled = [];
+
+    $completed = get_user_meta( $user_id, '_iramo_completed_lessons', true );
+    if ( ! is_array( $completed ) ) $completed = [];
+
+    $transactions = [];
+    if ( function_exists( 'wc_get_orders' ) ) {
+        $orders = wc_get_orders( [
+            'customer_id' => $user_id,
+            'limit'       => 30,
+            'orderby'     => 'date',
+            'order'       => 'DESC',
+        ] );
+        foreach ( $orders as $order ) {
+            $item_names = [];
+            foreach ( $order->get_items() as $item ) {
+                $item_names[] = $item->get_name();
+            }
+            $licenses = $order->get_meta( '_iramo_license_keys' );
+            $first_license = ( is_array( $licenses ) && ! empty( $licenses ) ) ? reset( $licenses ) : '';
+            $date_created = $order->get_date_created();
+            $date_str = $date_created ? $date_created->date_i18n( 'Y/m/d' ) : '';
+            $total_toman = (int) $order->get_total();
+
+            $transactions[] = [
+                'id'          => 'wc-ord-' . $order->get_id(),
+                'invoiceNo'   => '#' . $order->get_order_number(),
+                'item'        => [
+                    'fa' => implode( ' + ', $item_names ) ?: 'سفارش ووکامرس',
+                    'en' => implode( ' + ', $item_names ) ?: 'WooCommerce Order',
+                ],
+                'amountToman' => $total_toman,
+                'amountUsd'   => max( 1, (int) round( $total_toman / 60000 ) ),
+                'date'        => [ 'fa' => $date_str, 'en' => $date_str ],
+                'status'      => $order->get_status() === 'completed' ? 'paid' : ( $order->get_status() === 'failed' ? 'failed' : 'pending' ),
+                'licenseKey'  => $first_license ?: null,
+            ];
+        }
+    }
+
+    $submissions = get_user_meta( $user_id, '_iramo_assignment_submissions', true );
+    if ( ! is_array( $submissions ) ) $submissions = [];
+
+    $asg_posts = get_posts( [
+        'post_type'      => 'iramo_assignment',
+        'post_status'    => 'publish',
+        'posts_per_page' => 50,
+    ] );
+    $assignments = [];
+    foreach ( $asg_posts as $ap ) {
+        $aid   = 'wp-asg-' . $ap->ID;
+        $sub   = $submissions[ $aid ] ?? null;
+        $due   = get_post_meta( $ap->ID, '_iramo_due_date', true ) ?: get_the_date( 'Y/m/d', $ap->ID );
+        $cid   = get_post_meta( $ap->ID, '_iramo_course_id', true ) ?: '';
+        $max_s = (int) ( get_post_meta( $ap->ID, '_iramo_max_score', true ) ?: 100 );
+        $title = get_the_title( $ap->ID );
+
+        $assignments[] = [
+            'id'           => $aid,
+            'courseId'     => $cid,
+            'title'        => [ 'fa' => $title, 'en' => $title ],
+            'dueDate'      => [ 'fa' => $due, 'en' => $due ],
+            'status'       => is_array( $sub ) && ! empty( $sub['status'] ) ? $sub['status'] : 'pending',
+            'score'        => is_array( $sub ) && isset( $sub['score'] ) ? (int) $sub['score'] : null,
+            'maxScore'     => $max_s,
+            'submittedUrl' => is_array( $sub ) && ! empty( $sub['url'] ) ? $sub['url'] : null,
+            'feedback'     => is_array( $sub ) && ! empty( $sub['feedback'] )
+                ? [ 'fa' => $sub['feedback'], 'en' => $sub['feedback'] ]
+                : null,
+        ];
+    }
+
+    return [
+        'id'           => $user->ID,
+        'name'         => $user->display_name ?: $user->user_login,
+        'email'        => $user->user_email,
+        'isAdmin'      => user_can( $user_id, 'manage_options' ),
+        'telegramId'   => get_user_meta( $user_id, '_iramo_telegram_handle', true ) ?: get_user_meta( $user_id, '_iramo_telegram_chat_id', true ) ?: '',
+        'balePhone'    => get_user_meta( $user_id, '_iramo_bale_chat_id', true ) ?: '',
+        'phone'        => get_user_meta( $user_id, '_iramo_phone', true ) ?: get_user_meta( $user_id, 'billing_phone', true ) ?: '',
+        'authMethod'   => get_user_meta( $user_id, '_iramo_auth_method', true ) ?: 'email',
+        'enrolled'     => array_values( array_map( 'strval', $enrolled ) ),
+        'completed'    => array_keys( $completed ),
+        'transactions' => $transactions,
+        'assignments'  => $assignments,
+        'botPrefs'     => get_user_meta( $user_id, '_iramo_bot_prefs', true ) ?: [
+            'autoLicense'  => true,
+            'lessonAlerts' => true,
+            'otpLogin'     => true,
+        ],
+        'nonce'        => wp_create_nonce( 'wp_rest' ),
+        'restUrl'      => esc_url_raw( rest_url( 'iramo/v1/' ) ),
+    ];
+}
+
+/**
+ * 3. REST API for Progress, Enrollment, Assignments, Newsletter & Admin Config
  */
 add_action( 'rest_api_init', function() {
     register_rest_route( 'iramo/v1', '/progress', [
@@ -321,6 +448,139 @@ add_action( 'rest_api_init', function() {
                 'success'   => true,
                 'completed' => array_keys( $progress ),
             ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/enroll', [
+        'methods'             => 'POST',
+        'permission_callback' => function() { return is_user_logged_in(); },
+        'callback'            => function( WP_REST_Request $request ) {
+            $user_id   = get_current_user_id();
+            $course_id = sanitize_text_field( $request->get_param( 'course_id' ) );
+            if ( empty( $course_id ) ) {
+                return new WP_Error( 'missing_course', 'Course ID required', [ 'status' => 400 ] );
+            }
+            $enrolled = get_user_meta( $user_id, '_iramo_enrolled_courses', true );
+            if ( ! is_array( $enrolled ) ) $enrolled = [];
+            if ( ! in_array( $course_id, $enrolled, true ) ) {
+                $enrolled[] = $course_id;
+                update_user_meta( $user_id, '_iramo_enrolled_courses', $enrolled );
+            }
+            return rest_ensure_response( [ 'success' => true, 'enrolled' => $enrolled ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/assignments/submit', [
+        'methods'             => 'POST',
+        'permission_callback' => function() { return is_user_logged_in(); },
+        'callback'            => function( WP_REST_Request $request ) {
+            $user_id       = get_current_user_id();
+            $assignment_id = sanitize_text_field( $request->get_param( 'assignment_id' ) );
+            $url           = esc_url_raw( $request->get_param( 'url' ) );
+            if ( empty( $assignment_id ) || empty( $url ) ) {
+                return new WP_Error( 'invalid_submission', 'Assignment ID and valid URL are required', [ 'status' => 400 ] );
+            }
+            $submissions = get_user_meta( $user_id, '_iramo_assignment_submissions', true );
+            if ( ! is_array( $submissions ) ) $submissions = [];
+            $submissions[ $assignment_id ] = [
+                'url'          => $url,
+                'status'       => 'submitted',
+                'submitted_at' => current_time( 'mysql' ),
+            ];
+            update_user_meta( $user_id, '_iramo_assignment_submissions', $submissions );
+
+            $admin_chat = get_option( 'iramo_admin_chat_id' );
+            if ( $admin_chat && class_exists( 'iRamo_Messenger_Bridge' ) ) {
+                $user = wp_get_current_user();
+                $msg  = sprintf( "<b>ارسال تمرین جدید</b>\\nدانشجو: %s\\nتکلیف: %s\\nلینک: %s", esc_html( $user->display_name ), esc_html( $assignment_id ), esc_url( $url ) );
+                iRamo_Messenger_Bridge::send_message( 'telegram', $admin_chat, $msg );
+                iRamo_Messenger_Bridge::send_message( 'bale', $admin_chat, $msg );
+            }
+
+            return rest_ensure_response( [ 'success' => true, 'submission' => $submissions[ $assignment_id ] ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/newsletter', [
+        'methods'             => 'POST',
+        'permission_callback' => '__return_true',
+        'callback'            => function( WP_REST_Request $request ) {
+            $channel = sanitize_text_field( $request->get_param( 'channel' ) ?: 'telegram' );
+            $handle  = sanitize_text_field( $request->get_param( 'handle' ) );
+            if ( empty( $handle ) ) {
+                return new WP_Error( 'missing_handle', 'Handle or phone is required', [ 'status' => 400 ] );
+            }
+            $subs = get_option( 'iramo_newsletter_subscribers', [] );
+            if ( ! is_array( $subs ) ) $subs = [];
+            $subs[ $channel . '_' . strtolower( $handle ) ] = [
+                'channel' => $channel,
+                'handle'  => $handle,
+                'date'    => current_time( 'mysql' ),
+            ];
+            update_option( 'iramo_newsletter_subscribers', $subs );
+            return rest_ensure_response( [ 'success' => true, 'channel' => $channel, 'handle' => $handle ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/admin/settings', [
+        'methods'             => 'POST',
+        'permission_callback' => function() { return current_user_can( 'manage_options' ); },
+        'callback'            => function( WP_REST_Request $request ) {
+            $payload = $request->get_json_params();
+            if ( ! is_array( $payload ) ) {
+                return new WP_Error( 'invalid_payload', 'Invalid settings JSON', [ 'status' => 400 ] );
+            }
+            $opts = get_option( 'iramo_ai_settings', [] );
+            if ( ! is_array( $opts ) ) $opts = [];
+
+            if ( isset( $payload['brandTitle'] ) ) {
+                $opts['brand_name'] = sanitize_text_field( $payload['brandTitle'] );
+            }
+            if ( isset( $payload['fontFamily'] ) ) {
+                $opts['font_family'] = sanitize_text_field( $payload['fontFamily'] );
+            }
+            if ( isset( $payload['customFontName'] ) ) {
+                $opts['custom_font_name'] = sanitize_text_field( $payload['customFontName'] );
+            }
+            if ( isset( $payload['customFontCssUrl'] ) ) {
+                $opts['custom_font_css_url'] = esc_url_raw( $payload['customFontCssUrl'] );
+            }
+            if ( isset( $payload['themeColors'] ) && is_array( $payload['themeColors'] ) ) {
+                $tc = $payload['themeColors'];
+                $opts['color_preset']       = sanitize_text_field( $tc['preset'] ?? ( $opts['color_preset'] ?? 'emerald-classic' ) );
+                $opts['primary_color']      = sanitize_hex_color( $tc['primaryHex'] ?? '' ) ?: ( $opts['primary_color'] ?? '#059669' );
+                $opts['accent_color']       = sanitize_hex_color( $tc['accentHex'] ?? '' ) ?: ( $opts['accent_color'] ?? '#FFBA00' );
+                $opts['light_canvas_color'] = sanitize_hex_color( $tc['lightCanvasHex'] ?? '' ) ?: ( $opts['light_canvas_color'] ?? '#F8FAFC' );
+                $opts['border_intensity']   = sanitize_text_field( $tc['borderIntensity'] ?? 'subtle' );
+            }
+            if ( isset( $payload['quickTips'] ) && is_array( $payload['quickTips'] ) ) {
+                $lines = [];
+                foreach ( $payload['quickTips'] as $tip ) {
+                    if ( is_array( $tip ) && ! empty( $tip['fa'] ) ) {
+                        $lines[] = sanitize_text_field( $tip['fa'] );
+                    }
+                }
+                $opts['quick_tips_text'] = implode( "\\n", $lines );
+            }
+            if ( isset( $payload['authChannels'] ) && is_array( $payload['authChannels'] ) ) {
+                $ac = $payload['authChannels'];
+                $opts['enable_telegram_auth']  = ! empty( $ac['telegram'] ) ? 1 : 0;
+                $opts['enable_bale_auth']      = ! empty( $ac['bale'] ) ? 1 : 0;
+                $opts['enable_sms_auth']       = ! empty( $ac['sms'] ) ? 1 : 0;
+                $opts['enable_email_auth']     = ! empty( $ac['email'] ) ? 1 : 0;
+                $opts['default_auth_channel']  = sanitize_text_field( $ac['defaultChannel'] ?? 'telegram' );
+                $opts['allow_registration']    = ! empty( $ac['allowRegistration'] ) ? 1 : 0;
+                $opts['telegram_bot_username'] = sanitize_text_field( $ac['telegramBotUsername'] ?? '@iRamoBot' );
+                $opts['bale_bot_username']     = sanitize_text_field( $ac['baleBotUsername'] ?? '@iRamoBaleBot' );
+                $opts['sms_provider']          = sanitize_text_field( $ac['smsProvider'] ?? 'kavenegar' );
+                $opts['sms_pattern_code']      = sanitize_text_field( $ac['smsPatternCode'] ?? 'iramo-verify-otp' );
+            }
+            if ( isset( $payload['demoCleared'] ) ) {
+                $opts['demo_cleared'] = ! empty( $payload['demoCleared'] ) ? 1 : 0;
+            }
+
+            update_option( 'iramo_ai_settings', $opts );
+            return rest_ensure_response( [ 'success' => true ] );
         },
     ] );
 } );
@@ -587,16 +847,7 @@ function iramo_render_app_shortcode( $atts ) {
         'view'  => 'home',
     ], $atts, 'iramo_lms' );
 
-    $current_user = wp_get_current_user();
-    $user_payload = is_user_logged_in() ? [
-        'id'        => $current_user->ID,
-        'name'      => $current_user->display_name,
-        'email'     => $current_user->user_email,
-        'enrolled'  => get_user_meta( $current_user->ID, '_iramo_enrolled_courses', true ) ?: [],
-        'completed' => array_keys( get_user_meta( $current_user->ID, '_iramo_completed_lessons', true ) ?: [] ),
-        'nonce'     => wp_create_nonce( 'wp_rest' ),
-        'restUrl'   => esc_url_raw( rest_url( 'iramo/v1/' ) ),
-    ] : null;
+    $user_payload = is_user_logged_in() ? iramo_build_user_payload( get_current_user_id() ) : null;
 
     $has_bundled_custom_font = file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' );
     $font_choice = $options['font_family'] ?? ( $has_bundled_custom_font ? 'custom' : 'vazirmatn' );
@@ -682,6 +933,8 @@ function iramo_render_app_shortcode( $atts ) {
       data-articles="<?php echo esc_attr( wp_json_encode( $wp_articles ) ); ?>"
       data-demo-cleared="<?php echo ! empty( $options['demo_cleared'] ) ? '1' : '0'; ?>"
       data-plugin-url="<?php echo esc_url( IRAMO_AI_URL ); ?>"
+      data-rest-url="<?php echo esc_url( rest_url( 'iramo/v1/' ) ); ?>"
+      data-wp-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
       data-user="<?php echo esc_attr( wp_json_encode( $user_payload ) ); ?>"
       style="min-height: 100vh; width: 100%;"
     ></div>
@@ -1053,15 +1306,15 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             if ( $query->have_posts() ) {
                 while ( $query->have_posts() ) {
                     $query->the_post();
-                    echo '<article style="background:#0B1613;border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:18px;color:#fff;">';
-                    echo '<h3 style="margin:0 0 8px;font-size:16px;"><a href="' . esc_url( get_permalink() ) . '" style="color:#fff;text-decoration:none;">' . esc_html( get_the_title() ) . '</a></h3>';
-                    echo '<p style="font-size:13px;color:#94a3b8;margin:0 0 12px;">' . esc_html( get_the_excerpt() ) . '</p>';
-                    echo '<a href="' . esc_url( get_permalink() ) . '" style="color:#FFBA00;font-size:12px;font-weight:bold;text-decoration:none;">مطالعه مقاله ←</a>';
+                    echo '<article style="background:var(--iramo-card-bg,#ffffff);border:1px solid var(--iramo-card-border,rgba(5,150,105,0.16));border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,0.06);">';
+                    echo '<h3 style="margin:0 0 8px;font-size:16px;"><a href="' . esc_url( get_permalink() ) . '" style="color:inherit;text-decoration:none;">' . esc_html( get_the_title() ) . '</a></h3>';
+                    echo '<p style="font-size:13px;opacity:0.75;margin:0 0 12px;">' . esc_html( get_the_excerpt() ) . '</p>';
+                    echo '<a href="' . esc_url( get_permalink() ) . '" style="color:var(--iramo-primary,#059669);font-size:12px;font-weight:bold;text-decoration:none;">مطالعه مقاله ←</a>';
                     echo '</article>';
                 }
                 wp_reset_postdata();
             } else {
-                echo '<p style="color:#94a3b8;">هنوز مقاله‌ای منتشر نشده است.</p>';
+                echo '<p style="opacity:0.7;">هنوز مقاله‌ای منتشر نشده است.</p>';
             }
             echo '</div>';
         }
@@ -1150,12 +1403,36 @@ add_action( 'elementor_pro/forms/new_record', function( $record, $handler ) {
  * Unified OTP Auth Gateway: Telegram Bot, Bale Bot & SMS Gateways (Kavenegar / Melipayamak / FarazSMS)
  */
 class iRamo_OTP_Gateway {
+    public static function resolve_bot_chat_id( $channel, $target ) {
+        $cleaned = trim( (string) $target );
+        if ( preg_match( '/^-?[0-9]{5,}$/', $cleaned ) ) {
+            return $cleaned;
+        }
+        $normalized = ltrim( strtolower( $cleaned ), '@' );
+        $map = get_option( 'iramo_bot_chat_map_' . $channel, [] );
+        if ( is_array( $map ) && ! empty( $map[ $normalized ] ) ) {
+            return (string) $map[ $normalized ];
+        }
+        return '';
+    }
+
     public static function dispatch_otp( $channel, $target, $code ) {
         $opts = get_option( 'iramo_ai_settings', [] );
 
         if ( $channel === 'telegram' || $channel === 'bale' ) {
-            $msg = sprintf( "کد تایید ورود به پنل کاربری iRamoAi:\n<b>%s</b>\nاعتبار کد: ۳ دقیقه", $code );
-            return iRamo_Messenger_Bridge::send_message( $channel, $target, $msg );
+            $chat_id = self::resolve_bot_chat_id( $channel, $target );
+            if ( empty( $chat_id ) ) {
+                $bot_user = $channel === 'bale'
+                    ? ( $opts['bale_bot_username'] ?? '@iRamoBaleBot' )
+                    : ( $opts['telegram_bot_username'] ?? '@iRamoBot' );
+                return new WP_Error(
+                    'bot_not_started',
+                    sprintf( 'ابتدا در %s دستور /start را بزنید تا شناسه چت شما ثبت شود، یا شناسه عددی چت را وارد کنید.', $bot_user ),
+                    [ 'status' => 400 ]
+                );
+            }
+            $msg = sprintf( "کد تایید ورود به پنل کاربری iRamoAi:\\n<b>%s</b>\\nاعتبار کد: ۳ دقیقه", $code );
+            return iRamo_Messenger_Bridge::send_message( $channel, $chat_id, $msg );
         }
 
         if ( $channel === 'sms' ) {
@@ -1163,7 +1440,7 @@ class iRamo_OTP_Gateway {
             $api_key  = $opts['sms_api_key'] ?? '';
             $pattern  = $opts['sms_pattern_code'] ?? 'iramo-verify-otp';
             if ( empty( $api_key ) ) {
-                return new WP_Error( 'missing_sms_key', 'کلید API پنل پیامکی تنظیم نشده است.' );
+                return new WP_Error( 'missing_sms_key', 'کلید API پنل پیامکی در تنظیمات وردپرس وارد نشده است.', [ 'status' => 400 ] );
             }
             if ( $provider === 'kavenegar' ) {
                 $url = sprintf(
@@ -1202,7 +1479,7 @@ class iRamo_OTP_Gateway {
             ] );
         }
 
-        return new WP_Error( 'unsupported_channel', 'Unsupported auth channel' );
+        return new WP_Error( 'unsupported_channel', 'Unsupported auth channel', [ 'status' => 400 ] );
     }
 }
 
@@ -1214,10 +1491,10 @@ add_action( 'rest_api_init', function() {
             $channel = sanitize_text_field( $request->get_param( 'channel' ) );
             $target  = sanitize_text_field( $request->get_param( 'target' ) );
             if ( empty( $target ) ) {
-                return new WP_Error( 'invalid_target', 'Target is required', [ 'status' => 400 ] );
+                return new WP_Error( 'invalid_target', 'شماره یا شناسه الزامی است.', [ 'status' => 400 ] );
             }
             $code = (string) wp_rand( 10000, 99999 );
-            set_transient( 'iramo_otp_' . md5( $channel . '_' . $target ), $code, 3 * MINUTE_IN_SECONDS );
+            set_transient( 'iramo_otp_' . md5( $channel . '_' . strtolower( trim( $target ) ) ), $code, 3 * MINUTE_IN_SECONDS );
             $result = iRamo_OTP_Gateway::dispatch_otp( $channel, $target, $code );
             if ( is_wp_error( $result ) ) {
                 return $result;
@@ -1233,13 +1510,180 @@ add_action( 'rest_api_init', function() {
             $channel = sanitize_text_field( $request->get_param( 'channel' ) );
             $target  = sanitize_text_field( $request->get_param( 'target' ) );
             $code    = sanitize_text_field( $request->get_param( 'code' ) );
-            $key     = 'iramo_otp_' . md5( $channel . '_' . $target );
+            $name    = sanitize_text_field( $request->get_param( 'name' ) );
+            $key     = 'iramo_otp_' . md5( $channel . '_' . strtolower( trim( $target ) ) );
             $saved   = get_transient( $key );
             if ( ! $saved || $saved !== $code ) {
                 return new WP_Error( 'invalid_otp', 'کد تایید نامعتبر یا منقضی شده است.', [ 'status' => 403 ] );
             }
             delete_transient( $key );
-            return rest_ensure_response( [ 'success' => true, 'verified' => true ] );
+
+            $meta_key = $channel === 'sms' ? '_iramo_phone' : ( $channel === 'bale' ? '_iramo_bale_chat_id' : '_iramo_telegram_handle' );
+            $users = get_users( [
+                'meta_key'   => $meta_key,
+                'meta_value' => $target,
+                'number'     => 1,
+            ] );
+
+            if ( ! empty( $users ) ) {
+                $user_id = $users[0]->ID;
+            } else {
+                $opts = get_option( 'iramo_ai_settings', [] );
+                if ( isset( $opts['allow_registration'] ) && empty( $opts['allow_registration'] ) ) {
+                    return new WP_Error( 'registration_disabled', 'ثبت‌نام کاربر جدید توسط مدیر غیرفعال شده است.', [ 'status' => 403 ] );
+                }
+                $login_slug = 'iramo_' . substr( md5( $channel . '_' . $target ), 0, 10 );
+                $existing   = get_user_by( 'login', $login_slug );
+                if ( $existing ) {
+                    $user_id = $existing->ID;
+                } else {
+                    $user_id = wp_create_user( $login_slug, wp_generate_password( 16, true ), $login_slug . '@members.iramo.ai' );
+                    if ( is_wp_error( $user_id ) ) {
+                        return $user_id;
+                    }
+                    if ( $name ) {
+                        wp_update_user( [ 'ID' => $user_id, 'display_name' => $name ] );
+                    }
+                }
+                update_user_meta( $user_id, $meta_key, $target );
+            }
+
+            if ( $channel === 'telegram' || $channel === 'bale' ) {
+                $resolved_id = iRamo_OTP_Gateway::resolve_bot_chat_id( $channel, $target );
+                if ( $resolved_id ) {
+                    update_user_meta( $user_id, '_iramo_' . $channel . '_chat_id', $resolved_id );
+                }
+            }
+            update_user_meta( $user_id, '_iramo_auth_method', $channel );
+
+            wp_set_current_user( $user_id );
+            wp_set_auth_cookie( $user_id, true );
+
+            return rest_ensure_response( [
+                'success'  => true,
+                'verified' => true,
+                'user'     => iramo_build_user_payload( $user_id ),
+            ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/auth/email', [
+        'methods'             => 'POST',
+        'permission_callback' => '__return_true',
+        'callback'            => function( WP_REST_Request $request ) {
+            $mode     = sanitize_text_field( $request->get_param( 'mode' ) ?: 'login' );
+            $email    = sanitize_email( $request->get_param( 'email' ) );
+            $password = (string) $request->get_param( 'password' );
+            $name     = sanitize_text_field( $request->get_param( 'name' ) );
+
+            if ( ! is_email( $email ) || strlen( $password ) < 4 ) {
+                return new WP_Error( 'invalid_credentials', 'ایمیل معتبر و رمز عبور حداقل ۴ کاراکتری وارد کنید.', [ 'status' => 400 ] );
+            }
+
+            if ( $mode === 'register' ) {
+                if ( email_exists( $email ) ) {
+                    return new WP_Error( 'email_exists', 'این ایمیل قبلاً ثبت شده است. لطفاً وارد شوید.', [ 'status' => 400 ] );
+                }
+                $username = sanitize_user( current( explode( '@', $email ) ), true );
+                if ( username_exists( $username ) || empty( $username ) ) {
+                    $username .= '_' . wp_rand( 100, 999 );
+                }
+                $user_id = wp_create_user( $username, $password, $email );
+                if ( is_wp_error( $user_id ) ) {
+                    return $user_id;
+                }
+                if ( $name ) {
+                    wp_update_user( [ 'ID' => $user_id, 'display_name' => $name ] );
+                }
+                update_user_meta( $user_id, '_iramo_auth_method', 'email' );
+                wp_set_current_user( $user_id );
+                wp_set_auth_cookie( $user_id, true );
+            } else {
+                $user_obj = get_user_by( 'email', $email );
+                $login    = $user_obj ? $user_obj->user_login : $email;
+                $signed   = wp_signon( [
+                    'user_login'    => $login,
+                    'user_password' => $password,
+                    'remember'      => true,
+                ], is_ssl() );
+                if ( is_wp_error( $signed ) ) {
+                    return new WP_Error( 'auth_failed', 'ایمیل یا رمز عبور اشتباه است.', [ 'status' => 403 ] );
+                }
+                $user_id = $signed->ID;
+                wp_set_current_user( $user_id );
+            }
+
+            return rest_ensure_response( [
+                'success' => true,
+                'user'    => iramo_build_user_payload( $user_id ),
+            ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/auth/logout', [
+        'methods'             => 'POST',
+        'permission_callback' => '__return_true',
+        'callback'            => function() {
+            wp_logout();
+            return rest_ensure_response( [ 'success' => true ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/bot/bind', [
+        'methods'             => 'POST',
+        'permission_callback' => function() { return is_user_logged_in(); },
+        'callback'            => function( WP_REST_Request $request ) {
+            $user_id = get_current_user_id();
+            if ( $request->has_param( 'telegramId' ) ) {
+                $tg = sanitize_text_field( $request->get_param( 'telegramId' ) );
+                update_user_meta( $user_id, '_iramo_telegram_handle', $tg );
+                $chat_id = iRamo_OTP_Gateway::resolve_bot_chat_id( 'telegram', $tg );
+                if ( $chat_id ) {
+                    update_user_meta( $user_id, '_iramo_telegram_chat_id', $chat_id );
+                }
+            }
+            if ( $request->has_param( 'balePhone' ) ) {
+                $bale = sanitize_text_field( $request->get_param( 'balePhone' ) );
+                $chat_id = iRamo_OTP_Gateway::resolve_bot_chat_id( 'bale', $bale ) ?: $bale;
+                update_user_meta( $user_id, '_iramo_bale_chat_id', $chat_id );
+            }
+            if ( $request->has_param( 'prefs' ) && is_array( $request->get_param( 'prefs' ) ) ) {
+                update_user_meta( $user_id, '_iramo_bot_prefs', $request->get_param( 'prefs' ) );
+            }
+            return rest_ensure_response( [ 'success' => true ] );
+        },
+    ] );
+
+    register_rest_route( 'iramo/v1', '/bot/webhook', [
+        'methods'             => 'POST',
+        'permission_callback' => '__return_true',
+        'callback'            => function( WP_REST_Request $request ) {
+            $platform = sanitize_text_field( $request->get_param( 'platform' ) ?: 'telegram' );
+            $data     = $request->get_json_params();
+            $message  = $data['message'] ?? null;
+            if ( ! is_array( $message ) || empty( $message['chat']['id'] ) ) {
+                return rest_ensure_response( [ 'ok' => true ] );
+            }
+            $chat_id  = (string) $message['chat']['id'];
+            $username = strtolower( trim( $message['from']['username'] ?? '' ) );
+            $text     = trim( $message['text'] ?? '' );
+
+            if ( $username ) {
+                $map = get_option( 'iramo_bot_chat_map_' . $platform, [] );
+                if ( ! is_array( $map ) ) $map = [];
+                $map[ $username ] = $chat_id;
+                update_option( 'iramo_bot_chat_map_' . $platform, $map );
+            }
+
+            if ( strpos( $text, '/start' ) === 0 ) {
+                $reply = sprintf(
+                    "سلام! اتصال شما به ربات iRamoAi فعال شد.\\nشناسه چت عددی شما: <code>%s</code>\\nمی‌توانید این کد را در سایت وارد کنید.",
+                    esc_html( $chat_id )
+                );
+                iRamo_Messenger_Bridge::send_message( $platform, $chat_id, $reply );
+            }
+
+            return rest_ensure_response( [ 'ok' => true ] );
         },
     ] );
 } );
@@ -1260,7 +1704,7 @@ html, body {
   background-color: #f8fafc;
   color: #0f172a;
   direction: rtl;
-  font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-fa, 'IRANYekanXVF', 'Vazirmatn', system-ui, -apple-system, sans-serif);
 }
 
 html.dark, html.dark body {
@@ -1294,10 +1738,15 @@ add_action( 'after_setup_theme', function() {
     ] );
 } );
 
-// Enqueue Vazirmatn Font & Base Theme Stylesheet
+// Enqueue Active Font & Base Theme Stylesheet
 add_action( 'wp_enqueue_scripts', function() {
+    $deps = [ 'iramo-vazirmatn' ];
     wp_enqueue_style( 'iramo-vazirmatn', 'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap', [], null );
-    wp_enqueue_style( 'iramo-theme-style', get_stylesheet_uri(), [ 'iramo-vazirmatn' ], '2.1.0' );
+    if ( defined( 'IRAMO_AI_PATH' ) && defined( 'IRAMO_AI_URL' ) && file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ) {
+        wp_enqueue_style( 'iramo-theme-custom-font', IRAMO_AI_URL . 'assets/fonts/custom-font.css', [], '2.1.0' );
+        $deps[] = 'iramo-theme-custom-font';
+    }
+    wp_enqueue_style( 'iramo-theme-style', get_stylesheet_uri(), $deps, '2.1.0' );
 } );
 
 // Full Elementor Pro Theme Builder Location Support

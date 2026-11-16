@@ -15,17 +15,29 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { resolveBrandLogo } from '../assets/media';
-import { Lang } from '../types/lms';
+import { Assignment, Lang, Transaction } from '../types/lms';
 import { toLocaleDigits } from '../utils/formatters';
 import { AuthChannelsConfig, AuthMethodKey } from './ContentManagerView';
 
 export interface UserProfile {
+  id?: number;
   name: string;
   email: string;
+  isAdmin?: boolean;
   telegramId?: string;
   balePhone?: string;
   phone?: string;
   authMethod: 'email' | 'telegram' | 'bale' | 'sms';
+  enrolled?: string[];
+  completed?: string[];
+  transactions?: Transaction[];
+  assignments?: Assignment[];
+  botPrefs?: {
+    autoLicense: boolean;
+    lessonAlerts: boolean;
+    otpLogin: boolean;
+  };
+  nonce?: string;
 }
 
 interface AuthModalProps {
@@ -34,6 +46,8 @@ interface AuthModalProps {
   lang: Lang;
   brandTitle?: string;
   authChannels: AuthChannelsConfig;
+  wpRestUrl?: string;
+  wpNonce?: string;
   onLoginSuccess: (user: UserProfile) => void;
 }
 
@@ -230,6 +244,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   lang,
   brandTitle = 'iRamoAi',
   authChannels,
+  wpRestUrl,
+  wpNonce,
   onLoginSuccess,
 }) => {
   const isFa = lang === 'fa';
@@ -260,6 +276,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [otpCode, setOtpCode] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -269,6 +286,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setOtpCode('');
       setResendTimer(0);
       setError('');
+      setIsSubmitting(false);
     }
   }, [
     open,
@@ -290,7 +308,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   if (!open) return null;
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const wpPost = async (endpoint: string, body: Record<string, unknown>) => {
+    const base = (wpRestUrl || '').replace(/\/$/, '');
+    const res = await fetch(`${base}/${endpoint.replace(/^\//, '')}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(wpNonce ? { 'X-WP-Nonce': wpNonce } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      user?: UserProfile;
+      success?: boolean;
+    };
+    if (!res.ok) {
+      throw new Error(
+        data.message ||
+          (isFa ? 'خطا در ارتباط با سرور وردپرس.' : 'WordPress server error.')
+      );
+    }
+    return data;
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!email.includes('@') || password.length < 4) {
@@ -307,6 +350,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       );
       return;
     }
+
+    if (wpRestUrl) {
+      try {
+        setIsSubmitting(true);
+        const data = await wpPost('auth/email', {
+          mode,
+          email: email.trim(),
+          password,
+          name: name.trim(),
+        });
+        if (data.user) {
+          onLoginSuccess(data.user);
+          onClose();
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Authentication failed');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     onLoginSuccess({
       name: name.trim() || (isFa ? 'عضو آکادمی iRamoAi' : 'iRamoAi Member'),
       email: email.trim(),
@@ -315,7 +380,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     onClose();
   };
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (mode === 'register' && !name.trim()) {
@@ -324,6 +389,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       );
       return;
     }
+    let target = '';
     if (activeChannel === 'sms') {
       const normalized = normalizeDigits(smsPhone);
       if (normalized.length < 10) {
@@ -334,6 +400,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         );
         return;
       }
+      target = normalized;
     } else if (!botContact.trim()) {
       setError(
         isFa
@@ -341,13 +408,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           : 'Please enter your phone number or messenger handle.'
       );
       return;
+    } else {
+      target = botContact.trim();
     }
+
+    if (wpRestUrl) {
+      try {
+        setIsSubmitting(true);
+        await wpPost('auth/send-otp', {
+          channel: activeChannel,
+          target,
+        });
+        setOtpCode('');
+        setOtpSent(true);
+        setResendTimer(120);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to send OTP');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     setOtpCode('');
     setOtpSent(true);
     setResendTimer(120);
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (otpCode.trim().length < 5) {
@@ -361,26 +449,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     const displayName =
       name.trim() || (isFa ? 'عضو تاییدشده iRamoAi' : 'Verified iRamoAi Member');
+    const target =
+      activeChannel === 'sms' ? normalizeDigits(smsPhone) : botContact.trim();
+
+    if (wpRestUrl) {
+      try {
+        setIsSubmitting(true);
+        const data = await wpPost('auth/verify-otp', {
+          channel: activeChannel,
+          target,
+          code: otpCode.trim(),
+          name: displayName,
+        });
+        if (data.user) {
+          onLoginSuccess(data.user);
+          onClose();
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'OTP verification failed');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
 
     if (activeChannel === 'sms') {
       onLoginSuccess({
         name: displayName,
         email: 'member@iramo.ai',
-        phone: normalizeDigits(smsPhone),
+        phone: target,
         authMethod: 'sms',
       });
     } else if (activeChannel === 'telegram') {
       onLoginSuccess({
         name: displayName,
         email: 'member@iramo.ai',
-        telegramId: botContact.trim(),
+        telegramId: target,
         authMethod: 'telegram',
       });
     } else {
       onLoginSuccess({
         name: displayName,
         email: 'member@iramo.ai',
-        balePhone: botContact.trim(),
+        balePhone: target,
         authMethod: 'bale',
       });
     }
@@ -881,18 +992,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </div>
 
-            {/* Quick Demo Preview Access */}
-            <div className="pt-3 border-t border-slate-200/80 dark:border-emerald-500/15">
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer"
-              >
-                {isFa
-                  ? 'ورود سریع با حساب کاربری نمونه'
-                  : 'Quick Preview with Sample Account'}
-              </button>
-            </div>
+            {/* Quick Demo Preview Access (only outside WordPress production) */}
+            {!wpRestUrl && (
+              <div className="pt-3 border-t border-slate-200/80 dark:border-emerald-500/15">
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={handleDemoLogin}
+                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  {isFa
+                    ? 'ورود سریع با حساب کاربری نمونه'
+                    : 'Quick Preview with Sample Account'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
