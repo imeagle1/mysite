@@ -136,7 +136,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
 
               {isLocked ? (
                 <div className="relative z-10 text-center p-6 max-w-md space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FFBA00]/20 border border-[#FFBA00]/40 text-[#FFBA00] flex items-center justify-center mx-auto">
                     <Lock className="w-5 h-5" />
                   </div>
                   <h3 className="text-base font-bold text-white">
@@ -152,7 +152,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onEnrollCourse(course.id)}
-                    className="px-5 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
                   >
                     {isFa ? 'ثبت‌نام و باز کردن دوره' : 'Enroll Now'}
                   </button>
@@ -164,7 +164,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                       {toLocaleDigits(activeLesson.duration, lang)}
                     </span>
                     {activeLesson.isFreePreview && !course.enrolled && (
-                      <span className="text-amber-400 font-semibold">
+                      <span className="text-[#FFBA00] font-semibold">
                         {isFa ? 'پیش‌نمایش رایگان' : 'Free Preview'}
                       </span>
                     )}
@@ -174,7 +174,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsPlaying((p) => !p)}
-                      className="w-16 h-16 rounded-full bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer"
+                      className="w-16 h-16 rounded-full bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer"
                       aria-label={isPlaying ? 'Pause' : 'Play'}
                     >
                       {isPlaying ? (
@@ -382,7 +382,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                           }}
                           className={`w-full flex items-center justify-between gap-2.5 p-2.5 rounded-xl border text-start transition-colors cursor-pointer ${
                             isCurrent
-                              ? 'bg-white dark:bg-emerald-500/15 border-amber-400 dark:border-emerald-400/50 text-slate-950 dark:text-white'
+                              ? 'bg-white dark:bg-emerald-500/15 border-[#FFBA00] dark:border-emerald-400/50 text-slate-950 dark:text-white'
                               : 'bg-white/60 dark:bg-[#0B1613] border-slate-200/70 dark:border-emerald-500/15 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-emerald-500/35'
                           }`}
                         >
@@ -392,7 +392,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                             ) : locked ? (
                               <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             ) : (
-                              <Play className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              <Play className="w-3.5 h-3.5 text-[#FFBA00] shrink-0" />
                             )}
                             <span className="text-xs font-medium truncate">
                               {isFa ? lesson.title.fa : lesson.title.en}

@@ -123,7 +123,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       >
         {/* Top Input */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-emerald-500/15">
-          <Search className="w-4 h-4 text-amber-500 shrink-0" />
+          <Search className="w-4 h-4 text-[#FFBA00] shrink-0" />
           <input
             type="text"
             autoFocus

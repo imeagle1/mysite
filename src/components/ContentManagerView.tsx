@@ -10,6 +10,7 @@ import {
   Layers,
   Lightbulb,
   MessageSquareCode,
+  Palette,
   Plus,
   RotateCcw,
   Sliders,
@@ -17,6 +18,13 @@ import {
   Type,
   UserPlus,
 } from 'lucide-react';
+import {
+  BorderIntensity,
+  COLOR_PRESETS,
+  ColorPresetMeta,
+  DEFAULT_THEME_COLORS,
+  ThemeColorConfig,
+} from '../utils/colorTheme';
 import { courseAiImg, servicesNeuralImg } from '../assets/media';
 import { SoftwareProduct } from '../data/lmsData';
 import {
@@ -63,6 +71,7 @@ export interface AuthChannelsConfig {
 export interface SiteConfig {
   brandTitle: string;
   accentColor: 'emerald' | 'amber' | 'blue';
+  themeColors: ThemeColorConfig;
   fontFamily: PersianFontOption;
   customFontName: string;
   showArticles: boolean;
@@ -381,7 +390,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <Type className="w-3.5 h-3.5 text-amber-500" />
+              <Type className="w-3.5 h-3.5 text-[#FFBA00]" />
               <span>{isFa ? 'انتخاب فونت فارسی سایت و پنل' : 'Site & Panel Persian Font'}</span>
             </label>
             <select
@@ -425,7 +434,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   })
                 }
                 placeholder="IRANSansX, YekanBakh, Peyda"
-                className="w-full mt-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-amber-400/50 text-xs text-slate-900 dark:text-white focus:outline-none"
+                className="w-full mt-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[#FFBA00]/50 text-xs text-slate-900 dark:text-white focus:outline-none"
               />
             )}
           </div>
@@ -454,7 +463,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   }
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     enabled
-                      ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                      ? 'bg-[var(--iramo-primary-soft)] border-[var(--iramo-primary-border)] text-[var(--iramo-primary)]'
                       : 'bg-slate-100 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/15 text-slate-400'
                   }`}
                 >
@@ -467,10 +476,278 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
         </div>
       </section>
 
+      {/* 1.5. Color System & 60-30-10 Theme Manager */}
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--iramo-primary)]">
+              <Palette className="w-4 h-4" />
+              <span>
+                {isFa
+                  ? 'مدیریت رنگ‌بندی و هارمونی ظاهری (قاعده ۶۰-۳۰-۱۰)'
+                  : 'Color System & 60-30-10 Theme Manager'}
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              {isFa
+                ? 'تغییر پالت رنگی، شدت حاشیه محصولات و رنگ دکمه‌های کل سایت'
+                : 'Customize Brand Palette, Product Card Borders & CTA Accents'}
+            </h3>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              onUpdateSiteConfig({
+                ...siteConfig,
+                themeColors: DEFAULT_THEME_COLORS,
+              });
+              triggerFeedback(
+                isFa
+                  ? 'رنگ‌بندی سایت به نسخه اصلی و اولیه روشن بازگردانده شد.'
+                  : 'Theme colors reset to default classic light palette.'
+              );
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-emerald-500/25 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-emerald-950/50 cursor-pointer shrink-0 self-start sm:self-auto"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{isFa ? 'بازگشت به رنگ اولیه روشن' : 'Reset Default Palette'}</span>
+          </button>
+        </div>
+
+        {/* Preset Palettes Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {COLOR_PRESETS.map((preset: ColorPresetMeta) => {
+            const active = siteConfig.themeColors.preset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => {
+                  onUpdateSiteConfig({
+                    ...siteConfig,
+                    themeColors: {
+                      ...siteConfig.themeColors,
+                      preset: preset.id,
+                      primaryHex: preset.primaryHex,
+                      accentHex: preset.accentHex,
+                      lightCanvasHex: preset.lightCanvasHex,
+                    },
+                  });
+                  triggerFeedback(
+                    isFa
+                      ? `پالت «${preset.nameFa}» با موفقیت اعمال شد.`
+                      : `Applied "${preset.nameEn}".`
+                  );
+                }}
+                className={`p-3.5 rounded-xl border text-start transition-all cursor-pointer space-y-2 ${
+                  active
+                    ? 'bg-[var(--iramo-primary-soft)] border-[var(--iramo-primary-border)] ring-1 ring-[var(--iramo-primary)]/30'
+                    : 'bg-slate-50/70 dark:bg-[#07110E] border-slate-200/80 dark:border-emerald-500/15 hover:border-slate-300 dark:hover:border-emerald-500/35'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="w-4 h-4 rounded-full border border-black/10"
+                      style={{ backgroundColor: preset.lightCanvasHex }}
+                    />
+                    <span
+                      className="w-4 h-4 rounded-full border border-black/10"
+                      style={{ backgroundColor: preset.primaryHex }}
+                    />
+                    <span
+                      className="w-4 h-4 rounded-full border border-black/10"
+                      style={{ backgroundColor: preset.accentHex }}
+                    />
+                  </div>
+                  {active && (
+                    <span className="text-[10px] font-bold text-[var(--iramo-primary)]">
+                      {isFa ? 'فعال' : 'Active'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
+                  {isFa ? preset.nameFa : preset.nameEn}
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {isFa ? preset.descFa : preset.descEn}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Fine-Grained Custom Color Pickers + Card Border Intensity */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+              {isFa ? 'رنگ اصلی برند (Primary)' : 'Primary Brand Color'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={siteConfig.themeColors.primaryHex}
+                onChange={(e) =>
+                  onUpdateSiteConfig({
+                    ...siteConfig,
+                    themeColors: {
+                      ...siteConfig.themeColors,
+                      preset: 'custom',
+                      primaryHex: e.target.value,
+                    },
+                  })
+                }
+                className="w-9 h-9 rounded-lg border border-slate-200 dark:border-emerald-500/20 bg-transparent cursor-pointer shrink-0"
+              />
+              <input
+                type="text"
+                dir="ltr"
+                value={siteConfig.themeColors.primaryHex}
+                onChange={(e) =>
+                  onUpdateSiteConfig({
+                    ...siteConfig,
+                    themeColors: {
+                      ...siteConfig.themeColors,
+                      preset: 'custom',
+                      primaryHex: e.target.value,
+                    },
+                  })
+                }
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs font-mono text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+              {isFa ? 'رنگ تاکیدی دکمه‌ها (Accent CTA)' : 'Accent & CTA Color'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={siteConfig.themeColors.accentHex}
+                onChange={(e) =>
+                  onUpdateSiteConfig({
+                    ...siteConfig,
+                    themeColors: {
+                      ...siteConfig.themeColors,
+                      preset: 'custom',
+                      accentHex: e.target.value,
+                    },
+                  })
+                }
+                className="w-9 h-9 rounded-lg border border-slate-200 dark:border-emerald-500/20 bg-transparent cursor-pointer shrink-0"
+              />
+              <input
+                type="text"
+                dir="ltr"
+                value={siteConfig.themeColors.accentHex}
+                onChange={(e) =>
+                  onUpdateSiteConfig({
+                    ...siteConfig,
+                    themeColors: {
+                      ...siteConfig.themeColors,
+                      preset: 'custom',
+                      accentHex: e.target.value,
+                    },
+                  })
+                }
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs font-mono text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+              {isFa ? 'پس‌زمینه نسخه روشن (۶۰٪)' : 'Light Canvas Background'}
+            </label>
+            <select
+              value={siteConfig.themeColors.lightCanvasHex}
+              onChange={(e) =>
+                onUpdateSiteConfig({
+                  ...siteConfig,
+                  themeColors: {
+                    ...siteConfig.themeColors,
+                    lightCanvasHex: e.target.value,
+                  },
+                })
+              }
+              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white cursor-pointer"
+            >
+              <option value="#F8FAFC">
+                {isFa ? 'طوسی بسیار روشن مینیمال (#F8FAFC)' : 'Soft Cool Slate (#F8FAFC)'}
+              </option>
+              <option value="#FFFFFF">
+                {isFa ? 'سفید خالص (#FFFFFF)' : 'Pure White (#FFFFFF)'}
+              </option>
+              <option value="#F4F6F9">
+                {isFa ? 'خاکستری نرم (#F4F6F9)' : 'Neutral Mist (#F4F6F9)'}
+              </option>
+            </select>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+              {isFa ? 'شدت حاشیه (Border) کارت‌ها' : 'Card Border Intensity'}
+            </label>
+            <select
+              value={siteConfig.themeColors.borderIntensity}
+              onChange={(e) =>
+                onUpdateSiteConfig({
+                  ...siteConfig,
+                  themeColors: {
+                    ...siteConfig.themeColors,
+                    borderIntensity: e.target.value as BorderIntensity,
+                  },
+                })
+              }
+              className="w-full px-3 py-2 rounded-lg bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white cursor-pointer"
+            >
+              <option value="subtle">
+                {isFa ? 'بسیار ملایم و ظریف (پیشنهادی)' : 'Ultra Subtle (Recommended)'}
+              </option>
+              <option value="balanced">
+                {isFa ? 'متعادل و استاندارد' : 'Balanced'}
+              </option>
+              <option value="defined">
+                {isFa ? 'خطوط مشخص‌تر' : 'Defined'}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {/* 60-30-10 Live Visual Balance Indicator */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+            <span>
+              {isFa
+                ? 'توزیع اصولی رنگ ۶۰-۳۰-۱۰ (۶۰٪ پس‌زمینه خنثی · ۳۰٪ ساختار کارت و متن · ۱۰٪ رنگ برند و دکمه)'
+                : '60-30-10 UI Balance (60% Neutral Canvas · 30% Surface & Typography · 10% Brand & CTA)'}
+            </span>
+          </div>
+          <div className="h-2.5 w-full rounded-full overflow-hidden flex border border-slate-200 dark:border-emerald-500/20">
+            <div
+              className="w-[60%]"
+              style={{ backgroundColor: siteConfig.themeColors.lightCanvasHex }}
+            />
+            <div className="w-[30%] bg-slate-700 dark:bg-slate-300" />
+            <div
+              className="w-[6%]"
+              style={{ backgroundColor: siteConfig.themeColors.primaryHex }}
+            />
+            <div
+              className="w-[4%]"
+              style={{ backgroundColor: siteConfig.themeColors.accentHex }}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 2. Authentication, Default Method, Registration & SMS Panel Controls */}
       <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
             <MessageSquareCode className="w-4 h-4" />
             <span>
               {isFa
@@ -526,8 +803,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                     onClick={() => updateAuth({ defaultChannel: ch.key })}
                     className={`w-full py-1 px-2 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
                       isDefault
-                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
-                        : 'bg-white/70 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/15 text-slate-600 dark:text-slate-300 hover:border-amber-400/50'
+                        ? 'bg-[#FFBA00]/15 border-[#FFBA00]/50 text-[#9A6E00] dark:text-[#FFBA00]'
+                        : 'bg-white/70 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/15 text-slate-600 dark:text-slate-300 hover:border-[#FFBA00]/50'
                     }`}
                   >
                     {isDefault
@@ -641,7 +918,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       {/* 3. Articles Widgets Manager (Quick Tips & Widget Sources) */}
       <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
             <Lightbulb className="w-4 h-4" />
             <span>
               {isFa
@@ -681,7 +958,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
           />
           <button
             type="submit"
-            className="md:col-span-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer"
+            className="md:col-span-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{isFa ? 'افزودن نکته' : 'Add Tip'}</span>
@@ -733,7 +1010,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
               <Database className="w-4 h-4" />
               <span>{isFa ? 'مدیریت داده‌های نمونه (Demo Data)' : 'Demo Data Manager'}</span>
             </div>
@@ -805,7 +1082,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
           {[
             {
               key: 'products' as const,
-              icon: <Layers className="w-4 h-4 text-amber-500" />,
+              icon: <Layers className="w-4 h-4 text-[#FFBA00]" />,
               label: isFa ? 'محصولات نرم‌افزاری' : 'Products',
               count: demoProductsCount,
             },
@@ -910,7 +1187,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
           className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
         >
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-            <Plus className="w-4 h-4 text-amber-500" />
+            <Plus className="w-4 h-4 text-[#FFBA00]" />
             <span>{isFa ? 'افزودن سریع دوره آموزشی جدید' : 'Add Custom Course'}</span>
           </div>
 
@@ -948,7 +1225,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
 
           <button
             type="submit"
-            className="px-4 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
           >
             {isFa ? 'افزودن دوره به آکادمی' : 'Add Course'}
           </button>

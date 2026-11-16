@@ -50,6 +50,11 @@ import {
   ThemeMode,
   Transaction,
 } from './types/lms';
+import {
+  applyThemeColorVariables,
+  DEFAULT_THEME_COLORS,
+  ThemeColorConfig,
+} from './utils/colorTheme';
 
 const STORAGE_KEY = 'iramo_platform_state_v3';
 
@@ -90,6 +95,7 @@ const DEFAULT_AUTH_CHANNELS: AuthChannelsConfig = {
 const DEFAULT_SITE_CONFIG: SiteConfig = {
   brandTitle: 'iRamoAi',
   accentColor: 'emerald',
+  themeColors: DEFAULT_THEME_COLORS,
   fontFamily: 'vazirmatn',
   customFontName: '',
   showArticles: true,
@@ -178,6 +184,15 @@ export default function App() {
     }
   }
 
+  let wpColorConfig: Partial<ThemeColorConfig> = {};
+  if (wpRoot?.dataset.colorConfig) {
+    try {
+      wpColorConfig = JSON.parse(wpRoot.dataset.colorConfig) as Partial<ThemeColorConfig>;
+    } catch {
+      wpColorConfig = {};
+    }
+  }
+
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => {
     const savedCfg = saved.siteConfig;
     const rawBrand = savedCfg?.brandTitle || wpBrandName || DEFAULT_SITE_CONFIG.brandTitle;
@@ -197,6 +212,17 @@ export default function App() {
       ...(wpCustomFont ? { customFontName: wpCustomFont } : {}),
       ...(savedCfg || {}),
       brandTitle: normalizedBrand,
+      themeColors: (() => {
+        const merged = {
+          ...DEFAULT_THEME_COLORS,
+          ...wpColorConfig,
+          ...(savedCfg?.themeColors || {}),
+        };
+        if (merged.accentHex?.toUpperCase() === '#F59E0B') {
+          merged.accentHex = '#FFBA00';
+        }
+        return merged;
+      })(),
       authChannels: {
         ...DEFAULT_AUTH_CHANNELS,
         ...wpAuthConfig,
@@ -308,6 +334,9 @@ export default function App() {
             siteConfig.fontFamily === 'custom' ? 'vazirmatn' : siteConfig.fontFamily
           ] || FONT_STACKS.vazirmatn;
     root.style.setProperty('--font-fa', activeFontStack);
+
+    // Apply 60-30-10 dynamic color theme tokens
+    applyThemeColorVariables(siteConfig.themeColors, theme);
 
     try {
       localStorage.setItem(
@@ -510,7 +539,7 @@ export default function App() {
           )}
 
           {sitePage === 'ai-marketplace' && (
-            <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10">
+            <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10">
               <AIToolsView
                 key={`${marketplaceInit.query}-${marketplaceInit.task}`}
                 lang={lang}
@@ -605,7 +634,7 @@ export default function App() {
         />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="max-w-[1320px] mx-auto">
+          <div className="max-w-[1460px] mx-auto">
             {activeSection === 'home' && (
               <HomeDashboardView
                 lang={lang}

@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             dir="ltr"
             className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0"
           >
-            iRamo<span className="text-amber-500">Ai</span>
+            iRamo<span className="text-[var(--iramo-accent)]">Ai</span>
           </span>
         </button>
 
@@ -158,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Student Identity Row */}
         <div className="space-y-2">
           <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0D1A15] border border-slate-200/70 dark:border-emerald-500/15">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-semibold text-sm flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-[var(--iramo-primary)] text-[var(--iramo-primary-fg)] font-semibold text-sm flex items-center justify-center shrink-0">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
@@ -223,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span
                       className={
                         isActive
-                          ? 'text-amber-500 dark:text-emerald-400'
+                          ? 'text-[var(--iramo-primary)] dark:text-emerald-400'
                           : 'text-slate-400 dark:text-slate-400'
                       }
                     >
@@ -234,7 +234,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                   </span>
                   {item.badge && (
-                    <span className="text-[11px] tabular-nums text-amber-600 dark:text-amber-400 font-semibold">
+                    <span className="text-[11px] tabular-nums text-[#9A6E00] dark:text-[#FFBA00] font-semibold">
                       {toLocaleDigits(item.badge, lang)}
                     </span>
                   )}
@@ -256,7 +256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 course.accentColor === 'blue'
                   ? 'bg-blue-500'
                   : course.accentColor === 'amber'
-                  ? 'bg-amber-500'
+                  ? 'bg-[#FFBA00]'
                   : course.accentColor === 'emerald'
                   ? 'bg-emerald-500'
                   : 'bg-indigo-500';
@@ -289,9 +289,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom AI Study Overview Card */}
       <div className="p-3.5 border-t border-slate-200/70 dark:border-emerald-500/15">
-        <div className="rounded-2xl p-3.5 bg-gradient-to-br from-amber-50 via-white to-emerald-50/70 dark:from-[#0E1E18] dark:via-[#0B1613] dark:to-[#13251E] border border-amber-200/60 dark:border-emerald-500/20">
+        <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[var(--iramo-primary-soft)] via-white to-slate-50 dark:from-[#0E1E18] dark:via-[#0B1613] dark:to-[#13251E] border border-[var(--iramo-card-border)]">
           <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-6 h-6 rounded-md bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-md bg-[var(--iramo-accent-soft)] text-[var(--iramo-accent)] flex items-center justify-center shrink-0">
               <Sparkles className="w-3.5 h-3.5" />
             </div>
             <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
@@ -309,7 +309,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onOpenStudyPlanner();
               onCloseMobile();
             }}
-            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400 transition-colors cursor-pointer whitespace-nowrap"
+            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 dark:bg-[#FFBA00] dark:text-slate-950 dark:hover:bg-[#E5A700] transition-colors cursor-pointer whitespace-nowrap"
           >
             <span>{isFa ? 'شروع تحلیل مسیر' : 'Start Session'}</span>
             {isFa ? (

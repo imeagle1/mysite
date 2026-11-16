@@ -52,15 +52,15 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
   return (
     <div className="space-y-14 pb-10">
       {/* 1. Hero Section — Modern Minimal Light Mode + Deep Emerald Dark Mode */}
-      <section className="relative overflow-hidden border-b border-slate-200/80 dark:border-emerald-500/15 bg-gradient-to-b from-emerald-50/75 via-white to-[#F8FAFC] dark:from-[#071611] dark:via-[#06110D] dark:to-[#050C0A]">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 pt-24 pb-10 lg:pt-28 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      <section className="relative overflow-hidden border-b border-[var(--iramo-card-border)] dark:border-emerald-500/15 bg-gradient-to-b from-[var(--iramo-primary-soft)] via-white to-[var(--iramo-canvas)] dark:from-[#071611] dark:via-[#06110D] dark:to-[#050C0A]">
+        <div className="max-w-[1460px] mx-auto px-4 sm:px-6 pt-24 pb-10 lg:pt-28 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.3 }}
             className="lg:col-span-6 flex flex-col justify-center space-y-6"
           >
-            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 tracking-wide">
+            <p className="text-xs font-semibold text-[var(--iramo-primary)] tracking-wide">
               {isFa
                 ? `جایی برای خلق آینده هوشمند · ${brandTitle}`
                 : `Engineering Intelligent Systems · ${brandTitle}`}
@@ -70,14 +70,14 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               {isFa ? (
                 <>
                   محصولات نرم‌افزاری، آموزش حرفه‌ای و{' '}
-                  <span className="text-emerald-600 dark:text-amber-400">
+                  <span className="text-[var(--iramo-primary)] dark:text-[#FFBA00]">
                     راهکارهای هوشمند AI
                   </span>
                 </>
               ) : (
                 <>
                   AI Software Products, Academy &{' '}
-                  <span className="text-emerald-600 dark:text-amber-400">
+                  <span className="text-[var(--iramo-primary)] dark:text-[#FFBA00]">
                     Custom Automation
                   </span>
                 </>
@@ -94,7 +94,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('products')}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-sm font-bold shadow-sm shadow-[#1677FF]/25 dark:shadow-amber-500/20 transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-sm font-bold shadow-sm shadow-black/10 transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>{isFa ? 'مشاهده دمو محصولات' : 'Explore Product Demos'}</span>
@@ -103,13 +103,13 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('services')}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-transparent border border-slate-300 dark:border-emerald-500/30 hover:border-emerald-500 dark:hover:border-emerald-400 text-slate-800 dark:text-slate-100 text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-transparent border border-[var(--iramo-card-border)] dark:border-emerald-500/30 hover:border-[var(--iramo-primary-border)] dark:hover:border-emerald-400 text-slate-800 dark:text-slate-100 text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap"
               >
                 <span>{isFa ? 'درخواست مشاوره و پروژه' : 'Request Consultation'}</span>
                 {isFa ? (
-                  <ArrowLeft className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <ArrowLeft className="w-4 h-4 text-[var(--iramo-primary)]" />
                 ) : (
-                  <ArrowRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <ArrowRight className="w-4 h-4 text-[var(--iramo-primary)]" />
                 )}
               </button>
             </div>
@@ -159,7 +159,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
         </div>
       </section>
 
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 space-y-14">
+      <div className="max-w-[1460px] mx-auto px-4 sm:px-6 space-y-14">
         {/* 2. Top Products Showcase */}
         {products.length > 0 && (
           <section className="space-y-5">
@@ -177,7 +177,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('products')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#1677FF]/35 text-[#1677FF] hover:bg-[#1677FF]/8 dark:border-amber-500/40 dark:text-amber-400 dark:hover:bg-amber-500/10 text-xs font-semibold transition-colors cursor-pointer self-start sm:self-auto whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-primary-border)] text-slate-700 hover:text-[var(--iramo-primary)] dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10 text-xs font-semibold transition-colors duration-150 cursor-pointer self-start sm:self-auto whitespace-nowrap"
               >
                 <span>{isFa ? 'مشاهده همه محصولات' : 'View All Products'}</span>
                 {isFa ? (
@@ -189,15 +189,11 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {products.map((prod, idx) => (
-                <motion.article
+              {products.map((prod) => (
+                <article
                   key={prod.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, delay: idx * 0.05 }}
-                  whileHover={{ y: -4 }}
                   onClick={() => onOpenProductDemo(prod.id)}
-                  className="group rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 hover:border-amber-400/70 dark:hover:border-amber-400/50 shadow-xs hover:shadow-md overflow-hidden flex flex-col justify-between transition-all cursor-pointer"
+                  className="group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden flex flex-col justify-between cursor-pointer"
                 >
                   <div>
                     <div className="aspect-4/3 overflow-hidden bg-slate-100 dark:bg-[#07110E]">
@@ -205,15 +201,15 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                         src={prod.thumbnail}
                         alt={isFa ? prod.name.fa : prod.name.en}
                         referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-150"
                       />
                     </div>
 
                     <div className="p-4 space-y-2">
-                      <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <p className="text-[11px] font-semibold text-[var(--iramo-primary)]">
                         {isFa ? prod.category.fa : prod.category.en}
                       </p>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 leading-snug">
                         {isFa ? prod.name.fa : prod.name.en}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
@@ -236,17 +232,17 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                       }}
                     />
                   </div>
-                </motion.article>
+                </article>
               ))}
             </div>
           </section>
         )}
 
         {/* 3. AI Tools Assistant Teaser */}
-        <section className="rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-emerald-50/90 via-white to-slate-50 dark:from-[#0B1B16] dark:via-[#07120E] dark:to-[#0B1613] border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs">
+        <section className="rounded-2xl p-6 sm:p-8 bg-white dark:bg-[#091611] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             <div className="lg:col-span-5 space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--iramo-primary)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
                   {isFa
@@ -270,7 +266,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               onSubmit={handleDiscoverySubmit}
               className="lg:col-span-7 space-y-3"
             >
-              <div className="flex items-center gap-2 p-1.5 rounded-xl bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/25 focus-within:border-emerald-500 dark:focus-within:border-emerald-400 shadow-xs">
+              <div className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-50/80 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] focus-within:border-[var(--iramo-primary-border)] shadow-xs">
                 <input
                   type="text"
                   value={heroSearch}
@@ -284,7 +280,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                 />
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 text-xs font-bold transition-colors cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] text-xs font-bold transition-colors cursor-pointer shrink-0"
                 >
                   <Search className="w-4 h-4" />
                   <span>{isFa ? 'پیشنهاد ابزار' : 'Find AI Tool'}</span>
@@ -309,8 +305,8 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                       onClick={() => setQuickTask(chip.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                         quickTask === chip.id
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40'
-                          : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-950 dark:bg-[#050C0A] dark:text-slate-400 dark:border-emerald-500/15 dark:hover:text-white'
+                          ? 'bg-[var(--iramo-primary-soft)] text-[var(--iramo-primary)] border border-[var(--iramo-primary-border)]'
+                          : 'bg-slate-50 text-slate-600 border border-[var(--iramo-card-border)] hover:text-slate-950 dark:bg-[#050C0A] dark:text-slate-400 dark:hover:text-white'
                       }`}
                     >
                       {isFa ? chip.fa : chip.en}
@@ -321,7 +317,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('ai-marketplace')}
-                  className="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[var(--iramo-primary)] hover:underline cursor-pointer"
                 >
                   {isFa ? 'ورود به صفحه کامل ابزارهای AI ←' : 'Open AI Tools Page →'}
                 </button>
@@ -332,7 +328,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
 
         {/* 4. Bottom Dual Bento Cards: Academy + Services & Consultation */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          <div className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs flex flex-col justify-between gap-6">
+          <div className="group iramo-card-interactive rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -347,14 +343,14 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('courses')}
-                className="px-3.5 py-1.5 rounded-xl border border-[#1677FF]/35 text-[#1677FF] hover:bg-[#1677FF]/8 dark:border-amber-500/40 dark:text-amber-400 dark:hover:bg-amber-500/10 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-primary-border)] text-slate-700 hover:text-[var(--iramo-primary)] dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors"
               >
                 {isFa ? 'مشاهده همه دوره‌ها' : 'All Courses'}
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              <div className="sm:col-span-5 aspect-4/3 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#07110E] border border-slate-200 dark:border-emerald-500/20">
+              <div className="sm:col-span-5 aspect-4/3 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#07110E] border border-[var(--iramo-card-border)]">
                 <img
                   src={featuredCourse?.thumbnail || courseAiImg}
                   alt={isFa ? 'دوره جامع هوش مصنوعی' : 'AI Mastery Course'}
@@ -377,7 +373,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
                     ? 'از مبانی تا ساخت ایجنت‌های حرفه‌ای، اتصال به وردپرس و اتوماسیون ربات‌های تلگرام و بله.'
                     : 'Build real agents, connect WordPress REST APIs, and launch automated bots.'}
                 </p>
-                <p className="text-xs tabular-nums text-emerald-600 dark:text-emerald-400 font-semibold pt-1">
+                <p className="text-xs tabular-nums text-[var(--iramo-primary)] font-semibold pt-1">
                   {isFa
                     ? '۱۲ ساعت آموزش · ۶ پروژه عملی'
                     : '12h Video · 6 Hands-on Labs'}
@@ -396,7 +392,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
             </div>
           </div>
 
-          <div className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs flex flex-col justify-between gap-6">
+          <div className="group iramo-card-interactive rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -411,7 +407,7 @@ export const WebsiteHomeView: React.FC<WebsiteHomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigate('services')}
-                className="px-3.5 py-1.5 rounded-xl border border-[#1677FF]/35 text-[#1677FF] hover:bg-[#1677FF]/8 dark:border-amber-500/40 dark:text-amber-400 dark:hover:bg-amber-500/10 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-primary-border)] text-slate-700 hover:text-[var(--iramo-primary)] dark:border-emerald-500/30 dark:text-emerald-300 text-xs font-semibold whitespace-nowrap shrink-0 cursor-pointer transition-colors"
               >
                 {isFa ? 'ثبت سفارش پروژه' : 'Request Quote'}
               </button>

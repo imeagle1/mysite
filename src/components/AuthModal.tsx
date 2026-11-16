@@ -447,7 +447,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       >
         <div className="flex-1 overflow-y-auto iramo-inner-scroll grid grid-cols-1 md:grid-cols-12">
           {/* Brand & Value Side Panel */}
-          <div className="md:col-span-5 p-6 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-slate-50 to-amber-50/50 dark:from-[#0B2219] dark:via-[#071510] dark:to-[#050C0A] border-b md:border-b-0 md:border-e border-slate-200 dark:border-emerald-500/20 flex flex-col justify-between gap-6">
+          <div className="md:col-span-5 p-6 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-slate-50 to-[#FFBA00]/10 dark:from-[#0B2219] dark:via-[#071510] dark:to-[#050C0A] border-b md:border-b-0 md:border-e border-slate-200 dark:border-emerald-500/20 flex flex-col justify-between gap-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -461,7 +461,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     {brandTitle.toLowerCase().endsWith('ai') && !brandTitle.includes('.') ? (
                       <>
                         {brandTitle.slice(0, -2)}
-                        <span className="text-amber-500 dark:text-amber-400">
+                        <span className="text-[#FFBA00]">
                           {brandTitle.slice(-2)}
                         </span>
                       </>
@@ -481,7 +481,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div className="space-y-2 pt-1">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#9A6E00] dark:text-[#FFBA00]">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>
                     {isFa ? 'پنل یکپارچه کاربران و دانشجویان' : 'Unified Member Portal'}
@@ -523,7 +523,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div className="rounded-xl p-3 bg-white/80 dark:bg-[#050C0A]/80 border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-2.5 text-[11px] text-emerald-700 dark:text-emerald-300/90 font-medium">
-              <Award className="w-4 h-4 text-amber-500 shrink-0" />
+              <Award className="w-4 h-4 text-[#FFBA00] shrink-0" />
               <span>
                 {isFa
                   ? 'ورود سریع، رمزنگاری‌شده و تایید آنی هویت'
@@ -690,7 +690,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] hover:brightness-105 text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 text-xs font-extrabold cursor-pointer shadow-md shadow-[#1677FF]/25 dark:shadow-amber-500/20"
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{isFa ? 'تایید و ورود به پنل' : 'Verify & Enter'}</span>
@@ -736,7 +736,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] hover:brightness-105 text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 text-xs font-extrabold cursor-pointer shadow-md shadow-[#1677FF]/25 dark:shadow-amber-500/20"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors"
                   >
                     <Smartphone className="w-3.5 h-3.5" />
                     <span>
@@ -797,7 +797,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] hover:brightness-105 text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 text-xs font-extrabold cursor-pointer shadow-md shadow-[#1677FF]/25 dark:shadow-amber-500/20"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>
@@ -867,7 +867,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] hover:brightness-105 text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 text-xs font-extrabold cursor-pointer shadow-md shadow-[#1677FF]/25 dark:shadow-amber-500/20"
+                    className="w-full py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors"
                   >
                     {mode === 'login'
                       ? isFa

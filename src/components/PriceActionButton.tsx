@@ -28,11 +28,11 @@ export const PriceActionButton: React.FC<PriceActionButtonProps> = ({
   const isFree = priceToman === 0;
   const priceLabel = formatPrice(priceToman, priceUsd, lang);
 
-  // Light mode uses the iRamoAi Logo Blue (#1677FF) for primary CTA buttons; Dark mode retains emerald/amber contrast.
+  // Principled 60-30-10 tokens driven by Color Manager (defaults to classic Light Mode Emerald & Warm Amber)
   const variantClasses =
     variant === 'emerald'
-      ? 'bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-gradient-to-l dark:from-emerald-500 dark:via-emerald-400 dark:to-teal-400 dark:text-slate-950 shadow-md shadow-emerald-600/20 dark:shadow-emerald-500/20 hover:shadow-lg dark:hover:brightness-105'
-      : 'bg-gradient-to-l from-[#1677FF] via-[#1D7AFC] to-[#0D65E8] text-white shadow-md shadow-[#1677FF]/25 hover:shadow-lg hover:shadow-[#1677FF]/35 hover:brightness-105 dark:from-amber-400 dark:via-amber-500 dark:to-orange-400 dark:text-slate-950 dark:shadow-amber-500/20 dark:hover:shadow-amber-500/35';
+      ? 'bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] shadow-sm shadow-black/10 hover:shadow-md'
+      : 'bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] shadow-sm shadow-black/10 hover:shadow-md';
 
   const sizeClasses =
     size === 'md'
@@ -43,7 +43,7 @@ export const PriceActionButton: React.FC<PriceActionButtonProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`group/price relative inline-flex items-center justify-between font-bold transition-all duration-200 active:scale-[0.98] cursor-pointer whitespace-nowrap ${
+      className={`group/price relative inline-flex items-center justify-between font-bold transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap ${
         fullWidth ? 'w-full' : ''
       } ${sizeClasses} ${variantClasses}`}
     >
@@ -57,7 +57,7 @@ export const PriceActionButton: React.FC<PriceActionButtonProps> = ({
       </span>
 
       {ctaLabel && (
-        <span className="inline-flex items-center gap-1 ps-2 border-s border-white/25 dark:border-slate-950/15 font-extrabold">
+        <span className="inline-flex items-center gap-1 ps-2 border-s border-current/20 font-extrabold">
           <span>{isFa ? ctaLabel.fa : ctaLabel.en}</span>
           {isFa ? (
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover/price:-translate-x-0.5" />

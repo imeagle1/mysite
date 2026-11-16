@@ -114,7 +114,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-emerald-500/20 bg-white dark:bg-[#0D1A15] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500/50 transition-colors cursor-pointer whitespace-nowrap shrink-0"
           title={isFa ? 'تغییر زبان به انگلیسی' : 'Switch to Persian RTL'}
         >
-          <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-400" />
+          <Globe className="w-3.5 h-3.5 text-[var(--iramo-primary)] dark:text-emerald-400" />
           <span>{isFa ? 'FA | EN' : 'EN | FA'}</span>
         </button>
 
@@ -135,7 +135,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           }
         >
           {theme === 'dark' ? (
-            <Sun className="w-3.5 h-3.5 text-amber-400" />
+            <Sun className="w-3.5 h-3.5 text-[#FFBA00]" />
           ) : (
             <Moon className="w-3.5 h-3.5 text-slate-600" />
           )}
@@ -160,7 +160,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[10px] font-bold tabular-nums flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-[var(--iramo-accent)] text-[var(--iramo-accent-fg)] text-[10px] font-bold tabular-nums flex items-center justify-center">
                 {toLocaleDigits(unreadCount, lang)}
               </span>
             )}

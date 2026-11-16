@@ -68,7 +68,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('course')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap shadow-sm shadow-[#1677FF]/20 dark:shadow-none"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer whitespace-nowrap shadow-xs"
           >
             <BookOpen className="w-4 h-4" />
             <span>{isFa ? 'مشاهده کتابخانه دوره‌ها' : 'Browse Course Library'}</span>
@@ -118,7 +118,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{isFa ? 'لایسنس‌های نرم‌افزاری' : 'Active Licenses'}</span>
-            <KeyRound className="w-4 h-4 text-amber-500" />
+            <KeyRound className="w-4 h-4 text-[#FFBA00]" />
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
             {toLocaleDigits(activeLicenses.length, lang)}
@@ -218,7 +218,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenCourse(course)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-amber-400 hover:underline cursor-pointer pt-1"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-[#FFBA00] hover:underline cursor-pointer pt-1"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       <span>{isFa ? 'ورود به جلسه بعدی' : 'Resume Next Lesson'}</span>

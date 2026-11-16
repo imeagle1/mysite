@@ -5,7 +5,6 @@ import {
   Send,
   User,
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { SoftwareProduct } from '../data/lmsData';
 import { Course, Lang } from '../types/lms';
 import { toLocaleDigits } from '../utils/formatters';
@@ -40,7 +39,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
 
   if (!activeProduct) {
     return (
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-12">
+      <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-12">
         <div className="rounded-2xl p-10 text-center bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/15 space-y-2 shadow-xs">
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">
             {isFa ? 'هنوز محصولی ثبت نشده است' : 'No Products Available'}
@@ -56,9 +55,9 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
   }
 
   return (
-    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div className="space-y-2 max-w-2xl">
-        <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+        <p className="text-xs font-semibold text-[var(--iramo-primary)]">
           {isFa ? 'ویترین محصولات نرم‌افزاری iRamoAi' : 'iRamoAi Software Showcase'}
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-balance">
@@ -78,17 +77,16 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
         {products.map((prod) => {
           const active = prod.id === activeProduct.id;
           return (
-            <motion.div
+            <div
               key={prod.id}
-              whileHover={{ y: -3 }}
               onClick={() => {
                 onSelectProduct(prod.id);
                 setDemoRan(false);
               }}
-              className={`rounded-2xl border text-start overflow-hidden transition-all cursor-pointer flex flex-col justify-between shadow-xs ${
+              className={`group iramo-card-interactive rounded-2xl border text-start overflow-hidden cursor-pointer flex flex-col justify-between ${
                 active
-                  ? 'bg-emerald-50/70 dark:bg-[#0D1E18] border-amber-500 dark:border-amber-400 shadow-md shadow-amber-500/10'
-                  : 'bg-white dark:bg-[#0B1613] border-slate-200/85 dark:border-emerald-500/15 hover:border-emerald-400/60'
+                  ? 'bg-white dark:bg-[#0D1E18] border-[var(--iramo-primary-border)] ring-1 ring-[var(--iramo-primary)]/25 shadow-sm'
+                  : 'bg-white dark:bg-[#0B1613] border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)]'
               }`}
             >
               <div>
@@ -97,14 +95,14 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
                     src={prod.thumbnail}
                     alt={isFa ? prod.name.fa : prod.name.en}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-150"
                   />
                 </div>
                 <div className="p-4 space-y-1">
-                  <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-[11px] font-semibold text-[var(--iramo-primary)]">
                     {isFa ? prod.category.fa : prod.category.en}
                   </p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 truncate">
                     {isFa ? prod.name.fa : prod.name.en}
                   </p>
                 </div>
@@ -127,20 +125,20 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
                   }}
                 />
               </div>
-            </motion.div>
+            </div>
           );
         })}
       </div>
 
       {/* Active Product Detail & Interactive Demo Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-6 rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/20 shadow-xs flex flex-col justify-between gap-6">
+        <div className="lg:col-span-6 rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 {isFa ? activeProduct.name.fa : activeProduct.name.en}
               </h2>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="text-xs text-[var(--iramo-primary)] font-semibold">
                 {isFa ? activeProduct.billingLabel.fa : activeProduct.billingLabel.en}
               </span>
             </div>
@@ -156,7 +154,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
                     key={i}
                     className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-200"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[var(--iramo-primary)] shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 )
@@ -164,7 +162,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
             </ul>
           </div>
 
-          <div className="pt-4 border-t border-slate-200 dark:border-emerald-500/15 flex flex-wrap items-center justify-between gap-4">
+          <div className="pt-4 border-t border-[var(--iramo-card-border)] flex flex-wrap items-center justify-between gap-4">
             <PriceActionButton
               lang={lang}
               priceToman={activeProduct.priceToman}
@@ -183,7 +181,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenCourseInPanel(activeProduct.linkedCourseId!)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/15 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-soft)] text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>
@@ -197,13 +195,13 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
         </div>
 
         {/* Live Interactive Sandbox */}
-        <div className="lg:col-span-6 rounded-2xl p-6 bg-white dark:bg-[#07110E] border border-slate-200/85 dark:border-emerald-500/25 shadow-xs flex flex-col justify-between gap-5">
+        <div className="lg:col-span-6 rounded-2xl p-6 bg-white dark:bg-[#07110E] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-5">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {isFa ? 'آزمایشگاه دمو تعاملی' : 'Interactive Product Sandbox'}
               </h3>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="text-[11px] text-[var(--iramo-primary)] font-semibold">
                 {isFa ? activeProduct.category.fa : activeProduct.category.en}
               </span>
             </div>
@@ -212,12 +210,12 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               {activeProduct.demoMetrics.map((m, i) => (
                 <div
                   key={i}
-                  className="p-3 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200/80 dark:border-emerald-500/15"
+                  className="p-3 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)]"
                 >
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                     {isFa ? m.label.fa : m.label.en}
                   </p>
-                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums mt-1">
+                  <p className="text-sm font-bold text-[var(--iramo-primary)] tabular-nums mt-1">
                     {isFa ? m.value.fa : m.value.en}
                   </p>
                 </div>
@@ -234,12 +232,12 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
                 rows={2}
                 value={demoSampleInput}
                 onChange={(e) => setDemoSampleInput(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400"
+                className="w-full p-3 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary-border)]"
               />
               <button
                 type="button"
                 onClick={() => setDemoRan(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 text-xs font-bold cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] text-xs font-bold cursor-pointer transition-colors"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>{isFa ? 'اجرای دمو' : 'Run Demo Preview'}</span>
@@ -297,7 +295,7 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
 }) => {
   const isFa = lang === 'fa';
   return (
-    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-2 max-w-2xl">
           <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -318,7 +316,7 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
         <button
           type="button"
           onClick={onEnterPanel}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap self-start sm:self-auto shadow-xs shadow-[#1677FF]/25"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer whitespace-nowrap self-start sm:self-auto shadow-xs transition-colors"
         >
           <User className="w-4 h-4" />
           <span>{isFa ? 'ورود به پنل کاربری' : 'Open Student Panel'}</span>
@@ -326,7 +324,7 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
       </div>
 
       {courses.length === 0 ? (
-        <div className="rounded-2xl p-10 text-center bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/15 space-y-2 shadow-xs">
+        <div className="rounded-2xl p-10 text-center bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-2 shadow-xs">
           <p className="text-sm font-bold text-slate-900 dark:text-white">
             {isFa ? 'در حال حاضر دوره‌ای ثبت نشده است' : 'No Courses Available'}
           </p>
@@ -338,14 +336,11 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {courses.map((course, idx) => (
-            <motion.article
+          {courses.map((course) => (
+            <article
               key={course.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: idx * 0.04 }}
-              whileHover={{ y: -3 }}
-              className="rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 hover:border-emerald-400/60 overflow-hidden flex flex-col justify-between transition-all shadow-xs hover:shadow-md"
+              onClick={() => onOpenCourseInPanel(course.id)}
+              className="group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] overflow-hidden flex flex-col justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)] cursor-pointer"
             >
               <div>
                 <div className="aspect-4/3 bg-slate-100 dark:bg-[#07110E] overflow-hidden">
@@ -353,16 +348,16 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
                     src={course.thumbnail}
                     alt={isFa ? course.title.fa : course.title.en}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-150"
                   />
                 </div>
                 <div className="p-5 space-y-2">
-                  <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  <p className="text-[11px] font-semibold text-[var(--iramo-primary)] tabular-nums">
                     {course.category} · {isFa ? course.totalDuration.fa : course.totalDuration.en} ·{' '}
                     {toLocaleDigits(course.lessonCount, lang)}{' '}
                     {isFa ? 'جلسه' : 'Lessons'}
                   </p>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 leading-snug">
                     {isFa ? course.title.fa : course.title.en}
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
@@ -379,10 +374,13 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
                   ctaLabel={{ fa: 'مشاهده دوره', en: 'Open Course' }}
                   variant="emerald"
                   fullWidth
-                  onClick={() => onOpenCourseInPanel(course.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenCourseInPanel(course.id);
+                  }}
                 />
               </div>
-            </motion.article>
+            </article>
           ))}
         </div>
       )}
@@ -412,11 +410,11 @@ export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> =
   };
 
   return (
-    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-6 space-y-6">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+            <p className="text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
               {isFa ? 'مهندسی پروژه و مشاوره تخصصی' : 'Custom Engineering & Consulting'}
             </p>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-balance">
@@ -460,7 +458,7 @@ export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> =
                 className="p-5 rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs space-y-1.5"
               >
                 <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  <span className="text-amber-600 dark:text-amber-400 me-2 tabular-nums">
+                  <span className="text-[var(--iramo-primary)] dark:text-[#FFBA00] me-2 tabular-nums">
                     {srv.num}
                   </span>
                   {isFa ? srv.faTitle : srv.enTitle}
@@ -578,7 +576,7 @@ export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> =
 
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-sm font-bold shadow-xs shadow-[#1677FF]/25 transition-colors cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-sm font-bold shadow-xs transition-colors cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 <span>{isFa ? 'ارسال درخواست مشاوره' : 'Submit Consultation Request'}</span>

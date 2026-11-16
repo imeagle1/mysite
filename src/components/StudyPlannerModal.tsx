@@ -47,7 +47,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-emerald-500/15">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-            <Sparkles className="w-4 h-4 text-amber-500" />
+            <Sparkles className="w-4 h-4 text-[#FFBA00]" />
             <span>
               {isFa ? 'تحلیل هوشمند مسیر یادگیری' : 'Smart Learning Overview'}
             </span>
@@ -82,7 +82,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
                     onOpenCourse(nextCourse);
                     onClose();
                   }}
-                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer"
+                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
                 >
                   <span>{isFa ? 'شروع جلسه بعدی' : 'Jump to Next Lesson'}</span>
                   {isFa ? (
@@ -103,7 +103,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
               <span className="text-slate-600 dark:text-slate-300">
                 {isFa ? 'تکالیف در انتظار ارسال' : 'Pending Assignments'}
               </span>
-              <span className="tabular-nums font-bold text-amber-600 dark:text-amber-400">
+              <span className="tabular-nums font-bold text-[#9A6E00] dark:text-[#FFBA00]">
                 {toLocaleDigits(pendingAssignments.length, lang)}
               </span>
             </div>

@@ -7,6 +7,41 @@
     --font-en-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --font-en-body: 'DM Sans', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    /* 60-30-10 Principled Light Theme Tokens (Default: Emerald-Teal + #FFBA00 Gold) */
+    --iramo-canvas: #F8FAFC;
+    --iramo-surface: #FFFFFF;
+    --iramo-primary: #059669;
+    --iramo-primary-hover: #0EA575;
+    --iramo-primary-fg: #FFFFFF;
+    --iramo-primary-soft: rgba(5, 150, 105, 0.08);
+    --iramo-primary-border: rgba(5, 150, 105, 0.26);
+    --iramo-accent: #FFBA00;
+    --iramo-accent-hover: #FFC629;
+    --iramo-accent-fg: #061A13;
+    --iramo-accent-soft: rgba(255, 186, 0, 0.14);
+    --iramo-accent-text: #059669;
+    --iramo-card-border: rgba(15, 23, 42, 0.08);
+    --iramo-card-border-hover: rgba(5, 150, 105, 0.48);
+    --iramo-card-shadow-hover: 0 14px 28px -8px rgba(5, 150, 105, 0.20), 0 4px 12px -4px rgba(5, 150, 105, 0.12);
+  }
+
+  .dark {
+    --iramo-canvas: #050C0A;
+    --iramo-surface: #0B1613;
+    --iramo-primary: #10B981;
+    --iramo-primary-hover: #34D399;
+    --iramo-primary-fg: #FFFFFF;
+    --iramo-primary-soft: rgba(16, 185, 129, 0.14);
+    --iramo-primary-border: rgba(16, 185, 129, 0.30);
+    --iramo-accent: #FFBA00;
+    --iramo-accent-hover: #FFC629;
+    --iramo-accent-fg: #061A13;
+    --iramo-accent-soft: rgba(255, 186, 0, 0.16);
+    --iramo-accent-text: #FFBA00;
+    --iramo-card-border: rgba(16, 185, 129, 0.14);
+    --iramo-card-border-hover: rgba(16, 185, 129, 0.55);
+    --iramo-card-shadow-hover: 0 14px 32px -8px rgba(16, 185, 129, 0.28), 0 4px 12px -4px rgba(16, 185, 129, 0.14);
   }
 
   html,
@@ -80,3 +115,19 @@
   width: 0px;
   height: 0px;
 }
+
+/* Instant GPU-composited card hover lift + matching turquoise-emerald border & colored glow shadow */
+.iramo-card-interactive {
+  transition:
+    transform 140ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+  will-change: transform;
+}
+
+.iramo-card-interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--iramo-card-border-hover);
+  box-shadow: var(--iramo-card-shadow-hover);
+}
+

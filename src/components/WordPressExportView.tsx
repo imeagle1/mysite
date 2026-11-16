@@ -227,7 +227,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             type="button"
             disabled={zipLoading !== null}
             onClick={handleDownloadThemeZip}
-            className="flex items-center justify-between gap-3 p-4 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-[#1677FF]/20 dark:shadow-none hover:brightness-105 transition-all cursor-pointer"
+            className="flex items-center justify-between gap-3 p-4 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
           >
             <span className="flex items-center gap-2.5 text-start">
               <FileArchive className="w-5 h-5 shrink-0" />
@@ -301,7 +301,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       {/* 3-Step GitHub + WordPress Install Roadmap */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
-          <span className="text-xs font-bold tabular-nums text-amber-600 dark:text-amber-400">
+          <span className="text-xs font-bold tabular-nums text-[#9A6E00] dark:text-[#FFBA00]">
             {toLocaleDigits('01.', lang)}
           </span>
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -391,7 +391,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
               onClick={() =>
                 handleDownloadSingle(currentTab.filename, currentTab.code)
               }
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               <span>{isFa ? 'دانلود فایل' : 'Download File'}</span>

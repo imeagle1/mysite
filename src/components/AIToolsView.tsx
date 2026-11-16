@@ -31,7 +31,6 @@ import {
   Video,
   Wrench,
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { AI_CATEGORIES_META } from '../data/lmsData';
 import { AITool, AIToolRole, AIToolTask, Lang } from '../types/lms';
 import { toLocaleDigits } from '../utils/formatters';
@@ -420,7 +419,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                         {selectedTool.provider}
                       </strong>{' '}
                       ·{' '}
-                      <span dir="ltr" className="text-amber-500 font-semibold">
+                      <span dir="ltr" className="text-[var(--iramo-primary)] dark:text-[#FFBA00] font-semibold">
                         {getHostDomain(selectedTool.url)}
                       </span>
                     </p>
@@ -446,7 +445,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                   href={selectedTool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-l from-amber-400 to-orange-400 hover:brightness-105 text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-amber-500/20 shrink-0 whitespace-nowrap"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFBA00] hover:bg-[#FFC629] text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-[#FFBA00]/25 shrink-0 whitespace-nowrap transition-colors duration-150"
                 >
                   <span>{isFa ? 'ورود به سایت ابزار (Try Now)' : 'Visit Tool (Try Now)'}</span>
                   <ExternalLink className="w-4 h-4" />
@@ -459,12 +458,12 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
 
               {/* Popularity & Category Row */}
               <div className="flex flex-wrap items-center gap-2.5">
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-amber-500/30">
-                  <div className="w-9 h-9 rounded-full border-2 border-amber-400 bg-amber-500/10 text-amber-500 dark:text-amber-400 font-extrabold text-xs tabular-nums flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[#FFBA00]/40">
+                  <div className="w-9 h-9 rounded-full border-2 border-[#FFBA00] bg-[#FFBA00]/15 text-slate-900 dark:text-[#FFBA00] font-extrabold text-xs tabular-nums flex items-center justify-center shrink-0">
                     {toLocaleDigits(selectedTool.popularityScore ?? 92, lang)}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    <p className="text-xs font-bold text-slate-900 dark:text-[#FFBA00]">
                       {isFa
                         ? `رتبه محبوبیت در ${translateBadge(selectedTool.task)}`
                         : `Popular in ${translateBadge(selectedTool.task)}`}
@@ -510,7 +509,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                   onClick={(e) => toggleBookmark(selectedTool.id, e)}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
                     isBookmarked
-                      ? 'bg-amber-500/15 border-amber-400/50 text-amber-600 dark:text-amber-300'
+                      ? 'bg-[#FFBA00] border-[#FFBA00] text-slate-950'
                       : 'bg-slate-50 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 hover:border-emerald-400'
                   }`}
                 >
@@ -655,7 +654,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                 className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
               >
                 <h2 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <Sparkles className="w-5 h-5 text-[#FFBA00]" />
                   <span>
                     {isFa ? `ویژگی‌های کلیدی ${selectedTool.name}` : `${selectedTool.name} Key Features`}
                   </span>
@@ -703,9 +702,9 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                 )}
 
                 {selectedTool.samplePrompt && (
-                  <div className="rounded-xl p-4 bg-amber-50/70 dark:bg-[#050C0A] border border-amber-300/70 dark:border-amber-500/30 space-y-2">
+                  <div className="rounded-xl p-4 bg-[#FFBA00]/10 dark:bg-[#050C0A] border border-[#FFBA00]/45 space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                      <span className="text-xs font-bold text-slate-900 dark:text-[#FFBA00]">
                         {isFa ? 'پرامپت نمونه برای تست سریع' : 'Sample Prompt Template'}
                       </span>
                       <button
@@ -846,7 +845,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                         key={idx}
                         className="flex items-center gap-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15 text-xs font-semibold text-slate-800 dark:text-slate-200"
                       >
-                        <Users className="w-4 h-4 text-amber-400 shrink-0" />
+                        <Users className="w-4 h-4 text-[#FFBA00] shrink-0" />
                         <span>{role}</span>
                       </div>
                     )
@@ -867,7 +866,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                       key={rt.id}
                       type="button"
                       onClick={() => setSelectedToolId(rt.id)}
-                      className="p-3.5 rounded-xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 hover:border-emerald-400/50 text-start transition-colors cursor-pointer flex items-center gap-2.5"
+                      className="iramo-card-interactive p-3.5 rounded-xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] text-start cursor-pointer flex items-center gap-2.5"
                     >
                       <div className="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0">
                         {CATEGORY_ICON[rt.task]}
@@ -876,7 +875,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                         <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {rt.name}
                         </p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {rt.provider} · {translateBadge(rt.pricing)}
                         </p>
                       </div>
@@ -887,11 +886,11 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
             )}
           </div>
 
-          {/* Slim Utility Sidebar */}
-          <aside className="w-full lg:w-[270px] shrink-0 space-y-4">
-            <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3">
+          {/* Readable Utility Sidebar */}
+          <aside className="w-full lg:w-[310px] shrink-0 space-y-4">
+            <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white">
-                <Flame className="w-4 h-4 text-amber-400" />
+                <Flame className="w-4 h-4 text-[#FFBA00]" />
                 <span>{isFa ? 'پلتفرم‌های برگزیده' : 'Featured Platforms'}</span>
               </div>
               <div className="space-y-2">
@@ -956,8 +955,8 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
       {/* 1. AI-Assist Hero Search (Modeled directly after topai.tools/ai-assist) */}
       <section className="rounded-2xl p-5 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-white to-slate-50 dark:from-[#071611] dark:via-[#0A1A14] dark:to-[#06100C] text-slate-900 dark:text-white border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-5">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
+            <Sparkles className="w-3.5 h-3.5 text-[#FFBA00]" />
             <span>
               {isFa
                 ? 'مرجع جامع و هوشمند پلتفرم‌های هوش مصنوعی'
@@ -977,7 +976,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
         </div>
 
         {/* Centered Search Input */}
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/35 focus-within:border-emerald-500 dark:focus-within:border-amber-400 shadow-xs transition-colors">
+        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/35 focus-within:border-[var(--iramo-primary)] dark:focus-within:border-[#FFBA00] shadow-xs transition-colors">
           <div className="flex items-center gap-2.5 flex-1 px-2.5">
             <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <input
@@ -1183,7 +1182,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
               <p className="text-[10px] text-slate-500 dark:text-slate-400">
                 {isFa ? 'میانگین هزینه این دسته:' : 'Median Starting Cost:'}
               </p>
-              <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+              <p className="text-xs font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00] mt-0.5">
                 {isFa ? activeCategoryMeta.medianPrice.fa : activeCategoryMeta.medianPrice.en}
               </p>
             </div>
@@ -1235,19 +1234,15 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredTools.map((tool, index) => {
+              {filteredTools.map((tool) => {
                 const { likes, dislikes, users } = getToolCounts(tool);
                 const isBookmarked = bookmarkedIds.includes(tool.id);
 
                 return (
-                  <motion.article
+                  <article
                     key={tool.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.16) }}
-                    whileHover={{ y: -3 }}
                     onClick={() => setSelectedToolId(tool.id)}
-                    className="group rounded-2xl overflow-hidden bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 hover:border-emerald-400/55 transition-colors flex flex-col justify-between cursor-pointer"
+                    className="group iramo-card-interactive rounded-2xl overflow-hidden bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] flex flex-col justify-between cursor-pointer"
                   >
                     <div>
                       {/* Compact Card Thumbnail */}
@@ -1257,7 +1252,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                             src={tool.thumbnail}
                             alt={tool.name}
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-150"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-emerald-400">
@@ -1267,7 +1262,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                         <div className="absolute inset-0 bg-gradient-to-t from-[#050C0A]/75 via-transparent to-transparent" />
 
                         {tool.featured && (
-                          <span className="absolute top-2.5 start-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-extrabold">
+                          <span className="absolute top-2.5 start-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FFBA00] text-slate-950 text-[10px] font-extrabold">
                             <Flame className="w-2.5 h-2.5" />
                             <span>{isFa ? 'ویژه' : 'Featured'}</span>
                           </span>
@@ -1277,9 +1272,9 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                           type="button"
                           onClick={(e) => toggleBookmark(tool.id, e)}
                           aria-label={isFa ? 'ذخیره ابزار' : 'Bookmark tool'}
-                          className={`absolute top-2.5 end-2.5 p-1.5 rounded-lg backdrop-blur-md border transition-colors cursor-pointer ${
+                          className={`absolute top-2.5 end-2.5 p-1.5 rounded-lg backdrop-blur-md border transition-colors duration-150 cursor-pointer ${
                             isBookmarked
-                              ? 'bg-[#1677FF] text-white border-[#1677FF] dark:bg-amber-500 dark:text-slate-950 dark:border-amber-400'
+                              ? 'bg-[#FFBA00] text-slate-950 border-transparent'
                               : 'bg-slate-950/65 text-white border-white/15 hover:bg-slate-950'
                           }`}
                         >
@@ -1291,14 +1286,14 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                       <div className="p-4 space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#1677FF] dark:group-hover:text-amber-400 transition-colors truncate">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 truncate">
                               {tool.name}
                             </h3>
                             {tool.verified && (
                               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                             )}
                           </div>
-                          <span className="text-[10px] font-bold text-slate-400 truncate shrink-0">
+                          <span className="text-[11px] font-bold text-slate-400 truncate shrink-0">
                             {tool.provider}
                           </span>
                         </div>
@@ -1307,7 +1302,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                           {isFa ? tool.tagline.fa : tool.tagline.en}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[10px]">
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[11px]">
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/15 text-slate-700 dark:text-slate-300 font-medium truncate">
                             {translateBadge(tool.task)}
                           </span>
@@ -1320,7 +1315,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                     </div>
 
                     {/* Card Footer */}
-                    <div className="px-4 py-2.5 border-t border-slate-100 dark:border-emerald-500/10 flex items-center justify-between gap-2 text-[11px]">
+                    <div className="px-4 py-2.5 border-t border-slate-100 dark:border-emerald-500/10 flex items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-2.5 tabular-nums">
                         <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
                           <ThumbsUp className="w-3 h-3" />
@@ -1332,94 +1327,94 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                         </span>
                       </div>
 
-                      <span className="font-bold text-amber-600 dark:text-amber-400 truncate">
+                      <span className="font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00] truncate">
                         {translateBadge(tool.pricing)}
                       </span>
                     </div>
-                  </motion.article>
+                  </article>
                 );
               })}
             </div>
           )}
         </div>
 
-        {/* Slim Right/Left Sidebar Widgets (255px - 270px so 3 cards fit cleanly!) */}
-        <aside className="w-full lg:w-[255px] xl:w-[270px] shrink-0 space-y-4">
-          {/* Widget 1: Market Snapshot */}
-          <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-              <TrendingUp className="w-3.5 h-3.5" />
+        {/* Readable Sidebar Widgets (300px - 325px, fits cleanly beside 3 columns inside 1460px container) */}
+        <aside className="w-full lg:w-[300px] xl:w-[325px] shrink-0 space-y-4">
+          {/* Widget 1: Market Snapshot (Harmonized mint-emerald style matching Telegram Newsletter card) */}
+          <div className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-[#0B1E17] dark:via-[#0B1613] dark:to-[#08120F] border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-3.5">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+              <TrendingUp className="w-4 h-4 text-[var(--iramo-primary)]" />
               <span>{isFa ? 'آمار کل ابزارهای بازار' : 'Directory Snapshot'}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 tabular-nums">
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/60 dark:border-emerald-500/10">
-                <p className="text-base font-extrabold text-slate-900 dark:text-white">
+            <div className="grid grid-cols-2 gap-2.5 tabular-nums">
+              <div className="p-3 rounded-xl bg-white/90 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15">
+                <p className="text-lg font-extrabold text-slate-900 dark:text-white">
                   {toLocaleDigits(marketStats.total, lang)}
                 </p>
-                <p className="text-[10px] text-slate-500">{isFa ? 'پلتفرم معتبر' : 'Platforms'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{isFa ? 'پلتفرم معتبر' : 'Platforms'}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/60 dark:border-emerald-500/10">
-                <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+              <div className="p-3 rounded-xl bg-white/90 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15">
+                <p className="text-lg font-extrabold text-[var(--iramo-primary)]">
                   {toLocaleDigits(`${marketStats.apiPct}%`, lang)}
                 </p>
-                <p className="text-[10px] text-slate-500">{isFa ? 'دارای API' : 'Have API'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{isFa ? 'دارای API' : 'Have API'}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/60 dark:border-emerald-500/10">
-                <p className="text-base font-extrabold text-slate-900 dark:text-white">
+              <div className="p-3 rounded-xl bg-white/90 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15">
+                <p className="text-lg font-extrabold text-slate-900 dark:text-white">
                   {toLocaleDigits(`${marketStats.mobilePct}%`, lang)}
                 </p>
-                <p className="text-[10px] text-slate-500">{isFa ? 'اپ موبایل' : 'Mobile App'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{isFa ? 'اپ موبایل' : 'Mobile App'}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/60 dark:border-emerald-500/10">
-                <p className="text-base font-extrabold text-amber-500">
+              <div className="p-3 rounded-xl bg-white/90 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15">
+                <p className="text-lg font-extrabold text-slate-900 dark:text-[#FFBA00]">
                   {toLocaleDigits(`${marketStats.extPct}%`, lang)}
                 </p>
-                <p className="text-[10px] text-slate-500">{isFa ? 'افزونه کروم' : 'Extension'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{isFa ? 'افزونه کروم' : 'Extension'}</p>
               </div>
             </div>
           </div>
 
           {/* Widget 2: Pricing Breakdown */}
-          <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-              <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs space-y-3.5">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+              <DollarSign className="w-4 h-4 text-[#FFBA00]" />
               <span>{isFa ? 'تفکیک تعرفه ابزارها' : 'Pricing Breakdown'}</span>
             </div>
 
-            <div className="h-2 rounded-full overflow-hidden flex bg-slate-200 dark:bg-emerald-950">
+            <div className="h-2.5 rounded-full overflow-hidden flex bg-slate-200 dark:bg-emerald-950">
               <div className="bg-emerald-500" style={{ width: `${marketStats.freemiumPct}%` }} />
-              <div className="bg-amber-400" style={{ width: `${marketStats.freePct}%` }} />
+              <div className="bg-[#FFBA00]" style={{ width: `${marketStats.freePct}%` }} />
               <div className="bg-sky-500" style={{ width: `${marketStats.paidPct}%` }} />
             </div>
 
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-600 dark:text-slate-300 tabular-nums">
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-slate-600 dark:text-slate-300 tabular-nums">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 {isFa ? 'فریمیوم' : 'Freemium'} {toLocaleDigits(`${marketStats.freemiumPct}%`, lang)}
               </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FFBA00]" />
                 {isFa ? 'رایگان' : 'Free'} {toLocaleDigits(`${marketStats.freePct}%`, lang)}
               </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-sky-500" />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
                 {isFa ? 'پولی' : 'Paid'} {toLocaleDigits(`${marketStats.paidPct}%`, lang)}
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 pt-0.5">
+            <div className="flex flex-wrap gap-2 pt-0.5">
               <button
                 type="button"
                 onClick={() => setPricingFilter('Free')}
-                className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 cursor-pointer tabular-nums"
+                className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-xs font-bold text-emerald-700 dark:text-emerald-300 cursor-pointer tabular-nums transition-colors duration-150"
               >
                 {toLocaleDigits(marketStats.freeCount, lang)} {isFa ? 'کاملاً رایگان' : 'Free'}
               </button>
               <button
                 type="button"
                 onClick={() => setPricingFilter('Freemium')}
-                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#07110E] border border-slate-200 dark:border-emerald-500/15 text-[10px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer tabular-nums"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#07110E] border border-slate-200 dark:border-emerald-500/15 hover:border-[var(--iramo-card-border-hover)] text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer tabular-nums transition-colors duration-150"
               >
                 {toLocaleDigits(marketStats.freemiumCount, lang)} {isFa ? 'دارای پلن رایگان' : 'Free Tier'}
               </button>
@@ -1427,9 +1422,9 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
           </div>
 
           {/* Widget 3: Most Popular */}
-          <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2.5">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
+          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+              <Flame className="w-4 h-4 text-[#FFBA00]" />
               <span>{isFa ? 'محبوب‌ترین ابزارها' : 'Most Popular'}</span>
             </div>
 
@@ -1439,17 +1434,17 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                   key={pt.id}
                   type="button"
                   onClick={() => setSelectedToolId(pt.id)}
-                  className="w-full flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-500/10 border border-slate-200/60 dark:border-emerald-500/10 hover:border-emerald-400/40 text-start transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-500/10 border border-slate-200/70 dark:border-emerald-500/15 hover:border-[var(--iramo-card-border-hover)] text-start transition-colors duration-150 cursor-pointer"
                 >
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                       {pt.name}
                     </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                       {pt.provider}
                     </p>
                   </div>
-                  <span className="w-6 h-6 rounded-full border border-emerald-500/50 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold tabular-nums flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-full border border-emerald-500/50 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold tabular-nums flex items-center justify-center shrink-0">
                     {toLocaleDigits(pt.popularityScore ?? 90, lang)}
                   </span>
                 </button>
@@ -1457,18 +1452,21 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
             </div>
           </div>
 
-          {/* Widget 4: Saved Bookmarks */}
-          <div className="rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-slate-50 dark:from-[#0D211A] dark:to-[#08130F] border border-emerald-200/80 dark:border-emerald-500/25 text-slate-900 dark:text-white space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
-              <span>{isFa ? 'ابزارهای ذخیره‌شده' : 'Saved Tools'}</span>
-              <span className="tabular-nums">{toLocaleDigits(bookmarkedIds.length, lang)}</span>
+          {/* Widget 4: Saved Bookmarks (Unified mint-emerald widget style) */}
+          <div className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-[#0B1E17] dark:via-[#0B1613] dark:to-[#08120F] border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs text-slate-900 dark:text-white space-y-3">
+            <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-900 dark:text-[#FFBA00]">
+              <span className="inline-flex items-center gap-1.5">
+                <Bookmark className="w-4 h-4 text-[#FFBA00]" />
+                <span>{isFa ? 'ابزارهای ذخیره‌شده' : 'Saved Tools'}</span>
+              </span>
+              <span className="tabular-nums text-[var(--iramo-primary)] dark:text-[#FFBA00]">{toLocaleDigits(bookmarkedIds.length, lang)}</span>
             </div>
             {bookmarkedIds.length === 0 ? (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isFa ? 'نشانک ابزارها اینجا نمایش داده می‌شود.' : 'Bookmark tools for quick access.'}
               </p>
             ) : (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {tools
                   .filter((t) => bookmarkedIds.includes(t.id))
                   .map((bt) => (
@@ -1476,13 +1474,13 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                       key={bt.id}
                       type="button"
                       onClick={() => setSelectedToolId(bt.id)}
-                      className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-white dark:bg-[#050C0A] hover:bg-emerald-50 dark:hover:bg-emerald-500/15 border border-slate-200 dark:border-emerald-500/20 text-[11px] font-semibold text-slate-800 dark:text-slate-200 cursor-pointer text-start"
+                      className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] hover:bg-emerald-50 dark:hover:bg-emerald-500/15 border border-slate-200 dark:border-emerald-500/20 hover:border-[var(--iramo-card-border-hover)] text-xs font-semibold text-slate-800 dark:text-slate-200 transition-colors duration-150 cursor-pointer text-start"
                     >
                       <span className="truncate">{bt.name}</span>
                       {isFa ? (
-                        <ArrowLeft className="w-3 h-3 text-amber-500 dark:text-amber-400 shrink-0" />
+                        <ArrowLeft className="w-3.5 h-3.5 text-[var(--iramo-primary)] dark:text-[#FFBA00] shrink-0" />
                       ) : (
-                        <ArrowRight className="w-3 h-3 text-amber-500 dark:text-amber-400 shrink-0" />
+                        <ArrowRight className="w-3.5 h-3.5 text-[var(--iramo-primary)] dark:text-[#FFBA00] shrink-0" />
                       )}
                     </button>
                   ))}

@@ -184,7 +184,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                   active
-                    ? 'bg-white text-amber-600 shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
+                    ? 'bg-white text-[var(--iramo-primary)] shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
                     : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                 }`}
               >
@@ -202,7 +202,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
       </div>
 
       {/* Hero Banner */}
-      <section className="rounded-2xl p-6 sm:p-7 border border-[#1677FF]/20 dark:border-emerald-500/20 bg-gradient-to-l from-[#1677FF]/10 via-sky-50/50 to-white dark:from-emerald-950/60 dark:via-[#0B1613] dark:to-[#0D1A15]">
+      <section className="rounded-2xl p-6 sm:p-7 border border-[var(--iramo-card-border)] bg-gradient-to-l from-[var(--iramo-primary-soft)] via-white to-white dark:from-emerald-950/60 dark:via-[#0B1613] dark:to-[#0D1A15]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white text-balance">
@@ -220,7 +220,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
             <button
               type="button"
               onClick={() => onOpenCourse(courses[0])}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-sm shadow-[#1677FF]/20 dark:shadow-none"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-xs"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>{isFa ? 'ادامه یادگیری' : 'Resume Learning'}</span>
@@ -251,7 +251,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                 const progress = getCourseProgress(course);
                 const folderGradient =
                   course.accentColor === 'amber'
-                    ? 'from-amber-400 to-orange-500'
+                    ? 'from-[#FFBA00] to-[#D99B00]'
                     : course.accentColor === 'blue'
                     ? 'from-blue-500 to-sky-600'
                     : 'from-emerald-400 to-teal-600';
@@ -261,7 +261,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                     key={course.id}
                     type="button"
                     onClick={() => onOpenCourse(course)}
-                    className="group flex items-start gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 hover:border-amber-400/70 dark:hover:border-emerald-400/40 text-start transition-all duration-150 cursor-pointer"
+                    className="group iramo-card-interactive flex items-start gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border text-start cursor-pointer"
                   >
                     <div
                       className={`w-16 h-16 rounded-xl bg-gradient-to-br ${folderGradient} p-2.5 flex flex-col justify-between shrink-0 text-white shadow-sm`}
@@ -271,7 +271,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1.5">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-emerald-400 transition-colors">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-[var(--iramo-primary)] dark:group-hover:text-emerald-400 transition-colors">
                         {isFa ? course.title.fa : course.title.en}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
@@ -340,7 +340,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === 'grid'
-                    ? 'bg-white text-amber-600 shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
+                    ? 'bg-white text-[var(--iramo-primary)] shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
                     : 'text-slate-400 hover:text-slate-700 dark:hover:text-white'
                 }`}
                 aria-label={isFa ? 'نمای شبکه‌ای' : 'Grid view'}
@@ -352,7 +352,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === 'list'
-                    ? 'bg-white text-amber-600 shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
+                    ? 'bg-white text-[var(--iramo-primary)] shadow-xs dark:bg-emerald-500/20 dark:text-emerald-300'
                     : 'text-slate-400 hover:text-slate-700 dark:hover:text-white'
                 }`}
                 aria-label={isFa ? 'نمای لیستی' : 'List view'}
@@ -408,7 +408,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                     return (
                       <article
                         key={course.id}
-                        className={`group rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 hover:border-blue-400/60 dark:hover:border-emerald-400/40 overflow-hidden transition-all duration-150 flex ${
+                        className={`group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border overflow-hidden flex ${
                           viewMode === 'list' ? 'flex-col sm:flex-row' : 'flex-col'
                         }`}
                       >
@@ -425,7 +425,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                             src={course.thumbnail}
                             alt={isFa ? course.title.fa : course.title.en}
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-150"
                           />
                         </button>
 
@@ -434,7 +434,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                             <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-slate-500 dark:text-emerald-300/75">
                               <span>{course.category}</span>
                               {course.isNew && (
-                                <span className="font-semibold text-amber-600 dark:text-amber-400">
+                                <span className="font-semibold text-[#9A6E00] dark:text-[#FFBA00]">
                                   {isFa ? 'جدید' : 'New'}
                                 </span>
                               )}
@@ -445,7 +445,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                               onClick={() => onOpenCourse(course)}
                               className="text-start block w-full cursor-pointer"
                             >
-                              <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
+                              <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-[var(--iramo-primary)] dark:group-hover:text-emerald-400 transition-colors duration-150 line-clamp-2">
                                 {isFa ? course.title.fa : course.title.en}
                               </h3>
                             </button>
@@ -540,7 +540,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                 <span>
                   {isFa ? 'دسته‌بندی' : 'Categories'}{' '}
                   {selectedCategories.length > 0 && (
-                    <span className="text-amber-600 dark:text-amber-400 tabular-nums">
+                    <span className="text-[#9A6E00] dark:text-[#FFBA00] tabular-nums">
                       ({toLocaleDigits(selectedCategories.length, lang)})
                     </span>
                   )}
@@ -563,7 +563,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                         type="checkbox"
                         checked={selectedCategories.includes(cat.id)}
                         onChange={() => toggleCategory(cat.id)}
-                        className="w-4 h-4 rounded border-slate-300 dark:border-emerald-500/30 text-amber-500 focus:ring-amber-500 cursor-pointer accent-amber-500"
+                        className="w-4 h-4 rounded border-slate-300 dark:border-emerald-500/30 text-[#FFBA00] focus:ring-[#FFBA00] cursor-pointer accent-[#FFBA00]"
                       />
                       <span>{isFa ? cat.fa : cat.en}</span>
                     </label>
@@ -599,7 +599,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                         type="checkbox"
                         checked={selectedFormats.includes(fmt.id)}
                         onChange={() => toggleFormat(fmt.id)}
-                        className="w-4 h-4 rounded border-slate-300 text-amber-500 accent-amber-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-[#FFBA00] accent-[#FFBA00] cursor-pointer"
                       />
                       <span>{isFa ? fmt.fa : fmt.en}</span>
                     </label>
@@ -635,7 +635,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                         type="checkbox"
                         checked={selectedDurations.includes(dur.id)}
                         onChange={() => toggleDuration(dur.id)}
-                        className="w-4 h-4 rounded border-slate-300 text-amber-500 accent-amber-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-[#FFBA00] accent-[#FFBA00] cursor-pointer"
                       />
                       <span>{isFa ? dur.fa : dur.en}</span>
                     </label>
@@ -658,7 +658,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
             <button
               type="button"
               onClick={onGoToWpExport}
-              className="w-full py-2 px-3 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
+              className="w-full py-2 px-3 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
             >
               {isFa ? 'دریافت کد و پلاگین المنتور' : 'Get Elementor Package'}
             </button>

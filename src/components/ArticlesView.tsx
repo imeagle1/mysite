@@ -17,7 +17,6 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { SoftwareProduct } from '../data/lmsData';
 import { Article, ArticleCategory, Lang } from '../types/lms';
 import { toLocaleDigits } from '../utils/formatters';
@@ -124,11 +123,11 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
   };
 
   return (
-    <div className="max-w-[1320px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
             <BookOpen className="w-4 h-4" />
             <span>
               {isFa
@@ -156,27 +155,24 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
 
       {/* Featured Lead Article Banner */}
       {featuredArticle && !query && activeCategory === 'ALL' && !activeTag && (
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+        <section
           onClick={() => setReadingArticle(featuredArticle)}
-          className="group rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50/90 via-white to-slate-50 dark:from-[#0B1B16] dark:via-[#08130F] dark:to-[#0B1613] border border-slate-200/90 dark:border-emerald-500/25 hover:border-amber-400/70 dark:hover:border-amber-400/50 transition-all cursor-pointer grid grid-cols-1 lg:grid-cols-12 shadow-xs hover:shadow-md"
+          className="group iramo-card-interactive rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--iramo-primary-soft)] via-white to-slate-50 dark:from-[#0B1B16] dark:via-[#08130F] dark:to-[#0B1613] border border-[var(--iramo-card-border)] cursor-pointer grid grid-cols-1 lg:grid-cols-12 shadow-xs"
         >
           <div className="lg:col-span-5 aspect-16/10 lg:aspect-auto overflow-hidden bg-slate-100 dark:bg-[#07110E]">
             <img
               src={featuredArticle.thumbnail}
               alt={isFa ? featuredArticle.title.fa : featuredArticle.title.en}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-150"
             />
           </div>
           <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between gap-4">
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--iramo-primary)] font-semibold">
                 <span>{isFa ? 'مقاله برگزیده هفته' : 'Featured Guide'}</span>
                 <span aria-hidden="true">·</span>
-                <span className="text-amber-600 dark:text-amber-400">
+                <span className="text-slate-700 dark:text-[#FFBA00]">
                   {featuredArticle.category}
                 </span>
                 <span aria-hidden="true">·</span>
@@ -186,7 +182,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                 </span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 leading-snug">
                 {isFa ? featuredArticle.title.fa : featuredArticle.title.en}
               </h2>
 
@@ -202,12 +198,12 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                 <span>{isFa ? featuredArticle.publishedAt.fa : featuredArticle.publishedAt.en}</span>
                 <span aria-hidden="true">·</span>
                 <span className="inline-flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <Eye className="w-3.5 h-3.5 text-[var(--iramo-primary)]" />
                   {toLocaleDigits(featuredArticle.views.toLocaleString('en-US'), lang)}
                 </span>
               </div>
 
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
                 <span>{isFa ? 'مطالعه کامل مقاله' : 'Read Article'}</span>
                 {isFa ? (
                   <ArrowLeft className="w-4 h-4" />
@@ -217,7 +213,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
               </span>
             </div>
           </div>
-        </motion.section>
+        </section>
       )}
 
       {/* Search & Category Filter Ribbon */}
@@ -232,8 +228,8 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                 onClick={() => setActiveCategory(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                   active
-                    ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 font-bold'
-                    : 'bg-white dark:bg-[#0B1613] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-emerald-500/15 hover:border-emerald-400/50'
+                    ? 'bg-[var(--iramo-primary)] text-[var(--iramo-primary-fg)] font-bold'
+                    : 'bg-white dark:bg-[#0B1613] text-slate-700 dark:text-slate-300 border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)]'
                 }`}
               >
                 {isFa ? cat.fa : cat.en}
@@ -244,7 +240,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
             <button
               type="button"
               onClick={() => setActiveTag(null)}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-semibold cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-[#FFBA00] text-slate-950 text-xs font-bold cursor-pointer"
             >
               <span>#{activeTag}</span>
               <X className="w-3 h-3" />
@@ -295,17 +291,13 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {filteredArticles.map((art, idx) => {
+              {filteredArticles.map((art) => {
                 const isBookmarked = bookmarkedIds.includes(art.id);
                 return (
-                  <motion.article
+                  <article
                     key={art.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: idx * 0.04 }}
-                    whileHover={{ y: -3 }}
                     onClick={() => setReadingArticle(art)}
-                    className="group rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 hover:border-amber-400/70 dark:hover:border-amber-400/50 shadow-xs hover:shadow-md overflow-hidden flex flex-col justify-between transition-all cursor-pointer"
+                    className="group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs overflow-hidden flex flex-col justify-between cursor-pointer"
                   >
                     <div>
                       <div className="relative aspect-4/3 overflow-hidden bg-slate-100 dark:bg-[#07110E]">
@@ -313,15 +305,15 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                           src={art.thumbnail}
                           alt={isFa ? art.title.fa : art.title.en}
                           referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-150"
                         />
                         <button
                           type="button"
                           onClick={(e) => toggleBookmark(art.id, e)}
                           aria-label={isFa ? 'ذخیره مقاله' : 'Bookmark article'}
-                          className={`absolute top-3 end-3 p-2 rounded-xl backdrop-blur-md border transition-colors cursor-pointer ${
+                          className={`absolute top-3 end-3 p-2 rounded-xl backdrop-blur-md border transition-colors duration-150 cursor-pointer ${
                             isBookmarked
-                              ? 'bg-amber-500 text-slate-950 border-amber-400'
+                              ? 'bg-[#FFBA00] text-slate-950 border-[#FFBA00]'
                               : 'bg-slate-950/65 text-white border-white/15 hover:bg-slate-950'
                           }`}
                         >
@@ -330,7 +322,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       </div>
 
                       <div className="p-5 space-y-2.5">
-                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-[var(--iramo-primary)] tabular-nums">
                           <span>{art.category}</span>
                           <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
                             <Clock className="w-3 h-3" />
@@ -339,7 +331,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                           </span>
                         </div>
 
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug line-clamp-2">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[var(--iramo-primary)] transition-colors duration-150 leading-snug line-clamp-2">
                           {isFa ? art.title.fa : art.title.en}
                         </h3>
 
@@ -353,7 +345,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       <span className="text-slate-500 dark:text-slate-400 truncate">
                         {isFa ? art.publishedAt.fa : art.publishedAt.en}
                       </span>
-                      <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                      <span className="inline-flex items-center gap-1 font-bold text-[var(--iramo-primary)] group-hover:translate-x-0.5 transition-transform duration-150 shrink-0">
                         <span>{isFa ? 'مطالعه' : 'Read'}</span>
                         {isFa ? (
                           <ArrowLeft className="w-3.5 h-3.5" />
@@ -362,7 +354,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                         )}
                       </span>
                     </div>
-                  </motion.article>
+                  </article>
                 );
               })}
             </div>
@@ -372,9 +364,9 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
         {/* Sidebar Widgets Column (ابزارک‌های صفحه مقالات — کاملاً متصل به دیتای واقعی/CMS) */}
         <aside className="lg:col-span-4 space-y-5">
           {/* Widget 1: Popular Posts Widget (Derived from articles[]) */}
-          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs space-y-4">
+          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs space-y-4">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-              <Flame className="w-4 h-4 text-amber-500" />
+              <Flame className="w-4 h-4 text-[#FFBA00]" />
               <span>{isFa ? 'پربازدیدترین مقالات هفته' : 'Trending Articles'}</span>
             </div>
 
@@ -389,9 +381,9 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => setReadingArticle(item)}
-                    className="w-full flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-50/70 dark:hover:bg-[#0D1E18] border border-slate-200/70 dark:border-emerald-500/10 hover:border-emerald-400/40 text-start transition-colors cursor-pointer"
+                    className="w-full flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-50/70 dark:hover:bg-[#0D1E18] border border-slate-200/70 dark:border-emerald-500/10 hover:border-[var(--iramo-card-border-hover)] text-start transition-colors duration-150 cursor-pointer"
                   >
-                    <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-extrabold tabular-nums flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-6 h-6 rounded-lg bg-[#FFBA00]/20 text-slate-900 dark:text-[#FFBA00] text-xs font-extrabold tabular-nums flex items-center justify-center shrink-0 mt-0.5">
                       {toLocaleDigits(i + 1, lang)}
                     </span>
                     <div className="min-w-0 flex-1 space-y-1">
@@ -412,9 +404,9 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
           </div>
 
           {/* Widget 2: Tag Cloud Widget (Derived from articles[]) */}
-          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs space-y-3.5">
+          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs space-y-3.5">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-              <Hash className="w-4 h-4 text-emerald-500" />
+              <Hash className="w-4 h-4 text-[var(--iramo-primary)]" />
               <span>{isFa ? 'ابزارک برچسب‌های موضوعی' : 'Topic Tags'}</span>
             </div>
             {allTags.length === 0 ? (
@@ -432,10 +424,10 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       key={tag}
                       type="button"
                       onClick={() => setActiveTag(selected ? null : tag)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors duration-150 cursor-pointer ${
                         selected
-                          ? 'bg-amber-500 text-slate-950 font-bold'
-                          : 'bg-slate-50 dark:bg-[#07110E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-emerald-500/15 hover:border-emerald-400/50'
+                          ? 'bg-[#FFBA00] text-slate-950 font-bold'
+                          : 'bg-slate-50 dark:bg-[#07110E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-emerald-500/15 hover:border-[var(--iramo-card-border-hover)]'
                       }`}
                     >
                       #{tag}
@@ -509,7 +501,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold transition-colors cursor-pointer shadow-xs shadow-[#1677FF]/20"
+                  className="w-full py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer shadow-xs"
                 >
                   {isFa ? 'عضویت در خبرنامه ربات' : 'Subscribe via Bot'}
                 </button>
@@ -518,17 +510,17 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
           </div>
 
           {/* Widget 4: Quick Engineering Tip Widget (Dynamic from SiteConfig.quickTips) */}
-          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/85 dark:border-emerald-500/15 shadow-xs space-y-3">
+          <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
-                <Lightbulb className="w-4 h-4" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
+                <Lightbulb className="w-4 h-4 text-[#FFBA00]" />
                 <span>{isFa ? 'نکته سریع روز' : 'Quick Pro Tip'}</span>
               </span>
               {quickTips.length > 1 && (
                 <button
                   type="button"
                   onClick={() => setTipIndex((i) => (i + 1) % quickTips.length)}
-                  className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-[11px] text-[var(--iramo-primary)] hover:underline cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3" />
                   <span>{isFa ? 'نکته بعدی' : 'Next tip'}</span>
@@ -548,23 +540,23 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
             )}
           </div>
 
-          {/* Widget 5: Featured Product Promo Widget (Dynamic from active products[]) */}
+          {/* Widget 5: Featured Product Promo Widget (Unified soft mint-emerald surface matching Newsletter widget) */}
           {featuredProduct && (
-            <div className="rounded-2xl p-5 bg-gradient-to-br from-amber-50/85 via-white to-emerald-50/60 dark:from-[#0F241C] dark:to-[#07110E] border border-amber-300/70 dark:border-amber-500/25 shadow-xs space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
-                <Sparkles className="w-4 h-4" />
+            <div className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-[#0B1E17] dark:via-[#0B1613] dark:to-[#08120F] border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-3">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--iramo-primary)]">
+                <Sparkles className="w-4 h-4 text-[#FFBA00]" />
                 <span>{isFa ? 'پیشنهاد ویژه آکادمی' : 'Featured Toolkit'}</span>
               </div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 {isFa ? featuredProduct.name.fa : featuredProduct.name.en}
               </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-300/80 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300/85 leading-relaxed">
                 {isFa ? featuredProduct.tagline.fa : featuredProduct.tagline.en}
               </p>
               <button
                 type="button"
                 onClick={onNavigateToProducts}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-l from-[#1677FF] to-[#0D65E8] text-white dark:from-amber-400 dark:to-orange-400 dark:text-slate-950 text-xs font-extrabold cursor-pointer hover:brightness-105 transition-all shadow-sm shadow-[#1677FF]/20"
+                className="w-full py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer transition-colors duration-150 shadow-xs"
               >
                 {isFa ? 'مشاهده محصولات و دمو' : 'Explore Products & Demo'}
               </button>
@@ -649,7 +641,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
 
               {/* Interactive Table of Contents Widget inside Reader */}
               <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 space-y-2">
-                <p className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                <p className="text-xs font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
                   {isFa ? 'فهرست مطالب مقاله' : 'Table of Contents'}
                 </p>
                 <ul className="space-y-1.5">
@@ -686,7 +678,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
               {readingArticle.relatedCourseId && (
                 <div className="rounded-2xl p-5 bg-gradient-to-l from-emerald-50 to-slate-50 dark:from-emerald-950/80 dark:to-[#050C0A] border border-emerald-200 dark:border-emerald-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    <p className="text-xs font-bold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
                       {isFa ? 'دوره مرتبط با این مقاله' : 'Related Course'}
                     </p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
@@ -702,7 +694,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       setReadingArticle(null);
                       onOpenCourseInPanel(cid);
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold whitespace-nowrap cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold whitespace-nowrap cursor-pointer transition-colors"
                   >
                     {isFa ? 'مشاهده دوره مرتبط' : 'Open Related Course'}
                   </button>

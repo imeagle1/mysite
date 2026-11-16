@@ -50,7 +50,7 @@ function renderBrandWordmark(rawTitle: string) {
     return (
       <>
         {parts[0]}
-        <span className="text-amber-500 dark:text-amber-400">
+        <span className="text-[var(--iramo-accent)]">
           .{parts.slice(1).join('.')}
         </span>
       </>
@@ -61,7 +61,7 @@ function renderBrandWordmark(rawTitle: string) {
     return (
       <>
         {aiMatch[1]}
-        <span className="text-amber-500 dark:text-amber-400">{aiMatch[2]}</span>
+        <span className="text-[var(--iramo-accent)]">{aiMatch[2]}</span>
       </>
     );
   }
@@ -191,8 +191,8 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
       label: isFa ? 'گیت‌هاب' : 'GitHub',
       href: 'https://github.com',
       glowClass:
-        'hover:border-amber-400/70 hover:text-amber-600 dark:hover:text-amber-300 hover:shadow-[0_0_24px_-2px_rgba(245,158,11,0.5)]',
-      auraClass: 'bg-amber-500/15 dark:bg-amber-400/20',
+        'hover:border-[#FFBA00]/75 hover:text-[#B38200] dark:hover:text-[#FFBA00] hover:shadow-[0_0_24px_-2px_rgba(255,186,0,0.5)]',
+      auraClass: 'bg-[#FFBA00]/15 dark:bg-[#FFBA00]/20',
       icon: (
         <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
           <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
@@ -218,11 +218,11 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#050C0A] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[var(--iramo-canvas)] dark:bg-[#050C0A] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Pure Floating Rounded Header */}
       <header className="fixed top-0 inset-x-0 z-40 px-4 sm:px-6 pt-3 bg-transparent pointer-events-none">
-        <div className="max-w-[1320px] mx-auto relative rounded-full p-[1px] bg-gradient-to-l from-emerald-500/35 via-amber-400/25 to-emerald-500/20 dark:from-emerald-500/45 dark:via-amber-400/35 dark:to-emerald-500/25 shadow-lg shadow-slate-900/5 dark:shadow-black/40 pointer-events-auto">
-          <div className="h-14 px-4 sm:px-5 rounded-full bg-white/90 dark:bg-[#07130F]/90 backdrop-blur-md flex items-center justify-between gap-3">
+        <div className="max-w-[1460px] mx-auto relative rounded-full border border-[var(--iramo-card-border)] dark:border-emerald-500/25 bg-white/90 dark:bg-[#07130F]/90 backdrop-blur-md shadow-sm shadow-slate-900/5 dark:shadow-black/40 pointer-events-auto">
+          <div className="h-14 px-4 sm:px-5 rounded-full flex items-center justify-between gap-3">
             {/* Zone 1: Brand Mark (Zero dot in iRamoAi) */}
             <button
               type="button"
@@ -242,7 +242,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
 
             {/* Zone 2: Segmented Pill Navigation */}
             <nav
-              className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-slate-100/90 dark:bg-[#050C0A]/85 border border-slate-200/80 dark:border-emerald-500/15"
+              className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-slate-100/90 dark:bg-[#050C0A]/85 border border-[var(--iramo-card-border)] dark:border-emerald-500/15"
               aria-label={isFa ? 'ناوبری اصلی سایت' : 'Primary navigation'}
             >
               {visibleNavLinks.map((link) => {
@@ -254,7 +254,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     onClick={() => onNavigate(link.id)}
                     className={`relative px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                       active
-                        ? 'text-emerald-800 dark:text-white font-semibold'
+                        ? 'text-[var(--iramo-primary)] dark:text-white font-semibold'
                         : 'text-slate-600 dark:text-slate-300/85 hover:text-slate-950 dark:hover:text-white'
                     }`}
                   >
@@ -262,7 +262,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                       <motion.span
                         layoutId="header-nav-pill"
                         transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                        className="absolute inset-0 rounded-full bg-white dark:bg-[#0F271E] border border-emerald-200 dark:border-emerald-500/30 shadow-xs -z-0"
+                        className="absolute inset-0 rounded-full bg-white dark:bg-[#0F271E] border border-[var(--iramo-primary-border)] dark:border-emerald-500/30 shadow-xs -z-0"
                       />
                     )}
                     <span className="relative z-10">
@@ -296,7 +296,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     ? 'حالت تیره'
                     : 'Dark mode'
                 }
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-[#0B1914] dark:hover:bg-[#11261E] border border-slate-200 dark:border-emerald-500/20 text-slate-700 dark:text-amber-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-[#0B1914] dark:hover:bg-[#11261E] border border-slate-200 dark:border-emerald-500/20 text-slate-700 dark:text-[#FFBA00] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 {theme === 'dark' ? (
                   <Sun className="w-4 h-4" />
@@ -317,16 +317,16 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               <button
                 type="button"
                 onClick={handlePanelClick}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-[#0A261C] dark:hover:bg-[#0E3326] border border-emerald-600 dark:border-emerald-500/45 dark:text-emerald-300 text-xs font-bold shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] dark:bg-[#0A261C] dark:hover:bg-[#0E3326] border border-transparent dark:border-emerald-500/45 dark:text-emerald-300 text-xs font-bold shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
                 {currentUser ? (
                   <>
-                    <LayoutGrid className="w-3.5 h-3.5 text-white dark:text-emerald-400" />
+                    <LayoutGrid className="w-3.5 h-3.5 text-current dark:text-emerald-400" />
                     <span>{isFa ? 'پنل کاربری' : 'Dashboard'}</span>
                   </>
                 ) : (
                   <>
-                    <LogIn className="w-3.5 h-3.5 text-white dark:text-emerald-400" />
+                    <LogIn className="w-3.5 h-3.5 text-current dark:text-emerald-400" />
                     <span>{isFa ? 'ورود / پنل کاربری' : 'Sign In / Panel'}</span>
                   </>
                 )}
@@ -350,7 +350,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
 
         {/* Mobile Nav Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-2 max-w-[1320px] mx-auto rounded-2xl bg-white/95 dark:bg-[#07130F]/95 backdrop-blur-md border border-slate-200 dark:border-emerald-500/25 p-3 space-y-1 shadow-xl pointer-events-auto">
+          <div className="lg:hidden mt-2 max-w-[1460px] mx-auto rounded-2xl bg-white/95 dark:bg-[#07130F]/95 backdrop-blur-md border border-slate-200 dark:border-emerald-500/25 p-3 space-y-1 shadow-xl pointer-events-auto">
             <button
               type="button"
               onClick={() => {
@@ -359,7 +359,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               }}
               className={`block w-full text-start px-3.5 py-2 rounded-xl text-sm font-medium cursor-pointer ${
                 activePage === 'home'
-                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-amber-400 font-semibold'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-[#FFBA00] font-semibold'
                   : 'text-slate-700 dark:text-slate-300'
               }`}
             >
@@ -375,7 +375,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                 }}
                 className={`block w-full text-start px-3.5 py-2 rounded-xl text-sm font-medium cursor-pointer ${
                   activePage === link.id
-                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-amber-400 font-semibold'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-[#FFBA00] font-semibold'
                     : 'text-slate-700 dark:text-slate-300'
                 }`}
               >
@@ -393,7 +393,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               <button
                 type="button"
                 onClick={onToggleTheme}
-                className="text-xs font-semibold text-slate-600 dark:text-amber-400 cursor-pointer"
+                className="text-xs font-semibold text-slate-600 dark:text-[#FFBA00] cursor-pointer"
               >
                 {theme === 'dark'
                   ? isFa
@@ -421,7 +421,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
           className="h-px w-full bg-gradient-to-r from-transparent via-emerald-500/45 to-transparent"
         />
 
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 pt-12 pb-8 space-y-10">
+        <div className="max-w-[1460px] mx-auto px-4 sm:px-6 pt-12 pb-8 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
             {/* Column 1: Brand Identity (Strictly RTL/LTR aligned with logo) + Glowing Social Row */}
             <div className="lg:col-span-5 space-y-5 text-start">
@@ -447,7 +447,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                       {renderBrandWordmark(siteConfig.brandTitle)}
                     </span>
                   </div>
-                  <p className="text-[11.5px] font-medium text-[#1677FF] dark:text-emerald-400 mt-0.5 text-start">
+                  <p className="text-[11.5px] font-medium text-[var(--iramo-primary)] mt-0.5 text-start">
                     {isFa
                       ? 'آکادمی هوش مصنوعی، ربات‌سازی و مهندسی نرم‌افزار'
                       : 'AI Academy, Bots & Software Studio'}
@@ -475,7 +475,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                       rel="noopener noreferrer"
                       title={soc.label}
                       aria-label={soc.label}
-                      className={`group relative w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#0A1712] border border-slate-200/90 dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 ${soc.glowClass}`}
+                      className={`group relative w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#0A1712] border border-[var(--iramo-card-border)] dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 ${soc.glowClass}`}
                     >
                       <span
                         aria-hidden="true"
@@ -498,7 +498,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('home')}
-                    className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                   >
                     {isFa ? 'صفحه اصلی' : 'Home'}
                   </button>
@@ -508,7 +508,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     <button
                       type="button"
                       onClick={() => onNavigate(link.id)}
-                      className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                      className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                     >
                       {isFa ? link.fa : link.en}
                     </button>
@@ -527,7 +527,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={handlePanelClick}
-                    className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                   >
                     {isFa ? 'پنل کاربری و آموزش' : 'User Workspace'}
                   </button>
@@ -536,7 +536,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('products')}
-                    className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                   >
                     {isFa ? 'نرم‌افزار حسابیار' : 'Hesabyar Automation'}
                   </button>
@@ -545,7 +545,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('ai-marketplace')}
-                    className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                   >
                     {isFa ? 'دایرکتوری ابزارهای AI' : 'AI Directory'}
                   </button>
@@ -554,7 +554,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('services')}
-                    className="hover:text-[#1677FF] dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                   >
                     {isFa ? 'پلاگین وردپرس و المنتور' : 'WordPress & Elementor'}
                   </button>
@@ -564,10 +564,10 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
 
             {/* Column 4: Newsletter + Project Advisory & Trust Highlights */}
             <div className="lg:col-span-3">
-              <div className="rounded-2xl p-5 bg-slate-50/90 dark:bg-[#091511] border border-slate-200/90 dark:border-emerald-500/20 space-y-4 text-start">
+              <div className="rounded-2xl p-5 bg-slate-50/90 dark:bg-[#091511] border border-[var(--iramo-card-border)] space-y-4 text-start">
                 <div className="space-y-1">
                   <p className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#1677FF] dark:text-amber-400 shrink-0" />
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--iramo-accent)] shrink-0" />
                     <span>
                       {isFa
                         ? 'خبرنامه هفتگی ابزارها و آموزش‌های AI'
@@ -582,7 +582,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                 </div>
 
                 {footerSubscribed ? (
-                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                  <div className="p-3 rounded-xl bg-[var(--iramo-primary-soft)] border border-[var(--iramo-primary-border)] text-xs text-[var(--iramo-primary)] flex items-center gap-2">
                     <Check className="w-4 h-4 shrink-0" />
                     <span>
                       {isFa
@@ -601,21 +601,21 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                         value={footerEmail}
                         onChange={(e) => setFooterEmail(e.target.value)}
                         placeholder="you@domain.com"
-                        className="w-full ps-8 pe-2.5 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#1677FF] dark:focus:border-emerald-400"
+                        className="w-full ps-8 pe-2.5 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[var(--iramo-primary-border)]"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="px-3.5 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap"
+                      className="px-3.5 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                     >
                       {isFa ? 'عضویت' : 'Join'}
                     </button>
                   </form>
                 )}
 
-                <div className="pt-3 border-t border-slate-200/80 dark:border-emerald-500/15 flex items-center justify-between gap-2 text-[11px]">
+                <div className="pt-3 border-t border-[var(--iramo-card-border)] flex items-center justify-between gap-2 text-[11px]">
                   <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--iramo-primary)] shrink-0" />
                     <span>
                       {isFa ? 'تضمین آپدیت و پشتیبانی فنی' : 'Verified Updates & SLA'}
                     </span>
@@ -623,7 +623,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigate('services')}
-                    className="inline-flex items-center gap-1 font-bold text-[#1677FF] dark:text-amber-400 hover:underline cursor-pointer shrink-0"
+                    className="inline-flex items-center gap-1 font-bold text-[var(--iramo-primary)] hover:underline cursor-pointer shrink-0"
                   >
                     <span>{isFa ? 'مشاوره پروژه' : 'Consulting'}</span>
                     {isFa ? (

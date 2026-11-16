@@ -197,6 +197,14 @@ function iramo_render_app_shortcode( $atts ) {
         ];
     }
 
+    $color_config = [
+        'preset'          => $options['color_preset'] ?? 'emerald-classic',
+        'primaryHex'      => $options['primary_color'] ?? '#059669',
+        'accentHex'       => $options['accent_color'] ?? '#FFBA00',
+        'lightCanvasHex'  => $options['light_canvas_color'] ?? '#F8FAFC',
+        'borderIntensity' => $options['border_intensity'] ?? 'subtle',
+    ];
+
     ob_start();
     ?>
     <div
@@ -207,6 +215,7 @@ function iramo_render_app_shortcode( $atts ) {
       data-font="<?php echo esc_attr( $font_choice ); ?>"
       data-custom-font="<?php echo esc_attr( $options['custom_font_name'] ?? '' ); ?>"
       data-brand-name="<?php echo esc_attr( $options['brand_name'] ?? 'iRamoAi' ); ?>"
+      data-color-config="<?php echo esc_attr( wp_json_encode( $color_config ) ); ?>"
       data-auth-config="<?php echo esc_attr( wp_json_encode( $auth_config ) ); ?>"
       data-quick-tips="<?php echo esc_attr( wp_json_encode( $quick_tips ) ); ?>"
       data-demo-cleared="<?php echo ! empty( $options['demo_cleared'] ) ? '1' : '0'; ?>"
@@ -352,6 +361,32 @@ function iramo_render_admin_control_page() {
                     <th>آدرس فایل CSS فونت اختصاصی</th>
                     <td>
                         <input type="url" dir="ltr" name="iramo_ai_settings[custom_font_css_url]" value="<?php echo esc_attr( $opts['custom_font_css_url'] ?? '' ); ?>" class="regular-text" placeholder="https://yourdomain.ir/wp-content/uploads/fonts/fontface.css" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>پالت رنگ‌بندی سایت (قاعده ۶۰-۳۰-۱۰)</th>
+                    <td>
+                        <select name="iramo_ai_settings[color_preset]">
+                            <option value="emerald-classic" <?php selected( $opts['color_preset'] ?? 'emerald-classic', 'emerald-classic' ); ?>>نسخه اول روشن (زمردی و طلایی مینیمال)</option>
+                            <option value="logo-blue" <?php selected( $opts['color_preset'] ?? 'emerald-classic', 'logo-blue' ); ?>>آبی لوگو iRamoAi (یکدست)</option>
+                            <option value="royal-slate" <?php selected( $opts['color_preset'] ?? 'emerald-classic', 'royal-slate' ); ?>>آبی لاجوردی و فیروزه‌ای</option>
+                            <option value="teal-indigo" <?php selected( $opts['color_preset'] ?? 'emerald-classic', 'teal-indigo' ); ?>>تیل مدرن و نیلی ملایم</option>
+                            <option value="custom" <?php selected( $opts['color_preset'] ?? 'emerald-classic', 'custom' ); ?>>رنگ دلخواه سفارشی</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>رنگ اصلی و رنگ دکمه‌های اقدام (Hex)</th>
+                    <td>
+                        <label style="margin-left:14px;">اصلی (Primary): <input type="color" name="iramo_ai_settings[primary_color]" value="<?php echo esc_attr( $opts['primary_color'] ?? '#059669' ); ?>" /></label>
+                        <label style="margin-left:14px;">تاکیدی دکمه‌ها (Accent): <input type="color" name="iramo_ai_settings[accent_color]" value="<?php echo esc_attr( $opts['accent_color'] ?? '#FFBA00' ); ?>" /></label>
+                        <label>شدت حاشیه کارت‌ها:
+                            <select name="iramo_ai_settings[border_intensity]">
+                                <option value="subtle" <?php selected( $opts['border_intensity'] ?? 'subtle', 'subtle' ); ?>>بسیار ملایم و ظریف</option>
+                                <option value="balanced" <?php selected( $opts['border_intensity'] ?? 'subtle', 'balanced' ); ?>>متعادل</option>
+                                <option value="defined" <?php selected( $opts['border_intensity'] ?? 'subtle', 'defined' ); ?>>مشخص‌تر</option>
+                            </select>
+                        </label>
                     </td>
                 </tr>
             </table>
@@ -557,7 +592,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     echo '<article style="background:#0B1613;border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:18px;color:#fff;">';
                     echo '<h3 style="margin:0 0 8px;font-size:16px;"><a href="' . esc_url( get_permalink() ) . '" style="color:#fff;text-decoration:none;">' . esc_html( get_the_title() ) . '</a></h3>';
                     echo '<p style="font-size:13px;color:#94a3b8;margin:0 0 12px;">' . esc_html( get_the_excerpt() ) . '</p>';
-                    echo '<a href="' . esc_url( get_permalink() ) . '" style="color:#F59E0B;font-size:12px;font-weight:bold;text-decoration:none;">مطالعه مقاله ←</a>';
+                    echo '<a href="' . esc_url( get_permalink() ) . '" style="color:#FFBA00;font-size:12px;font-weight:bold;text-decoration:none;">مطالعه مقاله ←</a>';
                     echo '</article>';
                 }
                 wp_reset_postdata();

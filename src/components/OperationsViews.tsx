@@ -84,7 +84,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : asg.status === 'submitted'
                       ? 'text-blue-600 dark:text-sky-400'
-                      : 'text-amber-600 dark:text-amber-400'
+                      : 'text-[#9A6E00] dark:text-[#FFBA00]'
                   }`}
                 >
                   {statusText}
@@ -123,7 +123,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                   />
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer whitespace-nowrap transition-colors"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>{isFa ? 'ارسال تمرین' : 'Submit Lab'}</span>
@@ -250,7 +250,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({ lang }) => {
               className={`text-xs font-semibold inline-flex items-center gap-1 ${
                 verifiedPlatform.includes('bale')
                   ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-amber-600 dark:text-amber-400'
+                  : 'text-[#9A6E00] dark:text-[#FFBA00]'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -281,7 +281,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({ lang }) => {
               <button
                 type="button"
                 onClick={() => setOtpSent('bale')}
-                className="px-3.5 py-2 rounded-xl bg-[#1677FF] hover:bg-[#0D65E8] text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
+                className="px-3.5 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer whitespace-nowrap transition-colors"
               >
                 {isFa ? 'ارسال کد تایید' : 'Verify Bale'}
               </button>
@@ -436,7 +436,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         onClick={() => handleCopyLicense(tx.id, tx.licenseKey!)}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-slate-800 dark:text-emerald-300 font-mono text-[11px] cursor-pointer"
                       >
-                        <KeyRound className="w-3 h-3 text-amber-500" />
+                        <KeyRound className="w-3 h-3 text-[#FFBA00]" />
                         <span>{tx.licenseKey}</span>
                         {copiedId === tx.id ? (
                           <Check className="w-3 h-3 text-emerald-500" />
