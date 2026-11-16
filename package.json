@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "build:wp": "WP_BUILD=true vite build",
+    "build": "node scripts/generate-custom-font-css.mjs && vite build",
+    "build:wp": "node scripts/generate-custom-font-css.mjs && WP_BUILD=true vite build",
     "package:wp": "npm run build:wp && node scripts/package-wordpress.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",

@@ -102,8 +102,8 @@ const DEFAULT_SITE_CONFIG: SiteConfig = {
   brandTitle: 'iRamoAi',
   accentColor: 'emerald',
   themeColors: DEFAULT_THEME_COLORS,
-  fontFamily: 'vazirmatn',
-  customFontName: '',
+  fontFamily: 'custom',
+  customFontName: 'IRANYekanXVF',
   customFontCssUrl: '',
   showArticles: true,
   showAiTools: true,
@@ -390,12 +390,12 @@ export default function App() {
     // Modern Light Mode & Dark Mode apply cleanly across both Public Website & LMS Panel
     root.classList.toggle('dark', theme === 'dark');
 
+    const resolvedCustomFontName =
+      siteConfig.customFontName.trim() || 'IramoCustomFont';
     const activeFontStack =
-      siteConfig.fontFamily === 'custom' && siteConfig.customFontName.trim()
-        ? `'${siteConfig.customFontName.trim()}', 'Vazirmatn', system-ui, sans-serif`
-        : FONT_STACKS[
-            siteConfig.fontFamily === 'custom' ? 'vazirmatn' : siteConfig.fontFamily
-          ] || FONT_STACKS.vazirmatn;
+      siteConfig.fontFamily === 'custom'
+        ? `'${resolvedCustomFontName}', 'IramoCustomFont', 'Vazirmatn', system-ui, sans-serif`
+        : FONT_STACKS[siteConfig.fontFamily] || FONT_STACKS.vazirmatn;
     root.style.setProperty('--font-fa', activeFontStack);
 
     // Dynamically load custom @font-face stylesheet when custom font is selected

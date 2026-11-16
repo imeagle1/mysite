@@ -597,8 +597,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
               </option>
               <option value="custom">
                 {isFa
-                  ? 'فونت دلخواه نصب‌شده روی وردپرس (ایران‌سنس / یکان‌بخ / پیدا)'
-                  : 'Custom WordPress Font (IRANSans / YekanBakh)'}
+                  ? 'فونت اختصاصی آپلودشده (IRANYekanXVF وریبل · پیش‌فرض گیت‌هاب)'
+                  : 'Custom Font (IRANYekanXVF Variable Default)'}
               </option>
             </select>
 
@@ -614,7 +614,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                       customFontName: e.target.value,
                     })
                   }
-                  placeholder="IramoCustomFont (نام font-family)"
+                  placeholder="IRANYekanXVF (نام font-family)"
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[#FFBA00]/50 text-xs text-slate-900 dark:text-white focus:outline-none"
                 />
                 <input
@@ -632,8 +632,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                 />
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                   {isFa
-                    ? 'فایل‌های فونت (.woff2) را در پوشه public/fonts گیت‌هاب یا هاست آپلود کنید و کد @font-face را در /fonts/custom-font.css فعال نمایید.'
-                    : 'Upload .woff2 files to public/fonts/ in GitHub and activate @font-face in /fonts/custom-font.css.'}
+                    ? 'فونت‌های وریبل IRANYekanXVF (.woff2 / .woff / .ttf) به‌صورت خودکار با وزن ۱۰۰ تا ۹۰۰ از پوشه public/fonts/ شناسایی و فعال می‌شوند.'
+                    : 'Variable fonts inside public/fonts/ (IRANYekanXVF woff2/woff/ttf) are auto-registered with weights 100-900.'}
                 </p>
               </div>
             )}

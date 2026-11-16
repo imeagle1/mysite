@@ -11,6 +11,8 @@ permissions:
 jobs:
   build-wordpress-packages:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,10 +25,13 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
-            npm ci --no-audit --no-fund
+            npm ci --legacy-peer-deps --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund
           else
-            npm install --no-audit --no-fund
+            npm install --legacy-peer-deps --no-audit --no-fund
           fi
+
+      - name: Auto-activate uploaded custom fonts
+        run: node scripts/generate-custom-font-css.mjs
 
       - name: TypeScript typecheck
         run: npm run lint

@@ -598,7 +598,9 @@ function iramo_render_app_shortcode( $atts ) {
         'restUrl'   => esc_url_raw( rest_url( 'iramo/v1/' ) ),
     ] : null;
 
-    $font_choice = $options['font_family'] ?? 'vazirmatn';
+    $has_bundled_custom_font = file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' );
+    $font_choice = $options['font_family'] ?? ( $has_bundled_custom_font ? 'custom' : 'vazirmatn' );
+    $custom_font_name = ! empty( $options['custom_font_name'] ) ? $options['custom_font_name'] : 'IRANYekanXVF';
     $font_urls = [
         'vazirmatn'   => 'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap',
         'rubik'       => 'https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap',
@@ -607,10 +609,12 @@ function iramo_render_app_shortcode( $atts ) {
     ];
     $custom_font_css_url = ! empty( $options['custom_font_css_url'] )
         ? esc_url_raw( $options['custom_font_css_url'] )
-        : ( file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ? IRAMO_AI_URL . 'assets/fonts/custom-font.css' : '' );
+        : ( $has_bundled_custom_font ? IRAMO_AI_URL . 'assets/fonts/custom-font.css' : '' );
 
+    // Keep Vazirmatn enqueued as silent fallback alongside custom font
     if ( $font_choice === 'custom' && ! empty( $custom_font_css_url ) ) {
         wp_enqueue_style( 'iramo-custom-font', $custom_font_css_url, [], IRAMO_AI_VERSION );
+        wp_enqueue_style( 'iramo-fallback-font', $font_urls['vazirmatn'], [], null );
     } elseif ( isset( $font_urls[ $font_choice ] ) ) {
         wp_enqueue_style( 'iramo-active-font', $font_urls[ $font_choice ], [], null );
     }
@@ -666,7 +670,7 @@ function iramo_render_app_shortcode( $atts ) {
       data-lang="<?php echo esc_attr( $atts['lang'] ); ?>"
       data-view="<?php echo esc_attr( $atts['view'] ); ?>"
       data-font="<?php echo esc_attr( $font_choice ); ?>"
-      data-custom-font="<?php echo esc_attr( $options['custom_font_name'] ?? '' ); ?>"
+      data-custom-font="<?php echo esc_attr( $custom_font_name ); ?>"
       data-custom-font-css-url="<?php echo esc_attr( $custom_font_css_url ); ?>"
       data-brand-name="<?php echo esc_attr( $options['brand_name'] ?? 'iRamoAi' ); ?>"
       data-color-config="<?php echo esc_attr( wp_json_encode( $color_config ) ); ?>"
@@ -799,20 +803,21 @@ function iramo_render_admin_control_page() {
                 <tr>
                     <th>فونت فارسی سایت و افزونه</th>
                     <td>
+                        <?php $admin_default_font = file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ? 'custom' : 'vazirmatn'; ?>
                         <select name="iramo_ai_settings[font_family]">
-                            <option value="vazirmatn" <?php selected( $opts['font_family'] ?? 'vazirmatn', 'vazirmatn' ); ?>>وزیرمتن (Vazirmatn)</option>
-                            <option value="rubik" <?php selected( $opts['font_family'] ?? 'vazirmatn', 'rubik' ); ?>>روبیک (Rubik)</option>
-                            <option value="readex" <?php selected( $opts['font_family'] ?? 'vazirmatn', 'readex' ); ?>>ریدکس پرو (Readex Pro)</option>
-                            <option value="noto-arabic" <?php selected( $opts['font_family'] ?? 'vazirmatn', 'noto-arabic' ); ?>>نوتو سنس فارسی (Noto Sans Arabic)</option>
-                            <option value="custom" <?php selected( $opts['font_family'] ?? 'vazirmatn', 'custom' ); ?>>فونت اختصاصی آپلودشده (ایران‌سنس / یکان‌بخ / پیدا)</option>
+                            <option value="custom" <?php selected( $opts['font_family'] ?? $admin_default_font, 'custom' ); ?>>فونت اختصاصی آپلودشده (IRANYekanXVF وریبل)</option>
+                            <option value="vazirmatn" <?php selected( $opts['font_family'] ?? $admin_default_font, 'vazirmatn' ); ?>>وزیرمتن (Vazirmatn)</option>
+                            <option value="rubik" <?php selected( $opts['font_family'] ?? $admin_default_font, 'rubik' ); ?>>روبیک (Rubik)</option>
+                            <option value="readex" <?php selected( $opts['font_family'] ?? $admin_default_font, 'readex' ); ?>>ریدکس پرو (Readex Pro)</option>
+                            <option value="noto-arabic" <?php selected( $opts['font_family'] ?? $admin_default_font, 'noto-arabic' ); ?>>نوتو سنس فارسی (Noto Sans Arabic)</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <th>نام فونت اختصاصی (Font Family)</th>
                     <td>
-                        <input type="text" dir="ltr" name="iramo_ai_settings[custom_font_name]" value="<?php echo esc_attr( $opts['custom_font_name'] ?? '' ); ?>" class="regular-text" placeholder="IRANSansX" />
-                        <p class="description">در صورت انتخاب فونت اختصاصی، نام font-family را اینجا بنویسید.</p>
+                        <input type="text" dir="ltr" name="iramo_ai_settings[custom_font_name]" value="<?php echo esc_attr( $opts['custom_font_name'] ?? 'IRANYekanXVF' ); ?>" class="regular-text" placeholder="IRANYekanXVF" />
+                        <p class="description">پیش‌فرض روی <code>IRANYekanXVF</code> (یا <code>IramoCustomFont</code>) تنظیم شده است.</p>
                     </td>
                 </tr>
                 <tr>
