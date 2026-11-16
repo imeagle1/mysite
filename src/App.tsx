@@ -183,7 +183,34 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(
     wpRestUrl ? wpUser : saved.user ?? null
   );
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const rawWpView = wpRoot?.dataset.view || '';
+  const resolvedInitialPage: SitePage = (() => {
+    switch (rawWpView) {
+      case 'products':
+        return 'products';
+      case 'ai-marketplace':
+      case 'ai-tools':
+        return 'ai-marketplace';
+      case 'courses':
+      case 'academy':
+        return 'courses';
+      case 'articles':
+        return 'articles';
+      case 'services':
+        return 'services';
+      case 'lms':
+      case 'panel':
+      case 'course':
+        return (wpRestUrl ? wpUser : saved.user ?? null) ? 'lms' : 'home';
+      default:
+        return 'home';
+    }
+  })();
+
+  const [authModalOpen, setAuthModalOpen] = useState(
+    (rawWpView === 'panel' || rawWpView === 'lms' || rawWpView === 'course') &&
+      !(wpRestUrl ? wpUser : saved.user ?? null)
+  );
   const [pendingCourseAfterAuth, setPendingCourseAfterAuth] = useState<
     string | null
   >(null);
@@ -300,7 +327,7 @@ export default function App() {
   });
 
   // Top-level site route: Public Website Pages vs User Panel
-  const [sitePage, setSitePage] = useState<SitePage>('home');
+  const [sitePage, setSitePage] = useState<SitePage>(resolvedInitialPage);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
   );

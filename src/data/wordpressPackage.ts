@@ -984,6 +984,162 @@ function iramo_render_app_shortcode( $atts ) {
 }
 add_shortcode( 'iramo_lms', 'iramo_render_app_shortcode' );
 add_shortcode( 'iramo_site', 'iramo_render_app_shortcode' );
+
+/**
+ * 5. Automatic WordPress Pages, Front Page, Navigation Menu & Permalinks Setup
+ */
+function iramo_get_blueprint_pages() {
+    return [
+        'home' => [
+            'title'     => 'صفحه اصلی',
+            'shortcode' => '[iramo_site view="home"]',
+        ],
+        'products' => [
+            'title'     => 'محصولات نرم‌افزاری',
+            'shortcode' => '[iramo_site view="products"]',
+        ],
+        'ai-tools' => [
+            'title'     => 'ابزارهای هوش مصنوعی',
+            'shortcode' => '[iramo_site view="ai-marketplace"]',
+        ],
+        'academy' => [
+            'title'     => 'آکادمی و دوره‌ها',
+            'shortcode' => '[iramo_site view="courses"]',
+        ],
+        'articles' => [
+            'title'     => 'مقالات تخصصی',
+            'shortcode' => '[iramo_site view="articles"]',
+        ],
+        'services' => [
+            'title'     => 'خدمات و مشاوره',
+            'shortcode' => '[iramo_site view="services"]',
+        ],
+        'panel' => [
+            'title'     => 'پنل کاربری و آموزش',
+            'shortcode' => '[iramo_lms view="panel"]',
+        ],
+    ];
+}
+
+function iramo_provision_site_pages( $force = false ) {
+    if ( get_transient( 'iramo_provisioning_lock' ) ) {
+        return;
+    }
+    set_transient( 'iramo_provisioning_lock', 1, 15 );
+
+    $pages        = iramo_get_blueprint_pages();
+    $created_ids  = [];
+
+    foreach ( $pages as $slug => $cfg ) {
+        $existing = get_posts( [
+            'post_type'      => 'page',
+            'post_status'    => [ 'publish', 'draft', 'private', 'pending' ],
+            'meta_key'       => '_iramo_page_slug',
+            'meta_value'     => $slug,
+            'posts_per_page' => 1,
+        ] );
+
+        $page_id = ! empty( $existing ) ? $existing[0]->ID : 0;
+        if ( ! $page_id ) {
+            $by_path = get_page_by_path( $slug, OBJECT, 'page' );
+            if ( $by_path && $by_path->post_status !== 'trash' ) {
+                $page_id = $by_path->ID;
+            }
+        }
+
+        if ( $page_id ) {
+            if ( $force ) {
+                wp_update_post( [
+                    'ID'           => $page_id,
+                    'post_status'  => 'publish',
+                    'post_content' => $cfg['shortcode'],
+                ] );
+            }
+        } else {
+            $page_id = wp_insert_post( [
+                'post_type'      => 'page',
+                'post_title'     => $cfg['title'],
+                'post_name'      => $slug,
+                'post_content'   => $cfg['shortcode'],
+                'post_status'    => 'publish',
+                'comment_status' => 'closed',
+                'ping_status'    => 'closed',
+            ] );
+        }
+
+        if ( $page_id && ! is_wp_error( $page_id ) ) {
+            update_post_meta( $page_id, '_iramo_page_slug', $slug );
+            update_post_meta( $page_id, '_wp_page_template', 'templates/template-canvas.php' );
+            $created_ids[ $slug ] = (int) $page_id;
+        }
+    }
+
+    // Automatically assign Home as static front page
+    if ( ! empty( $created_ids['home'] ) ) {
+        $current_front = (int) get_option( 'page_on_front' );
+        if ( $force || get_option( 'show_on_front' ) !== 'page' || ! $current_front || get_post_status( $current_front ) !== 'publish' ) {
+            update_option( 'show_on_front', 'page' );
+            update_option( 'page_on_front', $created_ids['home'] );
+        }
+    }
+
+    // Auto-create & assign Primary Navigation Menu
+    $menu_name = 'منوی اصلی iRamoAi';
+    $menu_obj  = wp_get_nav_menu_object( $menu_name );
+    if ( ! $menu_obj || $force ) {
+        $menu_id = $menu_obj ? (int) $menu_obj->term_id : wp_create_nav_menu( $menu_name );
+        if ( $menu_id && ! is_wp_error( $menu_id ) ) {
+            $existing_items = wp_get_nav_menu_items( $menu_id );
+            $existing_obj_ids = is_array( $existing_items )
+                ? array_map( function( $item ) { return (int) $item->object_id; }, $existing_items )
+                : [];
+
+            foreach ( $created_ids as $slug => $pid ) {
+                if ( ! in_array( $pid, $existing_obj_ids, true ) ) {
+                    wp_update_nav_menu_item( $menu_id, 0, [
+                        'menu-item-title'     => $pages[ $slug ]['title'],
+                        'menu-item-object'    => 'page',
+                        'menu-item-object-id' => $pid,
+                        'menu-item-type'      => 'post_type',
+                        'menu-item-status'    => 'publish',
+                    ] );
+                }
+            }
+
+            $locations = get_theme_mod( 'nav_menu_locations', [] );
+            if ( ! is_array( $locations ) ) $locations = [];
+            $locations['primary'] = $menu_id;
+            set_theme_mod( 'nav_menu_locations', $locations );
+        }
+    }
+
+    // Ensure pretty permalinks for /products/, /ai-tools/, /wp-json/...
+    if ( get_option( 'permalink_structure' ) === '' ) {
+        global $wp_rewrite;
+        if ( $wp_rewrite ) {
+            $wp_rewrite->set_permalink_structure( '/%postname%/' );
+        }
+    }
+
+    update_option( 'iramo_pages_provisioned', '2.1.0' );
+    delete_option( 'iramo_pending_page_setup' );
+    flush_rewrite_rules();
+    delete_transient( 'iramo_provisioning_lock' );
+}
+
+register_activation_hook( __FILE__, function() {
+    iramo_provision_site_pages( false );
+} );
+
+add_action( 'after_switch_theme', function() {
+    iramo_provision_site_pages( false );
+} );
+
+add_action( 'admin_init', function() {
+    if ( get_option( 'iramo_pages_provisioned' ) !== '2.1.0' || get_option( 'iramo_pending_page_setup' ) ) {
+        iramo_provision_site_pages( false );
+    }
+} );
 `;
 
 export const WP_ADMIN_SETTINGS_PHP = `<?php
@@ -1040,6 +1196,14 @@ add_action( 'admin_post_iramo_manage_demo_data', function() {
         exit;
     }
 
+    if ( $action_type === 'provision_pages' ) {
+        if ( function_exists( 'iramo_provision_site_pages' ) ) {
+            iramo_provision_site_pages( true );
+        }
+        wp_redirect( admin_url( 'admin.php?page=iramo-ai-control&demo_status=pages_synced' ) );
+        exit;
+    }
+
     if ( $action_type === 'install_demo' ) {
         $samples = [
             [ 'post_type' => 'iramo_course', 'title' => 'دوره جامع هوش مصنوعی از صفر تا پیشرفته' ],
@@ -1075,6 +1239,8 @@ function iramo_render_admin_control_page() {
             <div class="notice notice-success is-dismissible"><p>تمام داده‌های نمونه (دوره‌ها، محصولات آزمایشی، مقالات و نکات سریع روز) پاکسازی شدند و پلتفرم‌های واقعی صفحه «ابزارهای هوش مصنوعی» دست‌نخورده حفظ شدند.</p></div>
         <?php elseif ( $status === 'installed' ) : ?>
             <div class="notice notice-success is-dismissible"><p>داده‌های نمونه مجدداً نصب شدند.</p></div>
+        <?php elseif ( $status === 'pages_synced' ) : ?>
+            <div class="notice notice-success is-dismissible"><p>تمام برگه‌های اصلی سایت، برگه نخست، پیوندهای یکتا و منوی اصلی به‌صورت خودکار ساخته و همگام‌سازی شدند.</p></div>
         <?php endif; ?>
 
         <form method="post" action="options.php" style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
@@ -1223,6 +1389,46 @@ function iramo_render_admin_control_page() {
             </table>
             <?php submit_button( 'ذخیره تنظیمات سایت، فونت و درگاه‌های ورود' ); ?>
         </form>
+
+        <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
+            <h2>برگه‌های خودکار سایت و منوی ناوبری</h2>
+            <p>برگه‌های زیر به‌طور خودکار هنگام فعال‌سازی قالب/افزونه ساخته شده، روی «برگه نخست» و «تمام‌صفحه Canvas» تنظیم شده و در منوی اصلی سایت قرار می‌گیرند:</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:14px 0;">
+                <?php
+                $blueprint_pages = function_exists( 'iramo_get_blueprint_pages' ) ? iramo_get_blueprint_pages() : [];
+                foreach ( $blueprint_pages as $slug => $cfg ) :
+                    $found = get_posts( [
+                        'post_type'      => 'page',
+                        'post_status'    => 'publish',
+                        'meta_key'       => '_iramo_page_slug',
+                        'meta_value'     => $slug,
+                        'posts_per_page' => 1,
+                    ] );
+                    $pid = ! empty( $found ) ? $found[0]->ID : ( ( $p = get_page_by_path( $slug ) ) ? $p->ID : 0 );
+                    ?>
+                    <div style="padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                        <div>
+                            <strong style="display:block;font-size:13px;"><?php echo esc_html( $cfg['title'] ); ?></strong>
+                            <span style="font-size:11px;color:<?php echo $pid ? '#059669' : '#d97706'; ?>;">
+                                <?php echo $pid ? 'فعال (/' . esc_html( $slug ) . ')' : 'در انتظار ساخت'; ?>
+                            </span>
+                        </div>
+                        <?php if ( $pid ) : ?>
+                            <div style="display:flex;gap:6px;">
+                                <a href="<?php echo esc_url( get_permalink( $pid ) ); ?>" target="_blank" class="button button-small">مشاهده</a>
+                                <a href="<?php echo esc_url( get_edit_post_link( $pid ) ); ?>" class="button button-small">ویرایش</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'iramo_demo_nonce' ); ?>
+                <input type="hidden" name="action" value="iramo_manage_demo_data" />
+                <input type="hidden" name="demo_action" value="provision_pages" />
+                <button type="submit" class="button button-primary">ساخت و همگام‌سازی خودکار برگه‌ها و منوی سایت</button>
+            </form>
+        </div>
 
         <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
             <h2>مدیریت و پاکسازی داده‌های نمونه (Demo Data)</h2>
@@ -1793,6 +1999,15 @@ add_action( 'wp_enqueue_scripts', function() {
 // Full Elementor Pro Theme Builder Location Support
 add_action( 'elementor/theme/register_locations', function( $elementor_theme_manager ) {
     $elementor_theme_manager->register_all_core_location();
+} );
+
+// Auto-trigger page & menu setup when theme is activated (or flag for plugin activation)
+add_action( 'after_switch_theme', function() {
+    if ( function_exists( 'iramo_provision_site_pages' ) ) {
+        iramo_provision_site_pages( false );
+    } else {
+        update_option( 'iramo_pending_page_setup', 1 );
+    }
 } );
 `;
 
