@@ -36,33 +36,33 @@ export const PriceActionButton: React.FC<PriceActionButtonProps> = ({
 
   const sizeClasses =
     size === 'md'
-      ? 'px-4 py-2.5 text-xs sm:text-[13px] rounded-xl gap-2.5'
-      : 'px-3.5 py-2 text-xs rounded-xl gap-2';
+      ? 'px-3.5 sm:px-4 py-2.5 text-xs sm:text-[13px] rounded-xl gap-2 sm:gap-2.5'
+      : 'px-3 sm:px-3.5 py-2 text-[11px] sm:text-xs rounded-xl gap-1.5 sm:gap-2';
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group/price relative inline-flex items-center justify-between font-bold transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap ${
+      className={`group/price relative inline-flex items-center justify-between max-w-full min-w-0 font-bold transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap ${
         fullWidth ? 'w-full' : ''
       } ${sizeClasses} ${variantClasses}`}
     >
-      <span className="inline-flex items-center gap-1.5">
+      <span className="inline-flex items-center gap-1.5 min-w-0">
         {isFree ? (
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
         ) : (
           <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
         )}
-        <span className="tabular-nums">{priceLabel}</span>
+        <span className="tabular-nums truncate">{priceLabel}</span>
       </span>
 
       {ctaLabel && (
-        <span className="inline-flex items-center gap-1 ps-2 border-s border-current/20 font-extrabold">
+        <span className="inline-flex items-center gap-1 ps-2 border-s border-current/20 font-extrabold shrink-0">
           <span>{isFa ? ctaLabel.fa : ctaLabel.en}</span>
           {isFa ? (
-            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover/price:-translate-x-0.5" />
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover/price:-translate-x-0.5 shrink-0" />
           ) : (
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/price:translate-x-0.5" />
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/price:translate-x-0.5 shrink-0" />
           )}
         </span>
       )}

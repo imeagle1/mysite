@@ -179,7 +179,7 @@ const OtpDigitBoxes: React.FC<OtpDigitBoxesProps> = ({ value, onChange, lang }) 
             )}
 
             <div
-              className={`relative w-11 h-13 sm:w-12 sm:h-14 rounded-xl border-2 flex items-center justify-center transition-colors ${
+              className={`relative w-10 h-12 sm:w-12 sm:h-14 rounded-xl border-2 flex items-center justify-center transition-colors ${
                 isComplete
                   ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/20'
                   : isFilled
@@ -557,16 +557,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex-1 overflow-y-auto iramo-inner-scroll grid grid-cols-1 md:grid-cols-12">
-          {/* Brand & Value Side Panel */}
-          <div className="md:col-span-5 p-6 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-slate-50 to-[#FFBA00]/10 dark:from-[#0B2219] dark:via-[#071510] dark:to-[#050C0A] border-b md:border-b-0 md:border-e border-slate-200 dark:border-emerald-500/20 flex flex-col justify-between gap-6">
-            <div className="space-y-4">
+          {/* Brand & Value Side Panel (compact on mobile so login form is immediately usable) */}
+          <div className="md:col-span-5 p-4 sm:p-6 md:p-7 bg-gradient-to-br from-emerald-50/90 via-slate-50 to-[#FFBA00]/10 dark:from-[#0B2219] dark:via-[#071510] dark:to-[#050C0A] border-b md:border-b-0 md:border-e border-slate-200 dark:border-emerald-500/20 flex flex-col justify-between gap-3 md:gap-6">
+            <div className="space-y-2 md:space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <img
                     src={resolveBrandLogo('header')}
                     alt={brandTitle}
                     referrerPolicy="no-referrer"
-                    className="w-7 h-7 object-contain"
+                    className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
                   />
                   <span dir="ltr" className="text-base font-extrabold text-slate-900 dark:text-white">
                     {brandTitle.toLowerCase().endsWith('ai') && !brandTitle.includes('.') ? (
@@ -591,26 +591,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </button>
               </div>
 
-              <div className="space-y-2 pt-1">
+              <div className="space-y-1.5 md:space-y-2 pt-0.5 md:pt-1">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#9A6E00] dark:text-[#FFBA00]">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>
                     {isFa ? 'پنل یکپارچه کاربران و دانشجویان' : 'Unified Member Portal'}
                   </span>
                 </span>
-                <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white leading-snug text-balance">
+                <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 dark:text-white leading-snug text-balance">
                   {isFa
                     ? 'یک حساب کاربری برای تمام دوره‌ها، محصولات و ابزارهای AI'
                     : 'One Account for Every Course, Product & AI Tool'}
                 </h2>
-                <p className="text-xs text-slate-600 dark:text-slate-300/85 leading-relaxed">
+                <p className="hidden md:block text-xs text-slate-600 dark:text-slate-300/85 leading-relaxed">
                   {isFa
                     ? 'با ورود به حساب خود، به ویدیوهای آموزشی، لایسنس نرم‌افزارها، فایل‌های آپدیت و پشتیبانی مستقیم دسترسی خواهید داشت.'
                     : 'Access video courses, software license keys, product updates, and support in one clean workspace.'}
                 </p>
               </div>
 
-              <ul className="space-y-2.5 pt-2 text-xs text-slate-700 dark:text-slate-200">
+              <ul className="hidden md:block space-y-2.5 pt-2 text-xs text-slate-700 dark:text-slate-200">
                 {[
                   {
                     fa: 'دسترسی دائمی به تمام دوره‌ها و جلسات تمرین',
@@ -633,7 +633,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </ul>
             </div>
 
-            <div className="rounded-xl p-3 bg-white/80 dark:bg-[#050C0A]/80 border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-2.5 text-[11px] text-emerald-700 dark:text-emerald-300/90 font-medium">
+            <div className="hidden md:flex rounded-xl p-3 bg-white/80 dark:bg-[#050C0A]/80 border border-emerald-200 dark:border-emerald-500/20 items-center gap-2.5 text-[11px] text-emerald-700 dark:text-emerald-300/90 font-medium">
               <Award className="w-4 h-4 text-[#FFBA00] shrink-0" />
               <span>
                 {isFa
@@ -644,7 +644,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
 
           {/* Interactive Login / Signup Form Column */}
-          <div className="md:col-span-7 p-6 sm:p-7 flex flex-col justify-between gap-5 bg-white dark:bg-[#08130F]">
+          <div className="md:col-span-7 p-4 sm:p-6 md:p-7 flex flex-col justify-between gap-4 sm:gap-5 bg-white dark:bg-[#08130F]">
             <div className="space-y-5">
               <div className="flex items-center justify-between gap-3">
                 <div>

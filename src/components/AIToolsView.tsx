@@ -395,13 +395,13 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
         </div>
 
         {/* Hero Overview Card */}
-        <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/20 shadow-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="space-y-1.5">
+        <section className="rounded-2xl p-4 sm:p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/20 shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
+            <div className="lg:col-span-7 space-y-4 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3.5 sm:gap-4">
+                <div className="space-y-1.5 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+                    <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
                       {selectedTool.name}
                     </h1>
                     {selectedTool.verified && (
@@ -445,7 +445,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                   href={selectedTool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFBA00] hover:bg-[#FFC629] text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-[#FFBA00]/25 shrink-0 whitespace-nowrap transition-colors duration-150"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#FFBA00] hover:bg-[#FFC629] text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-[#FFBA00]/25 shrink-0 whitespace-nowrap transition-colors duration-150"
                 >
                   <span>{isFa ? 'ورود به سایت ابزار (Try Now)' : 'Visit Tool (Try Now)'}</span>
                   <ExternalLink className="w-4 h-4" />
@@ -629,7 +629,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                     : selectedTool.pricingDetails.en
                   : translateBadge(selectedTool.pricing)}
               </p>
-              <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-emerald-500/10">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-emerald-500/10">
                 <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   {isFa
                     ? 'بررسی دقیق‌ترین تعرفه‌های به‌روز در صفحه رسمی پلتفرم'
@@ -639,7 +639,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                   href={selectedTool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-700 dark:text-emerald-300 text-xs font-bold"
+                  className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-700 dark:text-emerald-300 text-xs font-bold"
                 >
                   <span>{isFa ? 'مشاهده پلن‌ها در سایت اصلی' : 'View Plans'}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -953,7 +953,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. AI-Assist Hero Search (Modeled directly after topai.tools/ai-assist) */}
-      <section className="rounded-2xl p-5 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-white to-slate-50 dark:from-[#071611] dark:via-[#0A1A14] dark:to-[#06100C] text-slate-900 dark:text-white border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-5">
+      <section className="rounded-2xl p-4 sm:p-7 bg-gradient-to-br from-emerald-50/90 via-white to-slate-50 dark:from-[#071611] dark:via-[#0A1A14] dark:to-[#06100C] text-slate-900 dark:text-white border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-4 sm:space-y-5">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
             <Sparkles className="w-3.5 h-3.5 text-[#FFBA00]" />
@@ -963,7 +963,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                 : 'Global AI Tools Directory & Task Finder'}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-balance">
+          <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-balance">
             {isFa
               ? 'امروز چه کاری می‌خواهید انجام دهید؟'
               : 'What Task Do You Need Done?'}
@@ -977,7 +977,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
 
         {/* Centered Search Input */}
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/35 focus-within:border-[var(--iramo-primary)] dark:focus-within:border-[#FFBA00] shadow-xs transition-colors">
-          <div className="flex items-center gap-2.5 flex-1 px-2.5">
+          <div className="flex items-center gap-2.5 flex-1 px-2.5 min-w-0">
             <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <input
               type="text"
@@ -985,13 +985,13 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
               onChange={(e) => setQuery(e.target.value)}
               placeholder={
                 isFa
-                  ? 'جستجوی ابزار، کاربرد یا دسته‌بندی (مثلاً ChatGPT، ساخت ویدیو، اکسل، کدنویسی...)'
+                  ? 'جستجوی ابزار، کاربرد یا دسته‌بندی (مثلاً ChatGPT، ساخت ویدیو...)'
                   : 'Search AI tools, use cases, categories...'
               }
-              className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 py-2 focus:outline-none"
+              className="w-full min-w-0 bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 py-2 focus:outline-none"
             />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 px-1 sm:px-0">
             {hasActiveFilters && (
               <button
                 type="button"
@@ -1002,7 +1002,7 @@ export const AIToolsView: React.FC<AIToolsViewProps> = ({
                 <span>{isFa ? 'پاک کردن' : 'Reset'}</span>
               </button>
             )}
-            <span className="px-4 py-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-extrabold tabular-nums">
+            <span className="px-4 py-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-extrabold tabular-nums ms-auto">
               {toLocaleDigits(filteredTools.length, lang)}{' '}
               {isFa ? 'ابزار' : 'Results'}
             </span>

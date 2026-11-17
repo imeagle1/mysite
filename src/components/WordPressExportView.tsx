@@ -19,12 +19,11 @@ import {
   WP_BOT_BRIDGE_PHP,
   WP_ELEMENTOR_WIDGETS_PHP,
   WP_PLUGIN_CORE_PHP,
-  WP_THEME_CANVAS_TEMPLATE_PHP,
-  WP_THEME_FOOTER_PHP,
+  WP_PLUGIN_FILES,
+  WP_SEO_SECURITY_PHP,
+  WP_THEME_FILES,
+  WP_THEME_FRONT_PAGE_PHP,
   WP_THEME_FUNCTIONS_PHP,
-  WP_THEME_HEADER_PHP,
-  WP_THEME_INDEX_PHP,
-  WP_THEME_STYLE_CSS,
 } from '../data/wordpressPackage';
 import { Lang } from '../types/lms';
 import { toLocaleDigits } from '../utils/formatters';
@@ -35,9 +34,11 @@ interface WordPressExportViewProps {
 
 type CodeTab =
   | 'plugin'
-  | 'admin'
+  | 'seo-security'
   | 'elementor-widgets'
+  | 'admin'
   | 'bridge'
+  | 'theme-front'
   | 'theme-functions'
   | 'elementor-json'
   | 'github';
@@ -65,10 +66,10 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       icon: <FileCode2 className="w-3.5 h-3.5" />,
     },
     {
-      id: 'admin',
-      label: 'admin-settings.php',
-      filename: 'admin-settings.php',
-      code: WP_ADMIN_SETTINGS_PHP,
+      id: 'seo-security',
+      label: 'seo-security.php',
+      filename: 'seo-security.php',
+      code: WP_SEO_SECURITY_PHP,
       icon: <Layers className="w-3.5 h-3.5" />,
     },
     {
@@ -79,11 +80,25 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       icon: <Code2 className="w-3.5 h-3.5" />,
     },
     {
+      id: 'admin',
+      label: 'admin-settings.php',
+      filename: 'admin-settings.php',
+      code: WP_ADMIN_SETTINGS_PHP,
+      icon: <Layers className="w-3.5 h-3.5" />,
+    },
+    {
       id: 'bridge',
       label: 'bot-bridge.php',
       filename: 'bot-bridge.php',
       code: WP_BOT_BRIDGE_PHP,
       icon: <Terminal className="w-3.5 h-3.5" />,
+    },
+    {
+      id: 'theme-front',
+      label: 'front-page.php (قالب)',
+      filename: 'front-page.php',
+      code: WP_THEME_FRONT_PAGE_PHP,
+      icon: <Package className="w-3.5 h-3.5" />,
     },
     {
       id: 'theme-functions',
@@ -151,14 +166,9 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       const zip = new JSZip();
       const folder = zip.folder('iramo-ai-theme');
       if (folder) {
-        folder.file('style.css', WP_THEME_STYLE_CSS);
-        folder.file('functions.php', WP_THEME_FUNCTIONS_PHP);
-        folder.file('index.php', WP_THEME_INDEX_PHP);
-        folder.file('header.php', WP_THEME_HEADER_PHP);
-        folder.file('footer.php', WP_THEME_FOOTER_PHP);
-        folder.file('page.php', WP_THEME_INDEX_PHP);
-        folder.file('templates/template-canvas.php', WP_THEME_CANVAS_TEMPLATE_PHP);
-        folder.file('elementor-templates/iramo-canvas-template.json', ELEMENTOR_TEMPLATE_JSON);
+        Object.entries(WP_THEME_FILES).forEach(([filePath, content]) => {
+          folder.file(filePath, content);
+        });
       }
       const blob = await zip.generateAsync({ type: 'blob' });
       triggerBlobDownload(blob, 'iramo-ai-theme.zip');
@@ -179,14 +189,13 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       const zip = new JSZip();
       const folder = zip.folder('iramo-ai-suite');
       if (folder) {
-        folder.file('iramo-ai-suite.php', WP_PLUGIN_CORE_PHP);
-        folder.file('includes/admin-settings.php', WP_ADMIN_SETTINGS_PHP);
-        folder.file('includes/elementor-widgets.php', WP_ELEMENTOR_WIDGETS_PHP);
-        folder.file('includes/bot-bridge.php', WP_BOT_BRIDGE_PHP);
+        Object.entries(WP_PLUGIN_FILES).forEach(([filePath, content]) => {
+          folder.file(filePath, content);
+        });
         folder.file('elementor-templates/iramo-canvas-template.json', ELEMENTOR_TEMPLATE_JSON);
         folder.file(
           'assets/README.txt',
-          'Run `npm run build:wp` or push to GitHub Actions (`.github/workflows/build-wordpress-release.yml`) to populate iramo-lms.js & iramo-lms.css in this folder automatically.'
+          'Run `npm run package:wp` or push to GitHub Actions (`.github/workflows/build-wordpress-release.yml`) to bundle compiled iramo-lms.js, iramo-lms.css & curated-ai-tools.json.'
         );
       }
       const blob = await zip.generateAsync({ type: 'blob' });
@@ -205,19 +214,19 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             <Layers className="w-4 h-4" />
             <span>
               {isFa
-                ? 'پکیج یکپارچه نصب قالب + افزونه + کامپایل خودکار گیت‌هاب'
-                : 'Complete WordPress Theme + Plugin + GitHub Actions Suite'}
+                ? 'قالب بومی وردپرس + ۱۱ ویجت و Dynamic Tags المنتور پرو + پنل دانشجویی React'
+                : 'Native PHP WordPress Theme + 11 Elementor Widgets + Dynamic Tags + Student LMS'}
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             {isFa
-              ? 'دانلود مستقیم فایل‌های ZIP نصب قالب و افزونه وردپرس (همراه با پنل کنترل کامل)'
-              : 'Download Installable Theme & Plugin ZIPs + GitHub CI Pipeline'}
+              ? 'دانلود فایل‌های نصب قالب واقعی وردپرس و افزونه iRamoAi (.zip)'
+              : 'Download Installable Native WP Theme & Plugin ZIPs'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300/85 leading-relaxed max-w-4xl">
             {isFa
-              ? 'هم قالب آماده RTL سازگار با المنتور پرو (iramo-ai-theme.zip) و هم افزونه کامل شامل پنل تنظیمات پیشخوان وردپرس، ۳ ویجت المنتور پرو، اتصال ووکامرس، ربات تلگرام/بله و دکمه پاکسازی داده‌های نمونه را می‌توانید یکجا دانلود کنید. همچنین با آپلود سورس روی گیت‌هاب، اکشن آماده گیت‌هاب فایل‌های کامپایل‌شده React را به‌صورت خودکار داخل زیپ افزونه می‌گذارد.'
-              : 'Download both the Elementor-ready WordPress Theme ZIP and the modular Plugin ZIP (with Admin Control Panel, 3 Elementor widgets, Bot Bridge, and Demo Data Cleaner). Pushing to GitHub automatically compiles Vite assets into the final plugin ZIP.'}
+              ? 'تمام صفحات عمومی سایت با قالب بومی PHP/HTML/CSS و سازگاری کامل با Elementor Pro Theme Builder (هدر، فوتر، آرشیو، تکی و ۴۰۴) رندر سمت سرور می‌شوند تا گوگل محتوا را کامل ایندکس کند؛ ۱۱ ویجت اختصاصی و ۸ تگ داینامیک در المنتور فعال است و بخش کاربری (/panel/) با اپلیکیشن ری‌اکت بارگذاری می‌شود.'
+              : 'Public pages render server-side in native PHP/HTML/CSS with Elementor Pro Theme Builder locations, 11 custom Elementor widgets, Dynamic Tags, SEO Schema JSON-LD, Security Hardening, and isolated React Student LMS portal on /panel/.'}
           </p>
         </div>
 

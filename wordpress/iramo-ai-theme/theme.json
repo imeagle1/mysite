@@ -1,0 +1,88 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "1460px",
+      "wideSize": "1460px"
+    },
+    "color": {
+      "defaultPalette": false,
+      "palette": [
+        {
+          "slug": "iramo-primary",
+          "color": "#059669",
+          "name": "سبز زمردی اصلی (Primary)"
+        },
+        {
+          "slug": "iramo-emerald-light",
+          "color": "#10B981",
+          "name": "زمردی روشن"
+        },
+        {
+          "slug": "iramo-accent",
+          "color": "#FFBA00",
+          "name": "زرد طلایی دکمه‌ها (Accent)"
+        },
+        {
+          "slug": "iramo-ink",
+          "color": "#0F172A",
+          "name": "متن تیره (Ink)"
+        },
+        {
+          "slug": "iramo-canvas-light",
+          "color": "#F8FAFC",
+          "name": "پس‌زمینه روشن"
+        },
+        {
+          "slug": "iramo-canvas-dark",
+          "color": "#050C0A",
+          "name": "پس‌زمینه تیره"
+        },
+        {
+          "slug": "iramo-surface-dark",
+          "color": "#0B1613",
+          "name": "سطح کارت تیره"
+        }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "'IRANYekanXVF', 'Vazirmatn', system-ui, -apple-system, sans-serif",
+          "slug": "iramo-farsi",
+          "name": "IRANYekanX Variable (فارسی)"
+        },
+        {
+          "fontFamily": "'Vazirmatn', system-ui, -apple-system, sans-serif",
+          "slug": "vazirmatn",
+          "name": "Vazirmatn"
+        },
+        {
+          "fontFamily": "'Plus Jakarta Sans', 'IRANYekanXVF', sans-serif",
+          "slug": "iramo-latin",
+          "name": "Plus Jakarta Sans"
+        }
+      ],
+      "fontSizes": [
+        { "slug": "xs", "size": "0.75rem", "name": "XS" },
+        { "slug": "sm", "size": "0.875rem", "name": "SM" },
+        { "slug": "base", "size": "1rem", "name": "Base" },
+        { "slug": "lg", "size": "1.125rem", "name": "LG" },
+        { "slug": "xl", "size": "1.375rem", "name": "XL" },
+        { "slug": "2xl", "size": "1.75rem", "name": "2XL" },
+        { "slug": "3xl", "size": "2.35rem", "name": "3XL" }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var(--iramo-canvas, #F8FAFC)",
+      "text": "var(--iramo-ink, #0F172A)"
+    },
+    "typography": {
+      "fontFamily": "var(--font-fa, 'IRANYekanXVF', 'Vazirmatn', system-ui, sans-serif)"
+    }
+  }
+}

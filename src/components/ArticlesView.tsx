@@ -135,9 +135,9 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
   };
 
   return (
-    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
         <div className="space-y-2 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">
             <BookOpen className="w-4 h-4" />

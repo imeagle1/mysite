@@ -178,14 +178,14 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
   };
 
   return (
-    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 sm:space-y-10">
       {/* Compact Top Switcher Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3 sm:gap-4">
         <div className="space-y-1.5 max-w-2xl">
           <p className="text-xs font-semibold text-[var(--iramo-primary)]">
             {isFa ? 'ویترین و لندینگ تخصصی محصولات نرم‌افزاری' : 'Software Products & Dedicated Landing Pages'}
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-balance">
+          <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white text-balance">
             {isFa
               ? 'محصولات نرم‌افزاری و آزمایشگاه دمو زنده'
               : 'Software Products & Interactive Live Demos'}
@@ -198,7 +198,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
       </div>
 
       {/* Product Selector Cards Grid (Every newly added WP/Panel product renders identically here) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 min-[520px]:grid-cols-2 lg:grid-cols-4 gap-4">
         {products.map((prod) => {
           const active = prod.id === activeProduct.id;
           return (
@@ -267,8 +267,8 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
       {/* ================================================================ */}
       <div className="space-y-8 pt-2">
         {/* SECTION 1: Product Hero (Conversion Above-the-Fold) */}
-        <section className="rounded-3xl p-6 sm:p-8 lg:p-10 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-7 space-y-5">
+        <section className="rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
+          <div className="lg:col-span-7 space-y-4 sm:space-y-5 min-w-0">
             <div className="flex flex-wrap items-center gap-2.5 text-xs">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--iramo-primary-soft)] border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] font-bold">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -279,8 +279,8 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               </span>
             </div>
 
-            <div className="space-y-3">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight text-balance">
+            <div className="space-y-2.5 sm:space-y-3">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight text-balance">
                 {prodName}
               </h2>
               <p className="text-sm sm:text-base font-medium text-[var(--iramo-primary)] leading-relaxed">
@@ -291,7 +291,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 pt-1">
               <PriceActionButton
                 lang={lang}
                 priceToman={activeProduct.priceToman}
@@ -313,7 +313,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               <button
                 type="button"
                 onClick={scrollToSandbox}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-soft)] text-xs font-bold transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-soft)] text-xs font-bold transition-colors cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>{isFa ? 'مشاهده دمو زنده' : 'Try Live Demo'}</span>
@@ -435,7 +435,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[var(--iramo-card-border)] flex flex-wrap items-center justify-between gap-4">
+            <div className="pt-4 border-t border-[var(--iramo-card-border)] flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3 sm:gap-4">
               <PriceActionButton
                 lang={lang}
                 priceToman={activeProduct.priceToman}
@@ -454,7 +454,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenCourseInPanel(activeProduct.linkedCourseId!)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-soft)] text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-soft)] text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>
@@ -468,7 +468,7 @@ export const ProductsDemoView: React.FC<ProductsDemoViewProps> = ({
           </div>
 
           {/* Live Interactive Sandbox */}
-          <div className="lg:col-span-6 rounded-3xl p-6 bg-white dark:bg-[#07110E] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-5">
+          <div className="lg:col-span-6 rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-white dark:bg-[#07110E] border border-[var(--iramo-card-border)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col justify-between gap-5">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
@@ -708,7 +708,7 @@ export const PublicCoursesView: React.FC<PublicCoursesViewProps> = ({
 }) => {
   const isFa = lang === 'fa';
   return (
-    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-2 max-w-2xl">
           <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -842,8 +842,8 @@ export const ServicesConsultationView: React.FC<ServicesConsultationViewProps> =
   };
 
   return (
-    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-10 space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="max-w-[1460px] mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         <div className="lg:col-span-6 space-y-6">
           <div className="space-y-2">
             <p className="text-xs font-semibold text-[var(--iramo-primary)] dark:text-[#FFBA00]">

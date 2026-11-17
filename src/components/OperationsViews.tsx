@@ -352,14 +352,14 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
             <label className="text-xs text-slate-500 dark:text-slate-400 block">
               {isFa ? 'آیدی یا شناسه چت عددی تلگرام' : 'Telegram Username or Chat ID'}
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col min-[420px]:flex-row gap-2">
               <input
                 type="text"
                 dir="ltr"
                 value={tgHandle}
                 onChange={(e) => setTgHandle(e.target.value)}
                 placeholder="@username or 123456789"
-                className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               />
               <button
                 type="button"
@@ -403,14 +403,14 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
             <label className="text-xs text-slate-500 dark:text-slate-400 block">
               {isFa ? 'شماره موبایل یا شناسه عددی بله' : 'Bale Phone or Chat ID'}
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col min-[420px]:flex-row gap-2">
               <input
                 type="text"
                 dir="ltr"
                 value={baleId}
                 onChange={(e) => setBaleId(e.target.value)}
                 placeholder="09123456789 or chat_id"
-                className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               />
               <button
                 type="button"

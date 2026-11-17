@@ -1,0 +1,41 @@
+{
+  "version": "0.4",
+  "title": "iRamoAi Home & AI Tools Native Elementor Template",
+  "type": "page",
+  "content": [
+    {
+      "id": "iramo_el_sec_hero",
+      "elType": "container",
+      "settings": {
+        "content_width": "full",
+        "padding": { "unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0" }
+      },
+      "elements": [
+        {
+          "id": "iramo_el_hero_01",
+          "elType": "widget",
+          "widgetType": "iramo_hero",
+          "settings": {}
+        },
+        {
+          "id": "iramo_el_products_01",
+          "elType": "widget",
+          "widgetType": "iramo_products_grid",
+          "settings": { "posts_count": 4, "columns": "2" }
+        },
+        {
+          "id": "iramo_el_tools_01",
+          "elType": "widget",
+          "widgetType": "iramo_ai_tools_grid",
+          "settings": { "posts_count": 9 }
+        },
+        {
+          "id": "iramo_el_courses_01",
+          "elType": "widget",
+          "widgetType": "iramo_courses_grid",
+          "settings": { "posts_count": 4 }
+        }
+      ]
+    }
+  ]
+}

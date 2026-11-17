@@ -235,20 +235,20 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
   return (
     <div className="min-h-screen flex flex-col bg-[var(--iramo-canvas)] dark:bg-[#050C0A] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Pure Floating Rounded Header */}
-      <header className="fixed top-0 inset-x-0 z-40 px-4 sm:px-6 pt-3 bg-transparent pointer-events-none">
-        <div className="max-w-[1460px] mx-auto relative rounded-full border border-[var(--iramo-card-border)] dark:border-emerald-500/25 bg-white/90 dark:bg-[#07130F]/90 backdrop-blur-md shadow-sm shadow-slate-900/5 dark:shadow-black/40 pointer-events-auto">
-          <div className="h-14 px-4 sm:px-5 rounded-full flex items-center justify-between gap-3">
-            {/* Zone 1: Brand Mark (Zero dot in iRamoAi) */}
+      <header className="fixed top-0 inset-x-0 z-40 px-3 sm:px-6 pt-2.5 sm:pt-3 bg-transparent pointer-events-none">
+        <div className="max-w-[1460px] mx-auto relative rounded-full border border-[var(--iramo-card-border)] dark:border-emerald-500/25 bg-white/92 dark:bg-[#07130F]/92 backdrop-blur-md shadow-sm shadow-slate-900/5 dark:shadow-black/40 pointer-events-auto">
+          <div className="h-12 sm:h-14 px-3 sm:px-5 rounded-full flex items-center justify-between gap-2 sm:gap-3">
+            {/* Zone 1: Brand Mark */}
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight whitespace-nowrap shrink-0 cursor-pointer"
+              className="flex items-center gap-2 sm:gap-2.5 text-base sm:text-lg font-extrabold tracking-tight whitespace-nowrap shrink-0 cursor-pointer"
             >
               <img
                 src={resolveBrandLogo(theme === 'dark' ? 'header' : 'light')}
                 alt={siteConfig.brandTitle}
                 referrerPolicy="no-referrer"
-                className="w-7 h-7 object-contain"
+                className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
               />
               <span dir="ltr" className="text-slate-900 dark:text-white">
                 {renderBrandWordmark(siteConfig.brandTitle)}
@@ -289,7 +289,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
             </nav>
 
             {/* Zone 3: Theme Toggle + Language Switcher + Panel CTA */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 type="button"
                 onClick={onToggleTheme}
@@ -311,12 +311,12 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     ? 'حالت تیره'
                     : 'Dark mode'
                 }
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-[#0B1914] dark:hover:bg-[#11261E] border border-slate-200 dark:border-emerald-500/20 text-slate-700 dark:text-[#FFBA00] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-[#0B1914] dark:hover:bg-[#11261E] border border-slate-200 dark:border-emerald-500/20 text-slate-700 dark:text-[#FFBA00] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 {theme === 'dark' ? (
-                  <Sun className="w-4 h-4" />
+                  <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 ) : (
-                  <Moon className="w-4 h-4 text-slate-700" />
+                  <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700" />
                 )}
               </button>
 
@@ -332,17 +332,19 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               <button
                 type="button"
                 onClick={handlePanelClick}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] dark:bg-[#0A261C] dark:hover:bg-[#0E3326] border border-transparent dark:border-emerald-500/45 dark:text-emerald-300 text-xs font-bold shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-[var(--iramo-primary-fg)] dark:bg-[#0A261C] dark:hover:bg-[#0E3326] border border-transparent dark:border-emerald-500/45 dark:text-emerald-300 text-[11px] sm:text-xs font-bold shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
                 {currentUser ? (
                   <>
                     <LayoutGrid className="w-3.5 h-3.5 text-current dark:text-emerald-400" />
-                    <span>{isFa ? 'پنل کاربری' : 'Dashboard'}</span>
+                    <span className="sm:hidden">{isFa ? 'پنل من' : 'Panel'}</span>
+                    <span className="hidden sm:inline">{isFa ? 'پنل کاربری' : 'Dashboard'}</span>
                   </>
                 ) : (
                   <>
                     <LogIn className="w-3.5 h-3.5 text-current dark:text-emerald-400" />
-                    <span>{isFa ? 'ورود / پنل کاربری' : 'Sign In / Panel'}</span>
+                    <span className="sm:hidden">{isFa ? 'ورود / پنل' : 'Sign In'}</span>
+                    <span className="hidden sm:inline">{isFa ? 'ورود / پنل کاربری' : 'Sign In / Panel'}</span>
                   </>
                 )}
               </button>
@@ -350,7 +352,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen((o) => !o)}
-                className="lg:hidden p-2 rounded-full border border-slate-200 dark:border-emerald-500/25 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-emerald-950/60 cursor-pointer"
+                className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-emerald-500/25 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-emerald-950/60 cursor-pointer shrink-0"
                 aria-label={isFa ? 'منو' : 'Menu'}
               >
                 {mobileMenuOpen ? (
@@ -424,28 +426,27 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
       </header>
 
       {/* Page Body */}
-      <main className={`flex-1 ${activePage === 'home' ? '' : 'pt-20'}`}>
+      <main className={`flex-1 min-w-0 ${activePage === 'home' ? '' : 'pt-16 sm:pt-20'}`}>
         {children}
       </main>
 
-      {/* Upgraded Multi-Column Professional Footer with Glowing Social Icons */}
-      <footer className="relative mt-16 border-t border-slate-200/90 dark:border-emerald-500/15 bg-white dark:bg-[#040A08] overflow-hidden">
-        {/* Ambient top horizon glow */}
+      {/* Upgraded Responsive Multi-Column Footer with 2-Column Mobile Nav Layout */}
+      <footer className="relative mt-12 sm:mt-16 border-t border-slate-200/90 dark:border-emerald-500/15 bg-white dark:bg-[#040A08] overflow-hidden">
         <div
           aria-hidden="true"
           className="h-px w-full bg-gradient-to-r from-transparent via-emerald-500/45 to-transparent"
         />
 
-        <div className="max-w-[1460px] mx-auto px-4 sm:px-6 pt-12 pb-8 space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
-            {/* Column 1: Brand Identity (Strictly RTL/LTR aligned with logo) + Glowing Social Row */}
-            <div className="lg:col-span-5 space-y-5 text-start">
+        <div className="max-w-[1460px] mx-auto px-4 sm:px-6 pt-10 sm:pt-12 pb-7 sm:pb-8 space-y-8 sm:space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-7 sm:gap-8 lg:gap-10">
+            {/* Column 1: Brand Identity + Glowing Social Row */}
+            <div className="md:col-span-2 lg:col-span-5 space-y-4 sm:space-y-5 text-start">
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="w-full flex items-center justify-start gap-3.5 text-start cursor-pointer"
+                className="w-full flex items-center justify-start gap-3 text-start cursor-pointer"
               >
-                <div className="w-11 h-11 rounded-xl bg-slate-50 dark:bg-[#0B1B15] border border-slate-200 dark:border-emerald-500/25 flex items-center justify-center p-1.5 shadow-xs shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-50 dark:bg-[#0B1B15] border border-slate-200 dark:border-emerald-500/25 flex items-center justify-center p-1.5 shadow-xs shrink-0">
                   <img
                     src={resolveBrandLogo(theme === 'dark' ? 'header' : 'light')}
                     alt={siteConfig.brandTitle}
@@ -457,12 +458,12 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   <div className="flex items-center justify-start">
                     <span
                       dir="ltr"
-                      className="inline-block text-xl font-extrabold text-slate-900 dark:text-white tracking-tight"
+                      className="inline-block text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight"
                     >
                       {renderBrandWordmark(siteConfig.brandTitle)}
                     </span>
                   </div>
-                  <p className="text-[11.5px] font-medium text-[var(--iramo-primary)] mt-0.5 text-start">
+                  <p className="text-[11px] sm:text-[11.5px] font-medium text-[var(--iramo-primary)] mt-0.5 text-start">
                     {isFa
                       ? 'آکادمی هوش مصنوعی، ربات‌سازی و مهندسی نرم‌افزار'
                       : 'AI Academy, Bots & Software Studio'}
@@ -477,11 +478,11 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               </p>
 
               {/* Glowing Social Media Icons */}
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                   {isFa ? 'ما را در شبکه‌های اجتماعی دنبال کنید' : 'Connect with us'}
                 </p>
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
                   {socialChannels.map((soc) => (
                     <a
                       key={soc.id}
@@ -490,7 +491,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                       rel="noopener noreferrer"
                       title={soc.label}
                       aria-label={soc.label}
-                      className={`group relative w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#0A1712] border border-[var(--iramo-card-border)] dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 ${soc.glowClass}`}
+                      className={`group relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 dark:bg-[#0A1712] border border-[var(--iramo-card-border)] dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 ${soc.glowClass}`}
                     >
                       <span
                         aria-hidden="true"
@@ -503,83 +504,84 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               </div>
             </div>
 
-            {/* Column 2: Quick Navigation */}
-            <div className="lg:col-span-2 space-y-3.5 text-start">
-              <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
-                {isFa ? 'بخش‌های سایت' : 'Navigation'}
-              </h3>
-              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('home')}
-                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
-                  >
-                    {isFa ? 'صفحه اصلی' : 'Home'}
-                  </button>
-                </li>
-                {visibleNavLinks.map((link) => (
-                  <li key={link.id}>
+            {/* Columns 2 & 3 Grouped: Clean 2-Column Mobile Grid instead of lonely stacked lists */}
+            <div className="md:col-span-1 lg:col-span-4 grid grid-cols-2 gap-6 text-start py-1 sm:py-0">
+              <div className="space-y-3">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
+                  {isFa ? 'بخش‌های سایت' : 'Navigation'}
+                </h3>
+                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                  <li>
                     <button
                       type="button"
-                      onClick={() => onNavigate(link.id)}
+                      onClick={() => onNavigate('home')}
                       className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
                     >
-                      {isFa ? link.fa : link.en}
+                      {isFa ? 'صفحه اصلی' : 'Home'}
                     </button>
                   </li>
-                ))}
-              </ul>
-            </div>
+                  {visibleNavLinks.map((link) => (
+                    <li key={link.id}>
+                      <button
+                        type="button"
+                        onClick={() => onNavigate(link.id)}
+                        className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
+                      >
+                        {isFa ? link.fa : link.en}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            {/* Column 3: Ecosystem & Tools */}
-            <div className="lg:col-span-2 space-y-3.5 text-start">
-              <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
-                {isFa ? 'امکانات و پلتفرم' : 'Ecosystem'}
-              </h3>
-              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <li>
-                  <button
-                    type="button"
-                    onClick={handlePanelClick}
-                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
-                  >
-                    {isFa ? 'پنل کاربری و آموزش' : 'User Workspace'}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('products')}
-                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
-                  >
-                    {isFa ? 'نرم‌افزار حسابیار' : 'Hesabyar Automation'}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('ai-marketplace')}
-                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
-                  >
-                    {isFa ? 'دایرکتوری ابزارهای AI' : 'AI Directory'}
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('services')}
-                    className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
-                  >
-                    {isFa ? 'پلاگین وردپرس و المنتور' : 'WordPress & Elementor'}
-                  </button>
-                </li>
-              </ul>
+              <div className="space-y-3">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
+                  {isFa ? 'امکانات و پلتفرم' : 'Ecosystem'}
+                </h3>
+                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                  <li>
+                    <button
+                      type="button"
+                      onClick={handlePanelClick}
+                      className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
+                    >
+                      {isFa ? 'پنل کاربری و آموزش' : 'User Workspace'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('products')}
+                      className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
+                    >
+                      {isFa ? 'نرم‌افزار حسابیار' : 'Hesabyar Automation'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('ai-marketplace')}
+                      className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
+                    >
+                      {isFa ? 'دایرکتوری ابزارهای AI' : 'AI Directory'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('services')}
+                      className="hover:text-[var(--iramo-primary)] transition-colors cursor-pointer"
+                    >
+                      {isFa ? 'پلاگین وردپرس و المنتور' : 'WordPress & Elementor'}
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             {/* Column 4: Newsletter + Project Advisory & Trust Highlights */}
-            <div className="lg:col-span-3">
-              <div className="rounded-2xl p-5 bg-slate-50/90 dark:bg-[#091511] border border-[var(--iramo-card-border)] space-y-4 text-start">
+            <div className="md:col-span-1 lg:col-span-3">
+              <div className="rounded-2xl p-4 sm:p-5 bg-slate-50/90 dark:bg-[#091511] border border-[var(--iramo-card-border)] space-y-3.5 text-start">
                 <div className="space-y-1">
                   <p className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--iramo-accent)] shrink-0" />
@@ -606,7 +608,10 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <form onSubmit={handleFooterNewsletter} className="flex items-center gap-2">
+                  <form
+                    onSubmit={handleFooterNewsletter}
+                    className="flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center gap-2"
+                  >
                     <div className="relative flex-1 min-w-0">
                       <Mail className="w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3" />
                       <input
@@ -616,19 +621,19 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                         value={footerEmail}
                         onChange={(e) => setFooterEmail(e.target.value)}
                         placeholder="you@domain.com"
-                        className="w-full ps-8 pe-2.5 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[var(--iramo-primary-border)]"
+                        className="w-full ps-8 pe-2.5 py-2.5 rounded-xl bg-white dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[var(--iramo-primary-border)]"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="px-3.5 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap"
+                      className="px-4 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                     >
                       {isFa ? 'عضویت' : 'Join'}
                     </button>
                   </form>
                 )}
 
-                <div className="pt-3 border-t border-[var(--iramo-card-border)] flex items-center justify-between gap-2 text-[11px]">
+                <div className="pt-3 border-t border-[var(--iramo-card-border)] flex flex-wrap items-center justify-between gap-2 text-[11px]">
                   <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
                     <ShieldCheck className="w-3.5 h-3.5 text-[var(--iramo-primary)] shrink-0" />
                     <span>
@@ -653,13 +658,13 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
           </div>
 
           {/* Bottom Legal & Language Strip */}
-          <div className="pt-6 border-t border-slate-200/80 dark:border-emerald-500/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-            <p className="tabular-nums">
+          <div className="pt-5 sm:pt-6 border-t border-slate-200/80 dark:border-emerald-500/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-start text-xs text-slate-500 dark:text-slate-400">
+            <p className="tabular-nums leading-relaxed">
               {isFa
                 ? `© ${toLocaleDigits('2025', lang)} ${siteConfig.brandTitle} — طراحی و مهندسی پلتفرم هوشمند`
                 : `© 2025 ${siteConfig.brandTitle} — Intelligent Software & Engineering Academy`}
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center gap-4 shrink-0">
               <button
                 type="button"
                 onClick={onToggleTheme}
