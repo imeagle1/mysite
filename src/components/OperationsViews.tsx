@@ -240,6 +240,8 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       deepLink?: string;
       botUsername?: string;
       connected?: boolean;
+      chatId?: string;
+      username?: string;
       target?: string;
     };
     if (!res.ok) {
@@ -250,7 +252,6 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
 
   const handleRequestLink = async (platform: 'telegram' | 'bale') => {
     setBotError('');
-    const target = platform === 'telegram' ? tgHandle.trim() : baleId.trim();
     if (!wpRestUrl) {
       setLinkState({
         platform,
@@ -262,7 +263,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       return;
     }
     try {
-      const res = await callWp('bot/request-link', { platform, target });
+      const res = await callWp('bot/request-link', { platform, intent: 'bind' });
       if (res?.command) {
         setLinkState({
           platform,
@@ -292,12 +293,12 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       const res = await callWp('bot/check-link', {
         platform,
         nonceId: linkState?.nonceId || '',
-        target,
       });
       if (res?.connected) {
-        if (res.target) {
-          if (platform === 'telegram') setTgHandle(res.target);
-          else setBaleId(res.target);
+        const verifiedCid = res.chatId || res.target || target;
+        if (verifiedCid) {
+          if (platform === 'telegram') setTgHandle(verifiedCid);
+          else setBaleId(verifiedCid);
         }
         if (!verifiedPlatform.includes(platform)) {
           setVerifiedPlatform((prev) => [...prev, platform]);
@@ -305,8 +306,8 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
         setLinkState(null);
         onUpdateBotBinding?.(
           platform === 'telegram'
-            ? { telegramId: res.target || target, prefs }
-            : { balePhone: res.target || target, prefs }
+            ? { telegramId: verifiedCid, prefs }
+            : { balePhone: verifiedCid, prefs }
         );
       } else {
         setBotError(

@@ -347,6 +347,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       deepLink?: string;
       botUsername?: string;
       connected?: boolean;
+      chatId?: string;
+      username?: string;
       target?: string;
     };
     if (!res.ok) {
@@ -483,7 +485,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setIsRequestingLink(true);
       const data = await wpPost('bot/request-link', {
         platform: activeChannel,
-        target: botContact.trim(),
+        intent: 'login',
       });
       if (data.code && data.command) {
         setBotLinkInfo({
@@ -515,12 +517,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const data = await wpPost('bot/check-link', {
         platform: activeChannel,
         nonceId: botLinkInfo?.nonceId || '',
-        target: botContact.trim(),
       });
       if (data.connected) {
         setBotLinkConnected(true);
-        if (data.target) {
-          setBotContact(data.target);
+        const verifiedCid = data.chatId || data.target;
+        if (verifiedCid) {
+          setBotContact(verifiedCid);
         }
       } else {
         setError(
@@ -989,11 +991,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <label className="text-xs font-medium text-slate-700 dark:text-slate-300 block">
                         {activeChannel === 'telegram'
                           ? isFa
-                            ? 'شناسه چت یا نام کاربری تلگرام'
-                            : 'Telegram Username or Chat ID'
+                            ? 'شناسه چت عددی تلگرام (Chat ID تأییدشده)'
+                            : 'Verified Telegram Chat ID'
                           : isFa
-                          ? 'شناسه چت یا شماره متصل بله'
-                          : 'Bale Chat ID or Phone'}
+                          ? 'شناسه چت عددی بله (Chat ID تأییدشده)'
+                          : 'Verified Bale Chat ID'}
                       </label>
                       <button
                         type="button"
@@ -1016,7 +1018,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           setBotLinkConnected(false);
                         }}
                         placeholder={
-                          activeChannel === 'telegram' ? '@username or chat_id' : 'chat_id or 09123456789'
+                          activeChannel === 'telegram' ? '123456789 (Telegram Chat ID)' : '123456789 (Bale Chat ID)'
                         }
                         className="w-full ps-9 pe-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />

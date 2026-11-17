@@ -540,7 +540,7 @@ function iramo_build_user_payload( $user_id ) {
         'name'         => $user->display_name ?: $user->user_login,
         'email'        => $user->user_email,
         'isAdmin'      => user_can( $user_id, 'manage_options' ),
-        'telegramId'   => get_user_meta( $user_id, '_iramo_telegram_handle', true ) ?: get_user_meta( $user_id, '_iramo_telegram_chat_id', true ) ?: '',
+        'telegramId'   => get_user_meta( $user_id, '_iramo_telegram_chat_id', true ) ?: get_user_meta( $user_id, '_iramo_telegram_handle', true ) ?: '',
         'balePhone'    => get_user_meta( $user_id, '_iramo_bale_chat_id', true ) ?: '',
         'phone'        => get_user_meta( $user_id, '_iramo_phone', true ) ?: get_user_meta( $user_id, 'billing_phone', true ) ?: '',
         'authMethod'   => get_user_meta( $user_id, '_iramo_auth_method', true ) ?: 'email',
