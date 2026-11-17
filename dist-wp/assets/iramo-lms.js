@@ -273,7 +273,7 @@ React keys must be passed directly to JSX without using spread:
  * Plugin Name: iRamoAi Suite (LMS, AI Tools, Products, SEO & Elementor Pro)
  * Plugin URI:  https://iramo.ai
  * Description: هسته اختصاصی iRamoAi برای وردپرس و المنتور پرو: ثبت پست‌تایپ‌ها با URL سئو شده، کاشت خودکار ۱۸ ابزار واقعی هوش مصنوعی، ویجت‌ها و Dynamic Tags المنتور پرو، اتصال ووکامرس، ربات تلگرام/بله، سئو/امنیت و پنل دانشجویی [iramo_lms].
- * Version:     2.2.0
+ * Version:     2.2.1
  * Author:      iRamoAi Engineering
  * Text Domain: iramo-ai
  */
@@ -282,7 +282,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_AI_VERSION', '2.2.0' );
+define( 'IRAMO_AI_VERSION', '2.2.1' );
 define( 'IRAMO_AI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'IRAMO_AI_URL', plugin_dir_url( __FILE__ ) );
 
@@ -1041,6 +1041,36 @@ function iramo_render_app_shortcode( $atts ) {
 }
 add_shortcode( 'iramo_lms', 'iramo_render_app_shortcode' );
 add_shortcode( 'iramo_site', 'iramo_render_app_shortcode' );
+
+/**
+ * Load React LMS Vite ES module bundle with type="module" (required for import.meta.url)
+ * and exclude it from LiteSpeed Cache / WP Rocket minification, combination & delay.
+ */
+add_filter( 'script_loader_tag', function( $tag, $handle, $src ) {
+    if ( 'iramo-ai-bundle' !== $handle ) {
+        return $tag;
+    }
+    $cleaned = preg_replace( '/\\s+type=[\\'"][^\\'"]*[\\'"]/', '', (string) $tag );
+    return str_replace(
+        '<script ',
+        '<script type="module" data-no-optimize="1" data-no-defer="1" data-no-minify="1" ',
+        $cleaned
+    );
+}, 20, 3 );
+
+$iramo_exclude_bundle = function( $excludes ) {
+    if ( ! is_array( $excludes ) ) {
+        $excludes = [];
+    }
+    $excludes[] = 'iramo-lms.js';
+    $excludes[] = '/iramo-ai-suite/assets/iramo-lms.js';
+    return array_values( array_unique( $excludes ) );
+};
+add_filter( 'litespeed_optimize_js_excludes', $iramo_exclude_bundle );
+add_filter( 'litespeed_optm_js_defer_exc', $iramo_exclude_bundle );
+add_filter( 'rocket_exclude_js', $iramo_exclude_bundle );
+add_filter( 'rocket_exclude_defer_js', $iramo_exclude_bundle );
+add_filter( 'rocket_delay_js_exclusions', $iramo_exclude_bundle );
 
 /**
  * 5. Automatic Seeding of 18 Curated Real AI Tools from assets/curated-ai-tools.json
