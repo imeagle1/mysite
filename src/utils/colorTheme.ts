@@ -171,7 +171,7 @@ export function applyThemeColorVariables(
     root.style.setProperty('--iramo-primary-hover', mixHex(darkPrimary, '#FFFFFF', 0.14));
     root.style.setProperty('--iramo-primary-fg', getContrastForeground(darkPrimary));
     root.style.setProperty('--iramo-primary-soft', `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.14)`);
-    root.style.setProperty('--iramo-primary-border', `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.30)`);
+    root.style.setProperty('--iramo-primary-border', `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.24)`);
 
     root.style.setProperty('--iramo-accent', darkAccent);
     root.style.setProperty('--iramo-accent-hover', mixHex(darkAccent, '#FFFFFF', 0.16));
@@ -179,23 +179,20 @@ export function applyThemeColorVariables(
     root.style.setProperty('--iramo-accent-soft', `rgba(${daRgb.r}, ${daRgb.g}, ${daRgb.b}, 0.16)`);
     root.style.setProperty('--iramo-accent-text', darkAccent);
 
-    const darkBorderAlpha =
+    const darkBorderColor =
       cfg.borderIntensity === 'subtle'
-        ? 0.14
+        ? 'rgba(255, 255, 255, 0.075)'
         : cfg.borderIntensity === 'balanced'
-        ? 0.20
-        : 0.30;
-    root.style.setProperty(
-      '--iramo-card-border',
-      `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, ${darkBorderAlpha})`
-    );
+        ? 'rgba(255, 255, 255, 0.12)'
+        : `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.20)`;
+    root.style.setProperty('--iramo-card-border', darkBorderColor);
     root.style.setProperty(
       '--iramo-card-border-hover',
-      `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.55)`
+      `rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.38)`
     );
     root.style.setProperty(
       '--iramo-card-shadow-hover',
-      `0 14px 32px -8px rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.28), 0 4px 12px -4px rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.14)`
+      `0 14px 30px -8px rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.20), 0 4px 12px -4px rgba(${dpRgb.r}, ${dpRgb.g}, ${dpRgb.b}, 0.10)`
     );
   } else {
     root.style.setProperty('--iramo-canvas', lightCanvas);
@@ -204,7 +201,7 @@ export function applyThemeColorVariables(
     root.style.setProperty('--iramo-primary-hover', mixHex(primary, '#FFFFFF', 0.12));
     root.style.setProperty('--iramo-primary-fg', getContrastForeground(primary));
     root.style.setProperty('--iramo-primary-soft', `rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.08)`);
-    root.style.setProperty('--iramo-primary-border', `rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.26)`);
+    root.style.setProperty('--iramo-primary-border', `rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.22)`);
 
     root.style.setProperty('--iramo-accent', accent);
     root.style.setProperty('--iramo-accent-hover', mixHex(accent, '#FFFFFF', 0.16));
@@ -214,20 +211,20 @@ export function applyThemeColorVariables(
 
     const lightBorderColor =
       cfg.borderIntensity === 'subtle'
-        ? 'rgba(15, 23, 42, 0.08)'
+        ? 'rgba(15, 23, 42, 0.06)'
         : cfg.borderIntensity === 'balanced'
-        ? 'rgba(15, 23, 42, 0.13)'
-        : 'rgba(15, 23, 42, 0.20)';
+        ? 'rgba(15, 23, 42, 0.095)'
+        : 'rgba(15, 23, 42, 0.14)';
 
     root.style.setProperty('--iramo-card-border', lightBorderColor);
-    // Turquoise-emerald hover border + matching back glow shadow (never gray)
+    // Subtle primary hover border + delicate matching elevation glow
     root.style.setProperty(
       '--iramo-card-border-hover',
-      `rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.48)`
+      `rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.34)`
     );
     root.style.setProperty(
       '--iramo-card-shadow-hover',
-      `0 14px 28px -8px rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.20), 0 4px 12px -4px rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.12)`
+      `0 12px 24px -8px rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.16), 0 4px 10px -4px rgba(${pRgb.r}, ${pRgb.g}, ${pRgb.b}, 0.09)`
     );
   }
 }

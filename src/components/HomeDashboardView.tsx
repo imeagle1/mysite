@@ -47,7 +47,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl p-6 sm:p-7 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <section className="rounded-2xl p-6 sm:p-7 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             {isFa ? 'پنل کاربری و آکادمی iRamoAi' : 'iRamoAi Learning & Product Workspace'}
@@ -76,7 +76,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('wp-export')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-emerald-500/25 text-slate-800 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] text-slate-800 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
           >
             <span>{isFa ? 'راهنمای نصب در المنتور' : 'Elementor Setup'}</span>
           </button>
@@ -85,7 +85,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
       {/* 4-Column KPI Row with Persian Numerals */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-1.5">
+        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{isFa ? 'دوره‌های فعال' : 'Enrolled Courses'}</span>
             <BookOpen className="w-4 h-4 text-blue-600 dark:text-emerald-400" />
@@ -98,7 +98,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-1.5">
+        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{isFa ? 'جلسات تکمیل‌شده' : 'Lessons Completed'}</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -115,7 +115,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-1.5">
+        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{isFa ? 'لایسنس‌های نرم‌افزاری' : 'Active Licenses'}</span>
             <KeyRound className="w-4 h-4 text-[#FFBA00]" />
@@ -128,7 +128,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-1.5">
+        <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{isFa ? 'اتصال پیام‌رسان' : 'Messenger Sync'}</span>
             <Bot className="w-4 h-4 text-blue-500 dark:text-emerald-400" />
@@ -190,7 +190,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             return (
               <div
                 key={course.id}
-                className="flex flex-col sm:flex-row gap-4 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15"
+                className="flex flex-col sm:flex-row gap-4 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none"
               >
                 <img
                   src={course.thumbnail}

@@ -118,11 +118,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       aria-label={isFa ? 'جستجوی سریع' : 'Command Search'}
     >
       <div
-        className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/25 shadow-2xl overflow-hidden"
+        className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Input */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-emerald-500/15">
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[var(--iramo-card-border)]">
           <Search className="w-4 h-4 text-[#FFBA00] shrink-0" />
           <input
             type="text"
@@ -159,7 +159,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 {recentSearches.map((tag) => (
                   <div
                     key={tag}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#11221B] border border-slate-200/80 dark:border-emerald-500/15 text-xs text-slate-700 dark:text-slate-200"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#11221B] border border-[var(--iramo-card-border)] text-xs text-slate-700 dark:text-slate-200"
                   >
                     <button
                       type="button"
@@ -218,8 +218,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         }}
                         className={`flex items-center gap-3 p-2.5 rounded-xl border text-start transition-colors cursor-pointer ${
                           active
-                            ? 'bg-emerald-50/70 border-emerald-400 dark:bg-emerald-500/15 dark:border-emerald-500/40'
-                            : 'bg-slate-50/60 border-slate-200/80 hover:border-slate-300 dark:bg-[#0F1E19] dark:border-emerald-500/15 dark:hover:border-emerald-500/35'
+                            ? 'bg-emerald-50/70 border-[var(--iramo-primary-border)] dark:bg-emerald-500/15'
+                            : 'bg-slate-50/60 border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] dark:bg-[#0F1E19]'
                         }`}
                       >
                         <img
@@ -255,8 +255,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       }}
                       className={`flex items-center gap-3 p-2.5 rounded-xl border text-start transition-colors cursor-pointer ${
                         active
-                          ? 'bg-emerald-50/70 border-emerald-400 dark:bg-emerald-500/15 dark:border-emerald-500/40'
-                          : 'bg-slate-50/60 border-slate-200/80 hover:border-slate-300 dark:bg-[#0F1E19] dark:border-emerald-500/15 dark:hover:border-emerald-500/35'
+                          ? 'bg-emerald-50/70 border-[var(--iramo-primary-border)] dark:bg-emerald-500/15'
+                          : 'bg-slate-50/60 border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] dark:bg-[#0F1E19]'
                       }`}
                     >
                       <div className="w-12 h-10 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
@@ -279,7 +279,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Keyboard Hints Footer (matches image_64b5462f.png) */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-[#08110E] border-t border-slate-200/80 dark:border-emerald-500/15 text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-[#08110E] border-t border-[var(--iramo-card-border)] text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1">
               <kbd className="p-0.5 rounded bg-white dark:bg-[#0F1E19] border border-slate-200 dark:border-emerald-500/20">

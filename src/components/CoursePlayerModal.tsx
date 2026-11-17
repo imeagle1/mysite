@@ -87,9 +87,9 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
       aria-modal="true"
       aria-label={isFa ? course.title.fa : course.title.en}
     >
-      <div className="w-full max-w-6xl max-h-[94vh] flex flex-col rounded-2xl bg-white dark:bg-[#08110E] border border-slate-200 dark:border-emerald-500/25 shadow-2xl overflow-hidden">
+      <div className="w-full max-w-6xl max-h-[94vh] flex flex-col rounded-2xl bg-white dark:bg-[#08110E] border border-[var(--iramo-card-border)] shadow-2xl overflow-hidden">
         {/* Player Header */}
-        <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-slate-200 dark:border-emerald-500/15 bg-slate-50/80 dark:bg-[#0B1613]">
+        <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-[var(--iramo-card-border)] bg-slate-50/80 dark:bg-[#0B1613]">
           <div className="min-w-0">
             <p className="text-[11px] font-medium text-slate-500 dark:text-emerald-300/75 truncate">
               {isFa ? course.instructor.fa : course.instructor.en}
@@ -112,7 +112,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl border border-slate-200 dark:border-emerald-500/20 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
+              className="p-2 rounded-xl border border-[var(--iramo-card-border)] text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
               aria-label={isFa ? 'بستن پنجره' : 'Close player'}
             >
               <X className="w-4 h-4" />
@@ -123,9 +123,9 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
         {/* Main Split: Video Stage + Curriculum */}
         <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12">
           {/* Left/Main Stage */}
-          <div className="lg:col-span-8 p-5 space-y-5 border-b lg:border-b-0 lg:border-e border-slate-200 dark:border-emerald-500/15">
+          <div className="lg:col-span-8 p-5 space-y-5 border-b lg:border-b-0 lg:border-e border-[var(--iramo-card-border)]">
             {/* Simulated Video Stage */}
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 dark:border-emerald-500/25 flex items-center justify-center">
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-950 border border-white/10 flex items-center justify-center">
               <img
                 src={course.thumbnail}
                 alt={isFa ? activeLesson.title.fa : activeLesson.title.en}
@@ -207,7 +207,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
             </div>
 
             {/* Lesson Title + Mark Complete Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-emerald-500/15">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[var(--iramo-card-border)]">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
                   {isFa ? activeLesson.title.fa : activeLesson.title.en}
@@ -243,7 +243,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
 
             {/* Key Takeaways & Code Snippet */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2.5">
+              <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-2.5">
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                   {isFa ? 'نکات کلیدی این جلسه' : 'Key Takeaways'}
                 </h4>
@@ -293,7 +293,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                   </pre>
                 </div>
               ) : (
-                <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2.5">
+                <div className="rounded-xl p-4 bg-slate-50 dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-2.5">
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                     {isFa ? 'یادداشت شخصی شما' : 'Personal Study Notes'}
                   </h4>
@@ -328,7 +328,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
             </div>
 
             {activeLesson.attachmentName && (
-              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#0B1613] border border-[var(--iramo-card-border)]">
                 <div className="flex items-center gap-2.5 text-xs font-medium text-slate-700 dark:text-slate-200">
                   <FileText className="w-4 h-4 text-blue-600 dark:text-emerald-400" />
                   <span dir="ltr" className="font-mono">
@@ -383,7 +383,7 @@ export const CoursePlayerModal: React.FC<CoursePlayerModalProps> = ({
                           className={`w-full flex items-center justify-between gap-2.5 p-2.5 rounded-xl border text-start transition-colors cursor-pointer ${
                             isCurrent
                               ? 'bg-white dark:bg-emerald-500/15 border-[#FFBA00] dark:border-emerald-400/50 text-slate-950 dark:text-white'
-                              : 'bg-white/60 dark:bg-[#0B1613] border-slate-200/70 dark:border-emerald-500/15 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-emerald-500/35'
+                              : 'bg-white/60 dark:bg-[#0B1613] border-[var(--iramo-card-border)] text-slate-600 dark:text-slate-300 hover:border-[var(--iramo-card-border-hover)]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">

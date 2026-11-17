@@ -152,8 +152,8 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Sub-Tabs Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 dark:border-emerald-500/15 pb-3">
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-[#0B1613] border border-slate-200/70 dark:border-emerald-500/15">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--iramo-card-border)] pb-3">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-[#0B1613] border border-[var(--iramo-card-border)]">
           {(
             [
               {
@@ -261,7 +261,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                     key={course.id}
                     type="button"
                     onClick={() => onOpenCourse(course)}
-                    className="group iramo-card-interactive flex items-start gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border text-start cursor-pointer"
+                    className="group iramo-card-interactive flex items-start gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none text-start cursor-pointer"
                   >
                     <div
                       className={`w-16 h-16 rounded-xl bg-gradient-to-br ${folderGradient} p-2.5 flex flex-col justify-between shrink-0 text-white shadow-sm`}
@@ -334,7 +334,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
               </span>
             </button>
 
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0B1613] border border-[var(--iramo-card-border)]">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
@@ -365,7 +365,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
           {learningExpanded && (
             <>
               {filteredCourses.length === 0 ? (
-                <div className="rounded-2xl p-10 text-center bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/15 space-y-3">
+                <div className="rounded-2xl p-10 text-center bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-3">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">
                     {activeTab === 'ended'
                       ? isFa
@@ -408,7 +408,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                     return (
                       <article
                         key={course.id}
-                        className={`group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border overflow-hidden flex ${
+                        className={`group iramo-card-interactive rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none overflow-hidden flex ${
                           viewMode === 'list' ? 'flex-col sm:flex-row' : 'flex-col'
                         }`}
                       >
@@ -458,7 +458,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
                             </p>
                           </div>
 
-                          <div className="pt-2 border-t border-slate-100 dark:border-emerald-500/10 flex items-center justify-between gap-3">
+                          <div className="pt-2 border-t border-[var(--iramo-card-border)] flex items-center justify-between gap-3">
                             {course.enrolled ? (
                               <div className="flex-1 space-y-1.5">
                                 <div className="flex items-center justify-between text-[11px]">
@@ -510,7 +510,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
 
         {/* Right Filters Sidebar */}
         <aside className="xl:col-span-3 space-y-4">
-          <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4">
+          <div className="rounded-2xl p-4 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {isFa ? 'فیلتر دوره‌ها' : 'Filters'}
@@ -526,7 +526,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
               )}
             </div>
 
-            <div className="border-t border-slate-100 dark:border-emerald-500/10 pt-3">
+            <div className="border-t border-[var(--iramo-card-border)] pt-3">
               <button
                 type="button"
                 onClick={() =>
@@ -572,7 +572,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
               )}
             </div>
 
-            <div className="border-t border-slate-100 dark:border-emerald-500/10 pt-3">
+            <div className="border-t border-[var(--iramo-card-border)] pt-3">
               <button
                 type="button"
                 onClick={() =>
@@ -608,7 +608,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
               )}
             </div>
 
-            <div className="border-t border-slate-100 dark:border-emerald-500/10 pt-3">
+            <div className="border-t border-[var(--iramo-card-border)] pt-3">
               <button
                 type="button"
                 onClick={() =>
@@ -645,7 +645,7 @@ export const CourseLibraryView: React.FC<CourseLibraryViewProps> = ({
             </div>
           </div>
 
-          <div className="rounded-2xl p-4 bg-gradient-to-br from-slate-900 to-emerald-950 text-white border border-emerald-500/25 space-y-3">
+          <div className="rounded-2xl p-4 bg-gradient-to-br from-slate-900 to-emerald-950 text-white border border-white/10 space-y-3">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold">
               <Code2 className="w-4 h-4 shrink-0" />
               <span>{isFa ? 'آماده نصب روی وردپرس' : 'WordPress + Elementor Pro'}</span>

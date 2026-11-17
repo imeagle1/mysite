@@ -63,13 +63,13 @@ export const TopBar: React.FC<TopBarProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 h-16 px-4 sm:px-6 flex items-center justify-between gap-4 bg-white/90 dark:bg-[#08110E]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-emerald-500/15">
+    <header className="sticky top-0 z-30 h-16 px-4 sm:px-6 flex items-center justify-between gap-4 bg-white/90 dark:bg-[#08110E]/90 backdrop-blur-md border-b border-[var(--iramo-card-border)]">
       {/* Zone 1: Menu trigger + Page Title */}
       <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-emerald-500/20 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-emerald-950/50 cursor-pointer"
+          className="lg:hidden p-2 rounded-xl border border-[var(--iramo-card-border)] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-emerald-950/50 cursor-pointer"
           aria-label={isFa ? 'باز کردن منو' : 'Open navigation'}
         >
           <Menu className="w-4 h-4" />
@@ -83,7 +83,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       <button
         type="button"
         onClick={onOpenSearch}
-        className="hidden sm:flex items-center justify-between gap-4 w-full max-w-sm px-3.5 py-2 rounded-xl bg-slate-100/80 hover:bg-slate-100 dark:bg-[#0D1A15] dark:hover:bg-[#11221B] border border-slate-200/80 dark:border-emerald-500/20 text-slate-500 dark:text-slate-400 text-xs transition-colors cursor-pointer"
+        className="hidden sm:flex items-center justify-between gap-4 w-full max-w-sm px-3.5 py-2 rounded-xl bg-slate-100/80 hover:bg-slate-100 dark:bg-[#0D1A15] dark:hover:bg-[#11221B] border border-[var(--iramo-card-border)] text-slate-500 dark:text-slate-400 text-xs transition-colors cursor-pointer"
       >
         <span className="flex items-center gap-2 truncate">
           <Search className="w-3.5 h-3.5 shrink-0 text-slate-400 dark:text-emerald-400" />
@@ -91,7 +91,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             {isFa ? 'جستجو در دوره‌ها، ابزارها و دروس...' : 'Search courses, tools, lessons...'}
           </span>
         </span>
-        <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-[10px] font-mono text-slate-500 dark:text-emerald-300 shrink-0">
+        <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-[10px] font-mono text-slate-500 dark:text-emerald-300 shrink-0">
           ⌘K
         </kbd>
       </button>
@@ -101,7 +101,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={onOpenSearch}
-          className="sm:hidden p-2 rounded-xl border border-slate-200 dark:border-emerald-500/20 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-emerald-950/50 cursor-pointer"
+          className="sm:hidden p-2 rounded-xl border border-[var(--iramo-card-border)] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-emerald-950/50 cursor-pointer"
           aria-label={isFa ? 'جستجو' : 'Search'}
         >
           <Search className="w-4 h-4" />
@@ -111,7 +111,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={onToggleLang}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-emerald-500/20 bg-white dark:bg-[#0D1A15] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500/50 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--iramo-card-border)] bg-white dark:bg-[#0D1A15] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-[var(--iramo-card-border-hover)] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           title={isFa ? 'تغییر زبان به انگلیسی' : 'Switch to Persian RTL'}
         >
           <Globe className="w-3.5 h-3.5 text-[var(--iramo-primary)] dark:text-emerald-400" />
@@ -122,7 +122,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={onToggleTheme}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-emerald-500/20 bg-white dark:bg-[#0D1A15] text-xs font-medium text-slate-700 dark:text-emerald-300 hover:border-emerald-500/50 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[var(--iramo-card-border)] bg-white dark:bg-[#0D1A15] text-xs font-medium text-slate-700 dark:text-emerald-300 hover:border-[var(--iramo-card-border-hover)] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           aria-label={isFa ? 'تغییر تم روشن و تاریک' : 'Toggle theme'}
           title={
             theme === 'dark'
@@ -155,7 +155,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <button
             type="button"
             onClick={() => setNotifOpen((prev) => !prev)}
-            className="relative p-2 rounded-xl border border-slate-200 dark:border-emerald-500/20 bg-white dark:bg-[#0D1A15] text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
+            className="relative p-2 rounded-xl border border-[var(--iramo-card-border)] bg-white dark:bg-[#0D1A15] text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
             aria-label={isFa ? 'اعلان‌ها' : 'Notifications'}
           >
             <Bell className="w-4 h-4" />
@@ -167,8 +167,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           </button>
 
           {notifOpen && (
-            <div className="absolute end-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/25 shadow-xl overflow-hidden z-50">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/80 dark:border-emerald-500/15">
+            <div className="absolute end-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-xl overflow-hidden z-50">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--iramo-card-border)]">
                 <span className="text-xs font-bold text-slate-900 dark:text-white">
                   {isFa ? 'اعلان‌های آکادمی و ربات' : 'Academy & Bot Alerts'}
                 </span>

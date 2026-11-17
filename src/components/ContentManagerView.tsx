@@ -539,7 +539,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       )}
 
       {/* 1. Theme, Typography & Navigation Controls */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
             <Sliders className="w-4 h-4" />
@@ -563,7 +563,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
               onChange={(e) =>
                 onUpdateSiteConfig({ ...siteConfig, brandTitle: e.target.value })
               }
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)]"
             />
           </div>
 
@@ -580,7 +580,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   fontFamily: e.target.value as PersianFontOption,
                 })
               }
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)] cursor-pointer"
             >
               <option value="vazirmatn">
                 {isFa ? 'وزیرمتن (Vazirmatn) · استاندارد و خوانا' : 'Vazirmatn (Default)'}
@@ -627,7 +627,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                     })
                   }
                   placeholder="/fonts/custom-font.css یا لینک فایل CSS فونت"
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none"
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white focus:outline-none"
                 />
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                   {isFa
@@ -663,7 +663,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     enabled
                       ? 'bg-[var(--iramo-primary-soft)] border-[var(--iramo-primary-border)] text-[var(--iramo-primary)]'
-                      : 'bg-slate-100 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/15 text-slate-400'
+                      : 'bg-slate-100 dark:bg-[#050C0A] border-[var(--iramo-card-border)] text-slate-400'
                   }`}
                 >
                   {enabled ? '✓ ' : '✕ '}
@@ -676,7 +676,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       </section>
 
       {/* 1.5. Color System & 60-30-10 Theme Manager */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--iramo-primary)]">
@@ -707,7 +707,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                   : 'Theme colors reset to default classic light palette.'
               );
             }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-emerald-500/25 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-emerald-950/50 cursor-pointer shrink-0 self-start sm:self-auto"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-emerald-950/50 cursor-pointer shrink-0 self-start sm:self-auto"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{isFa ? 'بازگشت به رنگ اولیه روشن' : 'Reset Default Palette'}</span>
@@ -741,8 +741,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                 }}
                 className={`p-3.5 rounded-xl border text-start transition-all cursor-pointer space-y-2 ${
                   active
-                    ? 'bg-[var(--iramo-primary-soft)] border-[var(--iramo-primary-border)] ring-1 ring-[var(--iramo-primary)]/30'
-                    : 'bg-slate-50/70 dark:bg-[#07110E] border-slate-200/80 dark:border-emerald-500/15 hover:border-slate-300 dark:hover:border-emerald-500/35'
+                    ? 'bg-[var(--iramo-primary-soft)] border-[var(--iramo-primary-border)] ring-1 ring-[var(--iramo-primary)]/20'
+                    : 'bg-slate-50/70 dark:bg-[#07110E] border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)]'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -779,7 +779,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
 
         {/* Fine-Grained Custom Color Pickers + Card Border Intensity */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-[var(--iramo-card-border)] space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {isFa ? 'رنگ اصلی برند (Primary)' : 'Primary Brand Color'}
             </label>
@@ -818,7 +818,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-[var(--iramo-card-border)] space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {isFa ? 'رنگ تاکیدی دکمه‌ها (Accent CTA)' : 'Accent & CTA Color'}
             </label>
@@ -857,7 +857,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-[var(--iramo-card-border)] space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {isFa ? 'پس‌زمینه نسخه روشن (۶۰٪)' : 'Light Canvas Background'}
             </label>
@@ -886,7 +886,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             </select>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-slate-200/75 dark:border-emerald-500/15 space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#07110E] border border-[var(--iramo-card-border)] space-y-2">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
               {isFa ? 'شدت حاشیه (Border) کارت‌ها' : 'Card Border Intensity'}
             </label>
@@ -944,7 +944,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       </section>
 
       {/* 2. Authentication, Default Method, Registration & SMS Panel Controls */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
             <MessageSquareCode className="w-4 h-4" />
@@ -975,8 +975,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                 key={ch.key}
                 className={`p-3.5 rounded-xl border transition-colors space-y-2.5 ${
                   active
-                    ? 'bg-emerald-500/10 border-emerald-500/40 text-slate-900 dark:text-white'
-                    : 'bg-slate-50 dark:bg-[#07110E] border-slate-200 dark:border-emerald-500/15 text-slate-400'
+                    ? 'bg-emerald-500/10 border-[var(--iramo-primary-border)] text-slate-900 dark:text-white'
+                    : 'bg-slate-50 dark:bg-[#07110E] border-[var(--iramo-card-border)] text-slate-400'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2 text-xs font-bold">
@@ -1031,8 +1031,8 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             }
             className={`p-3 rounded-xl border text-start transition-colors cursor-pointer flex flex-col justify-between gap-1 ${
               siteConfig.authChannels.allowRegistration
-                ? 'bg-emerald-500/10 border-emerald-500/40 text-slate-900 dark:text-white'
-                : 'bg-slate-50 dark:bg-[#050C0A] border-slate-200 dark:border-emerald-500/15 text-slate-500'
+                ? 'bg-emerald-500/10 border-[var(--iramo-primary-border)] text-slate-900 dark:text-white'
+                : 'bg-slate-50 dark:bg-[#050C0A] border-[var(--iramo-card-border)] text-slate-500'
             }`}
           >
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold">
@@ -1115,7 +1115,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       </section>
 
       {/* 3. Articles Widgets Manager (Quick Tips & Widget Sources) */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
             <Lightbulb className="w-4 h-4" />
@@ -1165,7 +1165,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
         </form>
 
         {siteConfig.quickTips.length === 0 ? (
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200 dark:border-emerald-500/15 text-xs text-slate-500 dark:text-slate-400">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-[var(--iramo-card-border)] text-xs text-slate-500 dark:text-slate-400">
             {isFa
               ? 'هیچ نکته‌ای ثبت نشده است (داده‌های نمونه پاکسازی شده‌اند). از فرم بالا نکته واقعی اضافه کنید.'
               : 'No quick tips registered yet. Add a custom tip above.'}
@@ -1175,7 +1175,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
             {siteConfig.quickTips.map((tip) => (
               <div
                 key={tip.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/80 dark:border-emerald-500/15 text-xs"
+                className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-[var(--iramo-card-border)] text-xs"
               >
                 <div className="min-w-0 space-y-0.5">
                   <p className="text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
@@ -1206,7 +1206,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       </section>
 
       {/* 4. Demo Data Manager */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9A6E00] dark:text-[#FFBA00]">
@@ -1231,7 +1231,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
                     : 'Demo dataset restored.'
                 );
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-emerald-500/25 text-xs font-semibold text-slate-700 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] text-xs font-semibold text-slate-700 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{isFa ? 'بازگردانی داده‌های نمونه' : 'Restore Demo'}</span>
@@ -1310,7 +1310,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
           ].map((box) => (
             <div
               key={box.key}
-              className="p-4 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-slate-200/70 dark:border-emerald-500/15 flex items-center justify-between gap-2"
+              className="p-4 rounded-xl bg-slate-50 dark:bg-[#07110E] border border-[var(--iramo-card-border)] flex items-center justify-between gap-2"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
@@ -1356,7 +1356,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <form
           onSubmit={handleCreateArticle}
-          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4"
         >
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
             <Plus className="w-4 h-4 text-emerald-500" />
@@ -1402,7 +1402,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
 
         <form
           onSubmit={handleCreateCourse}
-          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4"
         >
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
             <Plus className="w-4 h-4 text-[#FFBA00]" />
@@ -1454,7 +1454,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <form
           onSubmit={handleCreateProduct}
-          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4"
         >
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
@@ -1541,7 +1541,7 @@ export const ContentManagerView: React.FC<ContentManagerViewProps> = ({
 
         <form
           onSubmit={handleCreateTool}
-          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4"
+          className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4"
         >
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">

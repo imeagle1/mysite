@@ -42,10 +42,10 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/25 shadow-2xl overflow-hidden"
+        className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-emerald-500/15">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--iramo-card-border)]">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
             <Sparkles className="w-4 h-4 text-[#FFBA00]" />
             <span>
@@ -62,7 +62,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="rounded-xl p-4 bg-emerald-50/70 dark:bg-emerald-950/35 border border-emerald-200/80 dark:border-emerald-500/20 space-y-2">
+          <div className="rounded-xl p-4 bg-emerald-50/70 dark:bg-emerald-950/35 border border-[var(--iramo-primary-border)] space-y-2">
             <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
               {isFa ? 'گام پیشنهادی امروز' : 'Recommended Next Action'}
             </p>
@@ -99,7 +99,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
             <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
               {isFa ? 'خلاصه وضعیت فعلی' : 'Current Snapshot'}
             </p>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#08110E] border border-slate-200/70 dark:border-emerald-500/15 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#08110E] border border-[var(--iramo-card-border)] text-xs">
               <span className="text-slate-600 dark:text-slate-300">
                 {isFa ? 'تکالیف در انتظار ارسال' : 'Pending Assignments'}
               </span>
@@ -107,7 +107,7 @@ export const StudyPlannerModal: React.FC<StudyPlannerModalProps> = ({
                 {toLocaleDigits(pendingAssignments.length, lang)}
               </span>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#08110E] border border-slate-200/70 dark:border-emerald-500/15 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#08110E] border border-[var(--iramo-card-border)] text-xs">
               <span className="text-slate-600 dark:text-slate-300 inline-flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{isFa ? 'دروس تکمیل‌شده' : 'Completed Lessons'}</span>

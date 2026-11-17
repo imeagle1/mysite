@@ -15,15 +15,15 @@
     --iramo-primary-hover: #0EA575;
     --iramo-primary-fg: #FFFFFF;
     --iramo-primary-soft: rgba(5, 150, 105, 0.08);
-    --iramo-primary-border: rgba(5, 150, 105, 0.26);
+    --iramo-primary-border: rgba(5, 150, 105, 0.22);
     --iramo-accent: #FFBA00;
     --iramo-accent-hover: #FFC629;
     --iramo-accent-fg: #061A13;
     --iramo-accent-soft: rgba(255, 186, 0, 0.14);
     --iramo-accent-text: #059669;
-    --iramo-card-border: rgba(15, 23, 42, 0.08);
-    --iramo-card-border-hover: rgba(5, 150, 105, 0.48);
-    --iramo-card-shadow-hover: 0 14px 28px -8px rgba(5, 150, 105, 0.20), 0 4px 12px -4px rgba(5, 150, 105, 0.12);
+    --iramo-card-border: rgba(15, 23, 42, 0.06);
+    --iramo-card-border-hover: rgba(5, 150, 105, 0.34);
+    --iramo-card-shadow-hover: 0 12px 24px -8px rgba(5, 150, 105, 0.16), 0 4px 10px -4px rgba(5, 150, 105, 0.09);
   }
 
   .dark {
@@ -33,15 +33,21 @@
     --iramo-primary-hover: #34D399;
     --iramo-primary-fg: #FFFFFF;
     --iramo-primary-soft: rgba(16, 185, 129, 0.14);
-    --iramo-primary-border: rgba(16, 185, 129, 0.30);
+    --iramo-primary-border: rgba(16, 185, 129, 0.24);
     --iramo-accent: #FFBA00;
     --iramo-accent-hover: #FFC629;
     --iramo-accent-fg: #061A13;
     --iramo-accent-soft: rgba(255, 186, 0, 0.16);
     --iramo-accent-text: #FFBA00;
-    --iramo-card-border: rgba(16, 185, 129, 0.14);
-    --iramo-card-border-hover: rgba(16, 185, 129, 0.55);
-    --iramo-card-shadow-hover: 0 14px 32px -8px rgba(16, 185, 129, 0.28), 0 4px 12px -4px rgba(16, 185, 129, 0.14);
+    --iramo-card-border: rgba(255, 255, 255, 0.075);
+    --iramo-card-border-hover: rgba(16, 185, 129, 0.38);
+    --iramo-card-shadow-hover: 0 14px 30px -8px rgba(16, 185, 129, 0.20), 0 4px 12px -4px rgba(16, 185, 129, 0.10);
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--iramo-card-border);
   }
 
   html,

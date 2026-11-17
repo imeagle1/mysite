@@ -114,11 +114,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const sidebarBody = (
     <aside
-      className="flex flex-col h-full w-[264px] shrink-0 bg-white dark:bg-[#08110E] border-e border-slate-200/80 dark:border-emerald-500/15 select-none transition-colors duration-200"
+      className="flex flex-col h-full w-[264px] shrink-0 bg-white dark:bg-[#08110E] border-e border-[var(--iramo-card-border)] select-none transition-colors duration-200"
       aria-label={isFa ? 'منوی پنل کاربری' : 'User Panel Navigation'}
     >
       {/* Brand Header */}
-      <div className="flex items-center justify-between px-5 h-16 border-b border-slate-200/70 dark:border-emerald-500/15">
+      <div className="flex items-center justify-between px-5 h-16 border-b border-[var(--iramo-card-border)]">
         <button
           type="button"
           onClick={() => {
@@ -127,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           className="flex items-center gap-2.5 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg cursor-pointer"
         >
-          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-emerald-950/60 border border-slate-200 dark:border-emerald-500/25 flex items-center justify-center overflow-hidden p-1">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-emerald-950/60 border border-[var(--iramo-card-border)] flex items-center justify-center overflow-hidden p-1">
             <img
               src={resolveBrandLogo(theme === 'dark' ? 'dark' : 'light')}
               alt="iRamoAi"
@@ -157,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-6">
         {/* Student Identity Row */}
         <div className="space-y-2">
-          <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0D1A15] border border-slate-200/70 dark:border-emerald-500/15">
+          <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0D1A15] border border-[var(--iramo-card-border)]">
             <div className="w-9 h-9 rounded-lg bg-[var(--iramo-primary)] text-[var(--iramo-primary-fg)] font-semibold text-sm flex items-center justify-center shrink-0">
               {initials}
             </div>
@@ -186,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onBackToWebsite();
               onCloseMobile();
             }}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-emerald-500/20 text-xs font-semibold text-slate-700 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] text-xs font-semibold text-slate-700 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
           >
             {isFa ? (
               <ArrowRight className="w-3.5 h-3.5" />
@@ -215,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   className={`w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
                     isActive
-                      ? 'bg-slate-100 text-slate-950 font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 border border-slate-200/80 dark:border-emerald-500/25'
+                      ? 'bg-slate-100 text-slate-950 font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 border border-[var(--iramo-card-border)]'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-300/80 dark:hover:text-white dark:hover:bg-emerald-950/40 border border-transparent'
                   }`}
                 >
@@ -288,7 +288,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom AI Study Overview Card */}
-      <div className="p-3.5 border-t border-slate-200/70 dark:border-emerald-500/15">
+      <div className="p-3.5 border-t border-[var(--iramo-card-border)]">
         <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[var(--iramo-primary-soft)] via-white to-slate-50 dark:from-[#0E1E18] dark:via-[#0B1613] dark:to-[#13251E] border border-[var(--iramo-card-border)]">
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-6 h-6 rounded-md bg-[var(--iramo-accent-soft)] text-[var(--iramo-accent)] flex items-center justify-center shrink-0">

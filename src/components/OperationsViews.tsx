@@ -40,7 +40,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none">
         <h2 className="text-base font-bold text-slate-900 dark:text-white">
           {isFa ? 'تکالیف و پروژه‌های عملی' : 'Practical Labs & Assignments'}
         </h2>
@@ -53,7 +53,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
 
       <div className="space-y-3">
         {assignments.length === 0 ? (
-          <div className="rounded-2xl p-8 text-center bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 text-xs text-slate-500 dark:text-slate-400">
+          <div className="rounded-2xl p-8 text-center bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none text-xs text-slate-500 dark:text-slate-400">
             {isFa
               ? 'در حال حاضر تکلیف یا پروژه فعالی برای شما ثبت نشده است.'
               : 'No active assignments or labs yet.'}
@@ -76,7 +76,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
             return (
               <div
                 key={asg.id}
-                className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3"
+                className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-3"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
@@ -102,7 +102,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                 </div>
 
                 {asg.feedback && (
-                  <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#060E0B] p-3 rounded-xl border border-slate-200/70 dark:border-emerald-500/15">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#060E0B] p-3 rounded-xl border border-[var(--iramo-card-border)]">
                     {isFa ? asg.feedback.fa : asg.feedback.en}
                   </p>
                 )}
@@ -129,7 +129,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                           ? 'لینک گیت‌هاب یا فایل پروژه (https://...)'
                           : 'Paste project or GitHub URL (https://...)'
                       }
-                      className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                      className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)]"
                     />
                     <button
                       type="submit"
@@ -392,7 +392,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
+      <div className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-2">
         <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
           <Bot className="w-4 h-4" />
           <span>
@@ -420,7 +420,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
               {isFa
@@ -468,7 +468,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
                 value={tgHandle}
                 onChange={(e) => setTgHandle(e.target.value)}
                 placeholder="@username or 123456789"
-                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)]"
               />
               <button
                 type="button"
@@ -481,7 +481,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
           </div>
         </div>
 
-        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-4">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
               {isFa
@@ -529,7 +529,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
                 value={baleId}
                 onChange={(e) => setBaleId(e.target.value)}
                 placeholder="09123456789 or chat_id"
-                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-[var(--iramo-card-border)] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)]"
               />
               <button
                 type="button"
@@ -544,7 +544,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       </div>
 
       {linkState && (
-        <div className="rounded-2xl p-5 bg-slate-50 dark:bg-[#091511] border border-emerald-300 dark:border-emerald-500/35 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="rounded-2xl p-5 bg-slate-50 dark:bg-[#091511] border border-[var(--iramo-primary-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1 text-xs">
             <p className="font-bold text-slate-900 dark:text-white">
               {isFa
@@ -558,7 +558,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <code dir="ltr" className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-300 dark:border-emerald-500/30 font-mono text-xs text-slate-900 dark:text-emerald-200">
+            <code dir="ltr" className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#050C0A] border border-[var(--iramo-card-border)] font-mono text-xs text-slate-900 dark:text-emerald-200">
               {linkState.command}
             </code>
             <button
@@ -568,7 +568,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
                 setCopiedCmd(true);
                 setTimeout(() => setCopiedCmd(false), 1500);
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-emerald-500/15 border border-slate-200 dark:border-emerald-500/25 text-xs font-bold cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-emerald-500/15 border border-[var(--iramo-card-border)] text-xs font-bold cursor-pointer"
             >
               {copiedCmd ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{isFa ? (copiedCmd ? 'کپی شد' : 'کپی دستور') : copiedCmd ? 'Copied' : 'Copy'}</span>
@@ -600,7 +600,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       {otpSent && (
         <form
           onSubmit={handleVerify}
-          className="rounded-2xl p-5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/35 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          className="rounded-2xl p-5 bg-emerald-50/70 dark:bg-emerald-950/30 border border-[var(--iramo-primary-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         >
           <div className="space-y-1">
             <p className="text-xs font-bold text-slate-900 dark:text-white">
@@ -617,7 +617,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
               value={otpCode}
               onChange={(e) => setOtpCode(e.target.value)}
               placeholder="482916"
-              className="w-32 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-400 text-xs text-center text-slate-900 dark:text-white focus:outline-none tabular-nums"
+              className="w-32 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-[var(--iramo-primary-border)] text-xs text-center text-slate-900 dark:text-white focus:outline-none focus:border-[var(--iramo-primary)] tabular-nums"
             />
             <button
               type="submit"
@@ -630,11 +630,11 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
         </form>
       )}
 
-      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-3">
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-3">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white">
           {isFa ? 'تنظیمات تحویل خودکار پیام‌رسان' : 'Automated Bot Delivery Rules'}
         </h3>
-        <div className="divide-y divide-slate-100 dark:divide-emerald-500/10">
+        <div className="divide-y divide-[var(--iramo-card-border)]">
           {(
             [
               {
@@ -694,7 +694,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15">
+      <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none">
         <h2 className="text-base font-bold text-slate-900 dark:text-white">
           {isFa ? 'تراکنش‌ها و کلیدهای لایسنس نرم‌افزار' : 'Transactions & Software Licenses'}
         </h2>
@@ -705,7 +705,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none overflow-hidden">
         {transactions.length === 0 ? (
           <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
             {isFa
@@ -716,7 +716,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-start border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-emerald-500/15 text-[11px] font-semibold text-slate-500 dark:text-emerald-200/60 bg-slate-50/70 dark:bg-[#08110E]">
+                <tr className="border-b border-[var(--iramo-card-border)] text-[11px] font-semibold text-slate-500 dark:text-emerald-200/60 bg-slate-50/70 dark:bg-[#08110E]">
                   <th className="py-3 px-4 text-start">{isFa ? 'شماره فاکتور' : 'Invoice'}</th>
                   <th className="py-3 px-4 text-start">{isFa ? 'محصول / دوره' : 'Item'}</th>
                   <th className="py-3 px-4 text-start">{isFa ? 'تاریخ' : 'Date'}</th>
@@ -724,7 +724,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                   <th className="py-3 px-4 text-start">{isFa ? 'لایسنس / وضعیت' : 'License / Status'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-emerald-500/10 text-xs">
+              <tbody className="divide-y divide-[var(--iramo-card-border)] text-xs">
                 {transactions.map((tx) => (
                   <tr
                     key={tx.id}

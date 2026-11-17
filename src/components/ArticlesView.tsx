@@ -393,7 +393,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => setReadingArticle(item)}
-                    className="w-full flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-50/70 dark:hover:bg-[#0D1E18] border border-slate-200/70 dark:border-emerald-500/10 hover:border-[var(--iramo-card-border-hover)] text-start transition-colors duration-150 cursor-pointer"
+                    className="w-full flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-[#07110E] hover:bg-emerald-50/70 dark:hover:bg-[#0D1E18] border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)] text-start transition-colors duration-150 cursor-pointer"
                   >
                     <span className="w-6 h-6 rounded-lg bg-[#FFBA00]/20 text-slate-900 dark:text-[#FFBA00] text-xs font-extrabold tabular-nums flex items-center justify-center shrink-0 mt-0.5">
                       {toLocaleDigits(i + 1, lang)}
@@ -439,7 +439,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors duration-150 cursor-pointer ${
                         selected
                           ? 'bg-[#FFBA00] text-slate-950 font-bold'
-                          : 'bg-slate-50 dark:bg-[#07110E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-emerald-500/15 hover:border-[var(--iramo-card-border-hover)]'
+                          : 'bg-slate-50 dark:bg-[#07110E] text-slate-700 dark:text-slate-300 border border-[var(--iramo-card-border)] hover:border-[var(--iramo-card-border-hover)]'
                       }`}
                     >
                       #{tag}
@@ -451,7 +451,7 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
           </div>
 
           {/* Widget 3: Telegram & Bale Newsletter Digest Widget */}
-          <div className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-[#0B1E17] dark:via-[#0B1613] dark:to-[#08120F] border border-emerald-200/80 dark:border-emerald-500/25 shadow-xs space-y-3.5">
+          <div className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-[#0B1E17] dark:via-[#0B1613] dark:to-[#08120F] border border-[var(--iramo-card-border)] shadow-xs space-y-3.5">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
               <Bot className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>

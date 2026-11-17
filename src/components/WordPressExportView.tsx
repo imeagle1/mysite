@@ -217,7 +217,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header + 1-Click ZIP Package Downloads */}
-      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-5">
+      <section className="rounded-2xl p-6 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-5">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-blue-600 dark:text-emerald-400 text-xs font-semibold">
             <Layers className="w-4 h-4" />
@@ -298,7 +298,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             onClick={() =>
               handleDownloadSingle('build-wordpress-release.yml', GITHUB_ACTIONS_YML)
             }
-            className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-900 dark:bg-[#050C0A] border border-slate-700 dark:border-emerald-500/30 text-white font-bold text-xs sm:text-sm hover:border-emerald-400 transition-colors cursor-pointer"
+            className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-900 dark:bg-[#050C0A] border border-white/10 text-white font-bold text-xs sm:text-sm hover:border-[var(--iramo-card-border-hover)] transition-colors cursor-pointer"
           >
             <span className="flex items-center gap-2.5 text-start">
               <GitBranch className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -318,7 +318,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
 
       {/* 3-Step GitHub + WordPress Install Roadmap */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-2">
           <span className="text-xs font-bold tabular-nums text-[#9A6E00] dark:text-[#FFBA00]">
             {toLocaleDigits('01.', lang)}
           </span>
@@ -332,7 +332,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-2">
           <span className="text-xs font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
             {toLocaleDigits('02.', lang)}
           </span>
@@ -346,7 +346,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
           </p>
         </div>
 
-        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-slate-200/80 dark:border-emerald-500/15 space-y-2">
+        <div className="rounded-2xl p-5 bg-white dark:bg-[#0B1613] border border-[var(--iramo-card-border)] shadow-[0_1px_2px_rgba(15,23,42,0.03)] dark:shadow-none space-y-2">
           <span className="text-xs font-bold tabular-nums text-blue-600 dark:text-sky-400">
             {toLocaleDigits('03.', lang)}
           </span>
@@ -362,8 +362,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       </section>
 
       {/* Interactive Code Inspector */}
-      <section className="rounded-2xl bg-[#07110E] border border-emerald-500/25 overflow-hidden text-slate-100">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#050C0A] border-b border-emerald-500/15">
+      <section className="rounded-2xl bg-[#07110E] border border-white/10 overflow-hidden text-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#050C0A] border-b border-white/10">
           <div className="flex flex-wrap items-center gap-1.5">
             {tabs.map((tab) => (
               <button
@@ -372,7 +372,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-colors cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/25'
                     : 'text-slate-400 hover:text-white border border-transparent'
                 }`}
               >
