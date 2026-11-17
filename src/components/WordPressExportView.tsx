@@ -223,8 +223,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             <Layers className="w-4 h-4" />
             <span>
               {isFa
-                ? 'قالب بومی وردپرس + ۱۷ ویجت، Dynamic Tags و کاشت خودکار تمام صفحات در المنتور و المنتور پرو + پنل دانشجویی React'
-                : 'Native WP Theme + 17 Elementor Widgets + Pre-Seeded Elementor Pages & Templates + Student LMS'}
+                ? 'قالب بومی وردپرس + ۲۹ ویجت اتمیک و اختصاصی، Dynamic Tags و کاشت خودکار تمام صفحات در المنتور و المنتور پرو + پنل دانشجویی React'
+                : 'Native WP Theme + 29 Atomic & Custom Elementor Widgets + Pre-Seeded Elementor Pages & Templates + Student LMS'}
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -234,8 +234,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300/85 leading-relaxed max-w-4xl">
             {isFa
-              ? 'بلافاصله پس از فعال‌سازی افزونه، تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی ابزارهای AI، محصولات، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۱۷ ویجت اختصاصی داخل المنتور ساخته می‌شوند و مستقیماً در المنتور رایگان و المنتور پرو قابل ویرایش بصری هستند.'
-              : 'Upon activation, Home/Services/Panel pages and global templates (Header, Footer, AI Tools, Products, Courses, Articles, 404) are auto-seeded in Elementor with 17 custom widgets and 8 Dynamic Tags, editable in both Elementor Free and Pro.'}
+              ? 'بلافاصله پس از فعال‌سازی افزونه، تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی ابزارهای AI، محصولات، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۲۹ ویجت اتمیک و اختصاصی و کانتینرهای تودرتو داخل المنتور ساخته می‌شوند و با حفظ دقیق UI سایت در المنتور رایگان و پرو قابل ویرایش بصری هستند.'
+              : 'Upon activation, Home/Services/Panel pages and global templates (Header, Footer, AI Tools, Products, Courses, Articles, 404) are auto-seeded in Elementor with 29 atomic & custom widgets inside nested Flexbox Containers and 8 Dynamic Tags, editable in both Elementor Free and Pro.'}
           </p>
         </div>
 

@@ -3,7 +3,7 @@ Theme Name:   iRamoAi Modern Theme
 Theme URI:    https://iramo.ai
 Author:       iRamoAi Engineering
 Description:  قالب بومی، سبک و راست‌به‌چپ (RTL) وردپرس و المنتور پرو برای iRamoAi — پیاده‌سازی کامل صفحات عمومی با HTML/CSS/PHP برای سئو و سرعت بالا، سازگار با Theme Builder المنتور پرو و پنل کاربری ری‌اکت.
-Version:      2.2.0
+Version:      2.4.0
 Requires at least: 6.0
 Requires PHP: 7.4
 Text Domain:  iramo-ai-theme
@@ -989,3 +989,185 @@ html.dark .iramo-logo-dark { display: block; }
 .iramo-hidden {
   display: none !important;
 }
+
+/* ========================
+   Elementor Atomic Containers & Widgets Fidelity
+======================== */
+.elementor-editor-active .e-con.iramo-header-wrap,
+.elementor-editor-active .iramo-header-wrap {
+  position: relative;
+  pointer-events: auto;
+  padding-top: 12px;
+}
+
+.e-con.iramo-container {
+  width: 100%;
+  max-width: var(--iramo-max-w);
+  margin-inline: auto !important;
+  padding-inline: 16px;
+}
+@media (min-width: 640px) {
+  .e-con.iramo-container {
+    padding-inline: 24px;
+  }
+}
+
+.e-con.iramo-header-pill {
+  --display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-block: 0 !important;
+}
+
+.e-con.iramo-header-pill .iramo-mobile-drawer.is-open {
+  position: fixed;
+  top: 70px;
+  inset-inline: 12px;
+  max-width: var(--iramo-max-w);
+  margin-inline: auto;
+  z-index: 65;
+}
+
+.e-con.iramo-hero-grid,
+.e-con.iramo-grid-2,
+.e-con.iramo-grid-3,
+.e-con.iramo-grid-4,
+.e-con.iramo-footer-grid,
+.e-con.iramo-footer-nav-grid,
+.e-con.iramo-detail-grid {
+  --display: grid;
+  display: grid !important;
+}
+
+.e-con.iramo-hero-grid > .e-con,
+.e-con.iramo-grid-2 > .e-con,
+.e-con.iramo-grid-3 > .e-con,
+.e-con.iramo-grid-4 > .e-con,
+.e-con.iramo-footer-grid > .e-con,
+.e-con.iramo-footer-nav-grid > .e-con,
+.e-con.iramo-detail-grid > .e-con {
+  width: 100%;
+  min-width: 0;
+}
+
+.e-con.iramo-sec-head {
+  --display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+}
+
+.e-con.iramo-bento-card {
+  --display: flex;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.e-con.iramo-footer-bottom {
+  --display: flex;
+  display: flex !important;
+  flex-direction: column !important;
+}
+@media (min-width: 768px) {
+  .e-con.iramo-footer-bottom {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+}
+
+.iramo-el-col-stack {
+  --display: flex;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.elementor-widget.iramo-el-tight {
+  margin-bottom: 0 !important;
+}
+
+.iramo-el-hero-title .elementor-heading-title {
+  margin: 14px 0 14px;
+  font-family: var(--font-fa);
+  font-size: 25px;
+  line-height: 1.38;
+  font-weight: 900;
+  color: var(--iramo-ink);
+  letter-spacing: -0.02em;
+}
+@media (min-width: 640px) {
+  .iramo-el-hero-title .elementor-heading-title {
+    font-size: 36px;
+    line-height: 1.28;
+  }
+}
+@media (min-width: 1024px) {
+  .iramo-el-hero-title .elementor-heading-title {
+    font-size: 46px;
+    line-height: 1.24;
+  }
+}
+
+.iramo-el-sec-title .elementor-heading-title {
+  margin: 8px 0 0;
+  font-family: var(--font-fa);
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--iramo-ink);
+}
+@media (min-width: 640px) {
+  .iramo-el-sec-title .elementor-heading-title {
+    font-size: 26px;
+  }
+}
+
+.iramo-el-card-title .elementor-heading-title {
+  margin: 12px 0 8px;
+  font-family: var(--font-fa);
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--iramo-ink);
+}
+
+.iramo-el-footer-title .elementor-heading-title {
+  margin: 0;
+  font-family: var(--font-fa);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--iramo-ink);
+}
+
+.iramo-el-subtitle p {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--iramo-muted);
+  max-width: 620px;
+}
+@media (min-width: 640px) {
+  .iramo-el-subtitle p {
+    font-size: 16px;
+  }
+}
+
+.iramo-el-desc p {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: var(--iramo-muted);
+}
+
+.iramo-el-footer-about p {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--iramo-muted);
+  max-width: 380px;
+}
+

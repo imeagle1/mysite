@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_THEME_VERSION', '2.2.0' );
+define( 'IRAMO_THEME_VERSION', '2.4.0' );
 
 /**
  * 1. Core Theme Setup

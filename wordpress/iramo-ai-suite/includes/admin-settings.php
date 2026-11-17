@@ -204,7 +204,7 @@ function iramo_render_admin_control_page() {
 
         <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
             <h2>صفحات المنتور، قالب‌های Theme Builder و ابزارهای واقعی هوش مصنوعی</h2>
-            <p>تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی محصولات و ابزارهای AI، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۱۷ ویجت اختصاصی در المنتور ساخته می‌شوند و در نسخه رایگان و پرو المنتور قابل ویرایش بصری هستند.</p>
+            <p>تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی محصولات و ابزارهای AI، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۲۹ ویجت اتمیک و اختصاصی داخل کانتینرهای تودرتو در المنتور ساخته می‌شوند و در نسخه رایگان و پرو المنتور با عمق کامل قابل ویرایش و جابه‌جایی بصری هستند.</p>
             <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                     <?php wp_nonce_field( 'iramo_demo_nonce' ); ?>
