@@ -81,8 +81,9 @@ add_action( 'wp_head', function() {
     } elseif ( is_singular( 'iramo_ai_tool' ) ) {
         $pid       = get_queried_object_id();
         $pricing   = get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium';
-        $pop_score = (int) ( get_post_meta( $pid, '_iramo_popularity', true ) ?: 94 );
-        $rating    = round( max( 3.5, min( 5.0, ( $pop_score / 20 ) ) ), 1 );
+        $provider  = trim( (string) get_post_meta( $pid, '_iramo_provider', true ) );
+        $pop_raw   = get_post_meta( $pid, '_iramo_popularity', true );
+        $likes_raw = get_post_meta( $pid, '_iramo_likes', true );
         $schema = [
             '@context'            => 'https://schema.org',
             '@type'               => 'SoftwareApplication',
@@ -91,21 +92,26 @@ add_action( 'wp_head', function() {
             'operatingSystem'     => 'Web',
             'description'         => $desc,
             'url'                 => get_permalink( $pid ),
-            'author'              => [
-                '@type' => 'Organization',
-                'name'  => get_post_meta( $pid, '_iramo_provider', true ) ?: $brand_name,
-            ],
             'offers' => [
                 '@type'         => 'Offer',
                 'price'         => $pricing === 'Free' ? '0' : '20',
                 'priceCurrency' => 'USD',
             ],
-            'aggregateRating' => [
+        ];
+        if ( $provider !== '' ) {
+            $schema['author'] = [
+                '@type' => 'Organization',
+                'name'  => $provider,
+            ];
+        }
+        if ( $pop_raw !== '' && $likes_raw !== '' && (int) $likes_raw > 0 ) {
+            $rating = round( max( 1.0, min( 5.0, ( (int) $pop_raw / 20 ) ) ), 1 );
+            $schema['aggregateRating'] = [
                 '@type'       => 'AggregateRating',
                 'ratingValue' => $rating,
-                'ratingCount' => max( 12, (int) get_post_meta( $pid, '_iramo_likes', true ) ),
-            ],
-        ];
+                'ratingCount' => (int) $likes_raw,
+            ];
+        }
     } elseif ( is_singular( [ 'iramo_product', 'product' ] ) ) {
         $pid   = get_queried_object_id();
         $price = (int) get_post_meta( $pid, '_iramo_price_toman', true );

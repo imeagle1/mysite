@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_THEME_VERSION', '2.4.0' );
+define( 'IRAMO_THEME_VERSION', '2.5.0' );
 
 /**
  * 1. Core Theme Setup
@@ -273,8 +273,32 @@ add_action( 'after_switch_theme', function() {
 } );
 
 /**
- * 7. Shared Card Renderers (Used by Native Templates + Elementor Widgets)
+ * 7. Shared Card Renderers (Used by Native Templates + Elementor Widgets + Loop Items)
  */
+function iramo_render_loop_item_template( $tpl_id, $post_id ) {
+    if ( ! $tpl_id || ! class_exists( '\Elementor\Plugin' ) || get_post_status( $tpl_id ) !== 'publish' ) {
+        return false;
+    }
+    global $post;
+    $prev_post = $post;
+    $post      = get_post( $post_id );
+    if ( ! $post ) {
+        return false;
+    }
+    setup_postdata( $post );
+    $html = \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( (int) $tpl_id, true );
+    wp_reset_postdata();
+    $post = $prev_post;
+    if ( $prev_post instanceof WP_Post ) {
+        setup_postdata( $prev_post );
+    }
+    if ( empty( $html ) ) {
+        return false;
+    }
+    echo $html;
+    return true;
+}
+
 function iramo_render_product_card( $post_id ) {
     $title     = get_the_title( $post_id );
     $permalink = get_permalink( $post_id );
@@ -332,21 +356,21 @@ function iramo_render_product_card( $post_id ) {
 function iramo_render_tool_card( $post_id ) {
     $title     = get_the_title( $post_id );
     $permalink = get_permalink( $post_id );
-    $provider  = get_post_meta( $post_id, '_iramo_provider', true ) ?: 'AI Platform';
+    $provider  = trim( (string) get_post_meta( $post_id, '_iramo_provider', true ) );
     $tagline   = get_post_meta( $post_id, '_iramo_tagline', true ) ?: wp_trim_words( wp_strip_all_tags( get_post_field( 'post_content', $post_id ) ), 16 );
     $task      = get_post_meta( $post_id, '_iramo_task', true ) ?: 'AI Assistant';
     $input     = get_post_meta( $post_id, '_iramo_input', true ) ?: 'Text';
     $output    = get_post_meta( $post_id, '_iramo_output', true ) ?: 'Text';
     $pricing   = get_post_meta( $post_id, '_iramo_pricing', true ) ?: 'Freemium';
-    $tool_url  = get_post_meta( $post_id, '_iramo_url', true ) ?: $permalink;
+    $tool_url  = trim( (string) get_post_meta( $post_id, '_iramo_url', true ) );
     $has_api   = get_post_meta( $post_id, '_iramo_has_api', true ) === '1';
-    $verified  = get_post_meta( $post_id, '_iramo_verified', true ) !== '0';
-    $pop       = (int) ( get_post_meta( $post_id, '_iramo_popularity', true ) ?: 90 );
+    $verified  = get_post_meta( $post_id, '_iramo_verified', true ) === '1';
+    $pop_raw   = trim( (string) get_post_meta( $post_id, '_iramo_popularity', true ) );
     ?>
     <article
         class="iramo-card iramo-tool-card"
         data-tool-item="1"
-        data-title="<?php echo esc_attr( mb_strtolower( $title . ' ' . $provider . ' ' . $tagline . ' ' . $task ) ); ?>"
+        data-title="<?php echo esc_attr( mb_strtolower( trim( $title . ' ' . $provider . ' ' . $tagline . ' ' . $task ) ) ); ?>"
         data-task="<?php echo esc_attr( $task ); ?>"
         data-input="<?php echo esc_attr( $input ); ?>"
         data-output="<?php echo esc_attr( $output ); ?>"
@@ -358,10 +382,12 @@ function iramo_render_tool_card( $post_id ) {
                     <h3 style="margin:0;font-size:17px;font-weight:800;line-height:1.35;">
                         <a href="<?php echo esc_url( $permalink ); ?>"><?php echo esc_html( $title ); ?></a>
                     </h3>
-                    <div style="font-size:12px;color:var(--iramo-subtle);margin-top:2px;">
-                        <?php echo esc_html( $provider ); ?>
-                        <?php if ( $verified ) : ?> · <span style="color:var(--iramo-primary);font-weight:700;">تاییدشده ✓</span><?php endif; ?>
-                    </div>
+                    <?php if ( $provider !== '' || $verified ) : ?>
+                        <div style="font-size:12px;color:var(--iramo-subtle);margin-top:2px;">
+                            <?php if ( $provider !== '' ) : ?><?php echo esc_html( $provider ); ?><?php endif; ?>
+                            <?php if ( $verified ) : ?><?php echo $provider !== '' ? ' · ' : ''; ?><span style="color:var(--iramo-primary);font-weight:700;">تاییدشده ✓</span><?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <span class="iramo-badge" style="flex-shrink:0;"><?php echo esc_html( $pricing ); ?></span>
             </div>
@@ -380,8 +406,12 @@ function iramo_render_tool_card( $post_id ) {
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid var(--iramo-border-subtle);">
             <a href="<?php echo esc_url( $permalink ); ?>" style="font-size:12.5px;font-weight:700;color:var(--iramo-primary);">بررسی، راهنما و پرامپت ←</a>
             <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:11.5px;font-weight:700;color:var(--iramo-subtle);">★ <?php echo esc_html( iramo_fa_digits( $pop ) ); ?></span>
-                <a href="<?php echo esc_url( $tool_url ); ?>" target="_blank" rel="noopener noreferrer" class="iramo-btn iramo-btn-outline" style="padding:5px 10px;font-size:11.5px;border-radius:10px;">ورود به ابزار ↗</a>
+                <?php if ( $pop_raw !== '' ) : ?>
+                    <span style="font-size:11.5px;font-weight:700;color:var(--iramo-subtle);">★ <?php echo esc_html( iramo_fa_digits( $pop_raw ) ); ?></span>
+                <?php endif; ?>
+                <?php if ( $tool_url !== '' ) : ?>
+                    <a href="<?php echo esc_url( $tool_url ); ?>" target="_blank" rel="noopener noreferrer" class="iramo-btn iramo-btn-outline" style="padding:5px 10px;font-size:11.5px;border-radius:10px;">ورود به ابزار ↗</a>
+                <?php endif; ?>
             </div>
         </div>
     </article>

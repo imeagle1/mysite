@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Award,
   Bot,
+  Check,
   CheckCircle2,
+  Copy,
+  ExternalLink,
+  Link2,
   Lock,
   Mail,
   MessageCircle,
@@ -74,7 +78,7 @@ interface OtpDigitBoxesProps {
 }
 
 const OtpDigitBoxes: React.FC<OtpDigitBoxesProps> = ({ value, onChange, lang }) => {
-  const length = 5;
+  const length = 6;
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [focusedIdx, setFocusedIdx] = useState<number>(0);
 
@@ -97,7 +101,7 @@ const OtpDigitBoxes: React.FC<OtpDigitBoxesProps> = ({ value, onChange, lang }) 
       return;
     }
 
-    // Handle full paste (e.g. 5 digits)
+    // Handle full paste (e.g. 6 digits)
     if (cleaned.length > 1) {
       const sliced = cleaned.slice(0, length);
       onChange(sliced);
@@ -195,7 +199,7 @@ const OtpDigitBoxes: React.FC<OtpDigitBoxesProps> = ({ value, onChange, lang }) 
                 }}
                 type="text"
                 inputMode="numeric"
-                maxLength={5}
+                maxLength={6}
                 value={digit}
                 onFocus={() => setFocusedIdx(idx)}
                 onChange={(e) => handleDigitChange(idx, e.target.value)}
@@ -277,6 +281,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [resendTimer, setResendTimer] = useState(0);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [botLinkInfo, setBotLinkInfo] = useState<{
+    code: string;
+    command: string;
+    nonceId: string;
+    deepLink: string;
+    botUsername: string;
+  } | null>(null);
+  const [botLinkConnected, setBotLinkConnected] = useState(false);
+  const [isRequestingLink, setIsRequestingLink] = useState(false);
+  const [isCheckingLink, setIsCheckingLink] = useState(false);
+  const [copiedLinkCmd, setCopiedLinkCmd] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -287,6 +302,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setResendTimer(0);
       setError('');
       setIsSubmitting(false);
+      setBotLinkInfo(null);
+      setBotLinkConnected(false);
+      setCopiedLinkCmd(false);
     }
   }, [
     open,
@@ -323,6 +341,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       message?: string;
       user?: UserProfile;
       success?: boolean;
+      code?: string;
+      command?: string;
+      nonceId?: string;
+      deepLink?: string;
+      botUsername?: string;
+      connected?: boolean;
+      target?: string;
     };
     if (!res.ok) {
       throw new Error(
@@ -435,14 +460,90 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setResendTimer(120);
   };
 
+  const handleRequestBotLink = async () => {
+    if (activeChannel !== 'telegram' && activeChannel !== 'bale') return;
+    setError('');
+    setBotLinkConnected(false);
+    if (!wpRestUrl) {
+      const code = 'IR-PREVIEW';
+      setBotLinkInfo({
+        code,
+        command: `/start ${code}`,
+        nonceId: 'preview',
+        deepLink:
+          activeChannel === 'telegram'
+            ? `https://t.me/iRamoBot?start=${code}`
+            : 'https://ble.ir/iRamoBaleBot',
+        botUsername: activeChannel === 'telegram' ? '@iRamoBot' : '@iRamoBaleBot',
+      });
+      return;
+    }
+
+    try {
+      setIsRequestingLink(true);
+      const data = await wpPost('bot/request-link', {
+        platform: activeChannel,
+        target: botContact.trim(),
+      });
+      if (data.code && data.command) {
+        setBotLinkInfo({
+          code: data.code,
+          command: data.command,
+          nonceId: data.nonceId || '',
+          deepLink: data.deepLink || '#',
+          botUsername: data.botUsername || (activeChannel === 'telegram' ? '@iRamoBot' : '@iRamoBaleBot'),
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to request link code');
+    } finally {
+      setIsRequestingLink(false);
+    }
+  };
+
+  const handleCheckBotLink = async () => {
+    if (activeChannel !== 'telegram' && activeChannel !== 'bale') return;
+    setError('');
+    if (!wpRestUrl) {
+      setBotLinkConnected(true);
+      if (!botContact.trim()) setBotContact('100458291');
+      return;
+    }
+
+    try {
+      setIsCheckingLink(true);
+      const data = await wpPost('bot/check-link', {
+        platform: activeChannel,
+        nonceId: botLinkInfo?.nonceId || '',
+        target: botContact.trim(),
+      });
+      if (data.connected) {
+        setBotLinkConnected(true);
+        if (data.target) {
+          setBotContact(data.target);
+        }
+      } else {
+        setError(
+          isFa
+            ? 'هنوز پیامی با کد اتصال در ربات ثبت نشده است. لطفاً دستور /start را در ربات بفرستید و دوباره بررسی کنید.'
+            : 'Link not confirmed yet. Send the /start command in the bot and check again.'
+        );
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to check link status');
+    } finally {
+      setIsCheckingLink(false);
+    }
+  };
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (otpCode.trim().length < 5) {
+    if (otpCode.trim().length < 6) {
       setError(
         isFa
-          ? 'لطفاً هر ۵ رقم کد تایید ارسال‌شده را وارد کنید.'
-          : 'Please enter the complete 5-digit verification code.'
+          ? 'لطفاً هر ۶ رقم کد تایید ارسال‌شده را وارد کنید.'
+          : 'Please enter the complete 6-digit verification code.'
       );
       return;
     }
@@ -724,6 +825,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         onClick={() => {
                           setActiveChannel(ch);
                           setOtpSent(false);
+                          setBotLinkInfo(null);
+                          setBotLinkConnected(false);
                           setError('');
                         }}
                         className={`flex-1 min-w-[96px] flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
@@ -746,25 +849,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               )}
 
-              {/* Animated 5-Digit OTP Verification Step (SMS, Telegram or Bale) */}
+              {/* Animated 6-Digit OTP Verification Step (SMS, Telegram or Bale) */}
               {activeChannel !== 'email' && otpSent ? (
                 <form onSubmit={handleVerifyOtp} className="space-y-4">
                   <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/25 text-xs text-emerald-800 dark:text-emerald-200 leading-relaxed">
                     {activeChannel === 'sms'
                       ? isFa
-                        ? `کد تایید ۵ رقمی به شماره ${toLocaleDigits(smsPhone, lang)} پیامک شد.`
-                        : `A 5-digit verification code was sent to ${smsPhone}.`
+                        ? `کد تایید ۶ رقمی به شماره ${toLocaleDigits(smsPhone, lang)} پیامک شد.`
+                        : `A 6-digit verification code was sent to ${smsPhone}.`
                       : isFa
-                      ? `کد تایید ۵ رقمی از طریق ${
+                      ? `کد تایید ۶ رقمی از طریق ${
                           activeChannel === 'telegram' ? 'ربات تلگرام' : 'پیام‌رسان بله'
                         } برای ${botContact} ارسال شد.`
-                      : `A 5-digit code was sent via ${activeChannel} to ${botContact}.`}
+                      : `A 6-digit code was sent via ${activeChannel} to ${botContact}.`}
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <label className="font-bold text-slate-700 dark:text-slate-200">
-                        {isFa ? 'کد تایید را وارد کنید' : 'Enter 5-digit verification code'}
+                        {isFa ? 'کد تایید ۶ رقمی را وارد کنید' : 'Enter 6-digit verification code'}
                       </label>
                       {resendTimer > 0 ? (
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
@@ -882,33 +985,102 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   )}
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-700 dark:text-slate-300 block">
-                      {activeChannel === 'telegram'
-                        ? isFa
-                          ? 'آیدی تلگرام یا شماره موبایل متصل به تلگرام'
-                          : 'Telegram Username or Phone'
-                        : isFa
-                        ? 'شماره موبایل یا شناسه پیام‌رسان بله'
-                        : 'Bale Phone or Handle'}
-                    </label>
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-xs font-medium text-slate-700 dark:text-slate-300 block">
+                        {activeChannel === 'telegram'
+                          ? isFa
+                            ? 'شناسه چت یا نام کاربری تلگرام'
+                            : 'Telegram Username or Chat ID'
+                          : isFa
+                          ? 'شناسه چت یا شماره متصل بله'
+                          : 'Bale Chat ID or Phone'}
+                      </label>
+                      <button
+                        type="button"
+                        disabled={isRequestingLink}
+                        onClick={handleRequestBotLink}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer disabled:opacity-50"
+                      >
+                        <Link2 className="w-3 h-3" />
+                        <span>{isFa ? 'دریافت کد اتصال امن' : 'Get Link Code'}</span>
+                      </button>
+                    </div>
                     <div className="relative">
                       <Bot className="w-4 h-4 text-slate-400 absolute top-3 start-3" />
                       <input
                         type="text"
                         dir="ltr"
                         value={botContact}
-                        onChange={(e) => setBotContact(e.target.value)}
+                        onChange={(e) => {
+                          setBotContact(e.target.value);
+                          setBotLinkConnected(false);
+                        }}
                         placeholder={
-                          activeChannel === 'telegram' ? '@username' : '09123456789'
+                          activeChannel === 'telegram' ? '@username or chat_id' : 'chat_id or 09123456789'
                         }
                         className="w-full ps-9 pe-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-slate-200 dark:border-emerald-500/20 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                   </div>
 
+                  {botLinkInfo && (
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#050C0A] border border-emerald-200 dark:border-emerald-500/25 space-y-2 text-[11px]">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-slate-700 dark:text-slate-200">
+                          {isFa
+                            ? `این دستور را به ربات ${botLinkInfo.botUsername} بفرستید (اعتبار ۱۰ دقیقه):`
+                            : `Send this command to ${botLinkInfo.botUsername} (10m expiry):`}
+                        </span>
+                        {botLinkConnected && (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                            {isFa ? 'تایید شد ✓' : 'Verified ✓'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <code dir="ltr" className="px-2.5 py-1 rounded-lg bg-white dark:bg-emerald-950/50 border border-slate-200 dark:border-emerald-500/25 font-mono text-xs text-slate-900 dark:text-emerald-200">
+                          {botLinkInfo.command}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard?.writeText(botLinkInfo.command);
+                            setCopiedLinkCmd(true);
+                            setTimeout(() => setCopiedLinkCmd(false), 1500);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-emerald-500/15 text-slate-700 dark:text-emerald-200 font-semibold cursor-pointer"
+                        >
+                          {copiedLinkCmd ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                          <span>{isFa ? (copiedLinkCmd ? 'کپی شد' : 'کپی') : copiedLinkCmd ? 'Copied' : 'Copy'}</span>
+                        </button>
+                        {botLinkInfo.deepLink && botLinkInfo.deepLink !== '#' && (
+                          <a
+                            href={botLinkInfo.deepLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-semibold"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>{isFa ? 'باز کردن ربات' : 'Open Bot'}</span>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          disabled={isCheckingLink}
+                          onClick={handleCheckBotLink}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-emerald-500/35 text-emerald-700 dark:text-emerald-300 font-bold cursor-pointer disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${isCheckingLink ? 'animate-spin' : ''}`} />
+                          <span>{isFa ? 'بررسی اتصال' : 'Check Status'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors"
+                    disabled={isSubmitting}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer shadow-sm transition-colors disabled:opacity-60"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>

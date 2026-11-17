@@ -18,27 +18,31 @@ while ( have_posts() ) :
     if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-single-tool', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
         break;
     endif;
-    $pid          = get_the_ID();
-    $title        = get_the_title();
-    $provider     = get_post_meta( $pid, '_iramo_provider', true ) ?: 'iRamo Partner';
-    $tagline      = get_post_meta( $pid, '_iramo_tagline', true ) ?: get_the_excerpt();
-    $task         = get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant';
-    $input        = get_post_meta( $pid, '_iramo_input', true ) ?: 'Text';
-    $output       = get_post_meta( $pid, '_iramo_output', true ) ?: 'Text';
-    $pricing      = get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium';
-    $start_price  = get_post_meta( $pid, '_iramo_starting_price', true ) ?: $pricing;
-    $tool_url     = get_post_meta( $pid, '_iramo_url', true ) ?: '#';
-    $has_api      = get_post_meta( $pid, '_iramo_has_api', true ) === '1';
-    $has_mobile   = get_post_meta( $pid, '_iramo_has_mobile', true ) === '1';
-    $popularity   = (int) ( get_post_meta( $pid, '_iramo_popularity', true ) ?: 94 );
-    $likes        = (int) ( get_post_meta( $pid, '_iramo_likes', true ) ?: 120 );
-    $dislikes     = (int) ( get_post_meta( $pid, '_iramo_dislikes', true ) ?: 6 );
-    $features     = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_features', true ) ) ) ) );
-    $steps        = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_steps', true ) ) ) ) );
-    $audience     = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_audience', true ) ) ) ) );
-    $prompt_ex    = get_post_meta( $pid, '_iramo_sample_prompt', true );
-    $pricing_info = get_post_meta( $pid, '_iramo_pricing_details', true );
-    $tools_url    = get_post_type_archive_link( 'iramo_ai_tool' ) ?: iramo_get_page_url( 'ai-tools', '/ai-tools/' );
+    $pid            = get_the_ID();
+    $title          = get_the_title();
+    $provider       = trim( (string) get_post_meta( $pid, '_iramo_provider', true ) );
+    $tagline        = get_post_meta( $pid, '_iramo_tagline', true ) ?: get_the_excerpt();
+    $task           = trim( (string) get_post_meta( $pid, '_iramo_task', true ) );
+    $input          = get_post_meta( $pid, '_iramo_input', true ) ?: '—';
+    $output         = get_post_meta( $pid, '_iramo_output', true ) ?: '—';
+    $pricing        = get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium';
+    $start_price    = get_post_meta( $pid, '_iramo_starting_price', true ) ?: $pricing;
+    $tool_url       = trim( (string) get_post_meta( $pid, '_iramo_url', true ) );
+    $has_api        = get_post_meta( $pid, '_iramo_has_api', true ) === '1';
+    $has_mobile     = get_post_meta( $pid, '_iramo_has_mobile', true ) === '1';
+    $popularity_raw = trim( (string) get_post_meta( $pid, '_iramo_popularity', true ) );
+    $popularity     = $popularity_raw !== '' ? (int) $popularity_raw : 0;
+    $likes_raw      = get_post_meta( $pid, '_iramo_likes', true );
+    $dislikes_raw   = get_post_meta( $pid, '_iramo_dislikes', true );
+    $has_votes      = ( $likes_raw !== '' || $dislikes_raw !== '' );
+    $likes          = $likes_raw !== '' ? (int) $likes_raw : 0;
+    $dislikes       = $dislikes_raw !== '' ? (int) $dislikes_raw : 0;
+    $features       = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_features', true ) ) ) ) );
+    $steps          = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_steps', true ) ) ) ) );
+    $audience       = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_audience', true ) ) ) ) );
+    $prompt_ex      = get_post_meta( $pid, '_iramo_sample_prompt', true );
+    $pricing_info   = get_post_meta( $pid, '_iramo_pricing_details', true );
+    $tools_url      = get_post_type_archive_link( 'iramo_ai_tool' ) ?: iramo_get_page_url( 'ai-tools', '/ai-tools/' );
     ?>
     <main id="primary" class="iramo-main-wrap">
         <div class="iramo-container">
@@ -56,29 +60,39 @@ while ( have_posts() ) :
                 <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:18px;">
                     <div style="flex:1;min-width:260px;">
                         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;">
-                            <span class="iramo-badge"><?php echo esc_html( $task ); ?></span>
-                            <span class="iramo-meta-pill">ارائه‌دهنده: <?php echo esc_html( $provider ); ?></span>
-                            <span class="iramo-meta-pill">امتیاز محبوبیت: ★ <?php echo esc_html( iramo_fa_digits( $popularity ) ); ?></span>
+                            <?php if ( $task !== '' ) : ?>
+                                <span class="iramo-badge"><?php echo esc_html( $task ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $provider !== '' ) : ?>
+                                <span class="iramo-meta-pill">ارائه‌دهنده: <?php echo esc_html( $provider ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $popularity_raw !== '' && $popularity > 0 ) : ?>
+                                <span class="iramo-meta-pill">امتیاز محبوبیت: ★ <?php echo esc_html( iramo_fa_digits( $popularity ) ); ?></span>
+                            <?php endif; ?>
                         </div>
                         <h1 style="margin:0 0 8px;font-size:26px;font-weight:900;"><?php echo esc_html( $title ); ?></h1>
                         <p style="margin:0;font-size:15px;color:var(--iramo-muted);line-height:1.8;"><?php echo esc_html( $tagline ); ?></p>
                     </div>
 
-                    <div style="display:flex;flex-direction:column;gap:10px;min-width:220px;">
-                        <?php if ( $tool_url && $tool_url !== '#' ) : ?>
-                            <a href="<?php echo esc_url( $tool_url ); ?>" target="_blank" rel="noopener noreferrer" class="iramo-btn iramo-btn-accent">
-                                ورود به سایت ابزار (Try Now) ↗
-                            </a>
-                        <?php endif; ?>
-                        <div style="display:flex;gap:8px;">
-                            <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="like" data-tool-id="<?php echo esc_attr( $pid ); ?>">
-                                👍 مفید بود (<span data-vote-count><?php echo esc_html( $likes ); ?></span>)
-                            </button>
-                            <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="dislike" data-tool-id="<?php echo esc_attr( $pid ); ?>">
-                                👎 (<span data-vote-count><?php echo esc_html( $dislikes ); ?></span>)
-                            </button>
+                    <?php if ( ( $tool_url !== '' && $tool_url !== '#' ) || $has_votes ) : ?>
+                        <div style="display:flex;flex-direction:column;gap:10px;min-width:220px;">
+                            <?php if ( $tool_url !== '' && $tool_url !== '#' ) : ?>
+                                <a href="<?php echo esc_url( $tool_url ); ?>" target="_blank" rel="noopener noreferrer" class="iramo-btn iramo-btn-accent">
+                                    ورود به سایت ابزار (Try Now) ↗
+                                </a>
+                            <?php endif; ?>
+                            <?php if ( $has_votes ) : ?>
+                                <div style="display:flex;gap:8px;">
+                                    <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="like" data-tool-id="<?php echo esc_attr( $pid ); ?>">
+                                        👍 مفید بود (<span data-vote-count><?php echo esc_html( $likes ); ?></span>)
+                                    </button>
+                                    <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="dislike" data-tool-id="<?php echo esc_attr( $pid ); ?>">
+                                        👎 (<span data-vote-count><?php echo esc_html( $dislikes ); ?></span>)
+                                    </button>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Specs Bar -->
@@ -192,10 +206,16 @@ while ( have_posts() ) :
                         }
                         ?>
                         <div style="display:grid;gap:10px;">
-                            <?php foreach ( $related as $rel ) : ?>
+                            <?php foreach ( $related as $rel ) :
+                                $rel_provider = trim( (string) get_post_meta( $rel->ID, '_iramo_provider', true ) );
+                                $rel_pricing  = trim( (string) get_post_meta( $rel->ID, '_iramo_pricing', true ) );
+                                $rel_meta     = implode( ' · ', array_filter( [ $rel_provider, $rel_pricing ] ) );
+                            ?>
                                 <a href="<?php echo esc_url( get_permalink( $rel->ID ) ); ?>" style="display:block;padding:10px 12px;border-radius:12px;background:var(--iramo-canvas);border:1px solid var(--iramo-border-subtle);">
                                     <div style="font-weight:800;font-size:14px;"><?php echo esc_html( get_the_title( $rel->ID ) ); ?></div>
-                                    <div style="font-size:11.5px;color:var(--iramo-muted);margin-top:2px;"><?php echo esc_html( get_post_meta( $rel->ID, '_iramo_provider', true ) ?: 'AI Tool' ); ?> · <?php echo esc_html( get_post_meta( $rel->ID, '_iramo_pricing', true ) ?: 'Freemium' ); ?></div>
+                                    <?php if ( $rel_meta !== '' ) : ?>
+                                        <div style="font-size:11.5px;color:var(--iramo-muted);margin-top:2px;"><?php echo esc_html( $rel_meta ); ?></div>
+                                    <?php endif; ?>
                                 </a>
                             <?php endforeach; ?>
                         </div>

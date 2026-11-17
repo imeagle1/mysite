@@ -4,7 +4,10 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  ExternalLink,
   KeyRound,
+  Link2,
+  RefreshCw,
   Send,
   ShieldCheck,
   Upload,
@@ -195,6 +198,15 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
   const [otpSent, setOtpSent] = useState<'telegram' | 'bale' | null>(null);
   const [otpCode, setOtpCode] = useState('');
   const [botError, setBotError] = useState('');
+  const [linkState, setLinkState] = useState<{
+    platform: 'telegram' | 'bale';
+    command: string;
+    nonceId: string;
+    deepLink: string;
+    botUsername: string;
+  } | null>(null);
+  const [copiedCmd, setCopiedCmd] = useState(false);
+  const [checkingLink, setCheckingLink] = useState(false);
   const [verifiedPlatform, setVerifiedPlatform] = useState<string[]>(() => {
     const initial: string[] = [];
     if (initialTelegramId || !wpRestUrl) initial.push('telegram');
@@ -221,11 +233,93 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
       },
       body: JSON.stringify(payload),
     });
-    const data = (await res.json().catch(() => ({}))) as { message?: string };
+    const data = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      command?: string;
+      nonceId?: string;
+      deepLink?: string;
+      botUsername?: string;
+      connected?: boolean;
+      target?: string;
+    };
     if (!res.ok) {
       throw new Error(data.message || 'Request failed');
     }
     return data;
+  };
+
+  const handleRequestLink = async (platform: 'telegram' | 'bale') => {
+    setBotError('');
+    const target = platform === 'telegram' ? tgHandle.trim() : baleId.trim();
+    if (!wpRestUrl) {
+      setLinkState({
+        platform,
+        command: '/start IR-DEMO92',
+        nonceId: 'demo',
+        deepLink: platform === 'telegram' ? 'https://t.me/iRamoBot?start=IR-DEMO92' : 'https://ble.ir/iRamoBaleBot',
+        botUsername: platform === 'telegram' ? telegramBotUsername : baleBotUsername,
+      });
+      return;
+    }
+    try {
+      const res = await callWp('bot/request-link', { platform, target });
+      if (res?.command) {
+        setLinkState({
+          platform,
+          command: res.command,
+          nonceId: res.nonceId || '',
+          deepLink: res.deepLink || '#',
+          botUsername: res.botUsername || (platform === 'telegram' ? telegramBotUsername : baleBotUsername),
+        });
+      }
+    } catch (err) {
+      setBotError(err instanceof Error ? err.message : 'Failed to create link code');
+    }
+  };
+
+  const handleCheckLink = async (platform: 'telegram' | 'bale') => {
+    setBotError('');
+    const target = platform === 'telegram' ? tgHandle.trim() : baleId.trim();
+    if (!wpRestUrl) {
+      if (!verifiedPlatform.includes(platform)) {
+        setVerifiedPlatform((prev) => [...prev, platform]);
+      }
+      setLinkState(null);
+      return;
+    }
+    try {
+      setCheckingLink(true);
+      const res = await callWp('bot/check-link', {
+        platform,
+        nonceId: linkState?.nonceId || '',
+        target,
+      });
+      if (res?.connected) {
+        if (res.target) {
+          if (platform === 'telegram') setTgHandle(res.target);
+          else setBaleId(res.target);
+        }
+        if (!verifiedPlatform.includes(platform)) {
+          setVerifiedPlatform((prev) => [...prev, platform]);
+        }
+        setLinkState(null);
+        onUpdateBotBinding?.(
+          platform === 'telegram'
+            ? { telegramId: res.target || target, prefs }
+            : { balePhone: res.target || target, prefs }
+        );
+      } else {
+        setBotError(
+          isFa
+            ? 'کد اتصال هنوز در ربات ارسال نشده است. لطفاً دستور /start را در ربات ارسال کرده و دوباره بررسی کنید.'
+            : 'Bot link not confirmed yet. Send /start with the code in the bot first.'
+        );
+      }
+    } catch (err) {
+      setBotError(err instanceof Error ? err.message : 'Verification check failed');
+    } finally {
+      setCheckingLink(false);
+    }
   };
 
   const handleSendTestOtp = async (platform: 'telegram' | 'bale') => {
@@ -240,19 +334,26 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
     if (wpRestUrl) {
       try {
         await callWp('auth/send-otp', { channel: platform, target });
+        setOtpCode('');
         setOtpSent(platform);
       } catch (err) {
         setBotError(err instanceof Error ? err.message : 'Failed to reach bot');
       }
       return;
     }
+    setOtpCode('');
     setOtpSent(platform);
   };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setBotError('');
-    if (!otpSent || otpCode.trim().length < 4) return;
+    if (!otpSent || otpCode.trim().length < 6) {
+      setBotError(
+        isFa ? 'لطفاً کد تایید ۶ رقمی کامل را وارد کنید.' : 'Please enter the complete 6-digit OTP code.'
+      );
+      return;
+    }
     const target = otpSent === 'telegram' ? tgHandle.trim() : baleId.trim();
     if (wpRestUrl) {
       try {
@@ -261,10 +362,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
           target,
           code: otpCode.trim(),
         });
-        await callWp('bot/bind', {
-          ...(otpSent === 'telegram' ? { telegramId: target } : { balePhone: target }),
-          prefs,
-        });
+        await callWp('bot/bind', { prefs });
       } catch (err) {
         setBotError(err instanceof Error ? err.message : 'Invalid verification code');
         return;
@@ -349,9 +447,19 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs text-slate-500 dark:text-slate-400 block">
-              {isFa ? 'آیدی یا شناسه چت عددی تلگرام' : 'Telegram Username or Chat ID'}
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-xs text-slate-500 dark:text-slate-400 block">
+                {isFa ? 'آیدی یا شناسه چت عددی تلگرام' : 'Telegram Username or Chat ID'}
+              </label>
+              <button
+                type="button"
+                onClick={() => handleRequestLink('telegram')}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+              >
+                <Link2 className="w-3 h-3" />
+                <span>{isFa ? 'دریافت کد اتصال امن' : 'Get Link Code'}</span>
+              </button>
+            </div>
             <div className="flex flex-col min-[420px]:flex-row gap-2">
               <input
                 type="text"
@@ -366,7 +474,7 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
                 onClick={() => handleSendTestOtp('telegram')}
                 className="px-3.5 py-2 rounded-xl bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 text-xs font-bold cursor-pointer whitespace-nowrap"
               >
-                {isFa ? 'ارسال کد تایید' : 'Send OTP'}
+                {isFa ? 'ارسال کد ۶ رقمی' : 'Send 6-Digit OTP'}
               </button>
             </div>
           </div>
@@ -400,9 +508,19 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs text-slate-500 dark:text-slate-400 block">
-              {isFa ? 'شماره موبایل یا شناسه عددی بله' : 'Bale Phone or Chat ID'}
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-xs text-slate-500 dark:text-slate-400 block">
+                {isFa ? 'شماره موبایل یا شناسه عددی بله' : 'Bale Phone or Chat ID'}
+              </label>
+              <button
+                type="button"
+                onClick={() => handleRequestLink('bale')}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+              >
+                <Link2 className="w-3 h-3" />
+                <span>{isFa ? 'دریافت کد اتصال امن' : 'Get Link Code'}</span>
+              </button>
+            </div>
             <div className="flex flex-col min-[420px]:flex-row gap-2">
               <input
                 type="text"
@@ -417,12 +535,66 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
                 onClick={() => handleSendTestOtp('bale')}
                 className="px-3.5 py-2 rounded-xl bg-[var(--iramo-accent)] hover:bg-[var(--iramo-accent-hover)] text-[var(--iramo-accent-fg)] text-xs font-bold cursor-pointer whitespace-nowrap transition-colors"
               >
-                {isFa ? 'ارسال کد تایید' : 'Verify Bale'}
+                {isFa ? 'ارسال کد ۶ رقمی' : 'Send 6-Digit OTP'}
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {linkState && (
+        <div className="rounded-2xl p-5 bg-slate-50 dark:bg-[#091511] border border-emerald-300 dark:border-emerald-500/35 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1 text-xs">
+            <p className="font-bold text-slate-900 dark:text-white">
+              {isFa
+                ? `کد یکبارمصرف اتصال به ${linkState.botUsername} (اعتبار ۱۰ دقیقه):`
+                : `One-time link command for ${linkState.botUsername} (10m expiry):`}
+            </p>
+            <p className="text-slate-600 dark:text-slate-300">
+              {isFa
+                ? 'دستور زیر را در ربات ارسال کنید و سپس دکمه «بررسی تایید ربات» را بزنید.'
+                : 'Send this command in the bot and click Verify Link.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <code dir="ltr" className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-300 dark:border-emerald-500/30 font-mono text-xs text-slate-900 dark:text-emerald-200">
+              {linkState.command}
+            </code>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(linkState.command);
+                setCopiedCmd(true);
+                setTimeout(() => setCopiedCmd(false), 1500);
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-emerald-500/15 border border-slate-200 dark:border-emerald-500/25 text-xs font-bold cursor-pointer"
+            >
+              {copiedCmd ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{isFa ? (copiedCmd ? 'کپی شد' : 'کپی دستور') : copiedCmd ? 'Copied' : 'Copy'}</span>
+            </button>
+            {linkState.deepLink && linkState.deepLink !== '#' && (
+              <a
+                href={linkState.deepLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>{isFa ? 'ورود به ربات' : 'Open Bot'}</span>
+              </a>
+            )}
+            <button
+              type="button"
+              disabled={checkingLink}
+              onClick={() => handleCheckLink(linkState.platform)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[var(--iramo-accent)] text-[var(--iramo-accent-fg)] text-xs font-extrabold cursor-pointer disabled:opacity-60"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${checkingLink ? 'animate-spin' : ''}`} />
+              <span>{isFa ? 'بررسی تایید ربات' : 'Verify Link'}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {otpSent && (
         <form
@@ -432,18 +604,19 @@ export const BotConnectView: React.FC<BotConnectViewProps> = ({
           <div className="space-y-1">
             <p className="text-xs font-bold text-slate-900 dark:text-white">
               {isFa
-                ? `کد تایید ۵ رقمی به ${otpSent === 'bale' ? 'پیام‌رسان بله' : 'ربات تلگرام'} ارسال شد.`
-                : `Verification code sent via ${otpSent} bot.`}
+                ? `کد تایید ۶ رقمی به ${otpSent === 'bale' ? 'پیام‌رسان بله' : 'ربات تلگرام'} ارسال شد.`
+                : `6-digit verification code sent via ${otpSent} bot.`}
             </p>
           </div>
           <div className="flex gap-2">
             <input
               type="text"
               dir="ltr"
+              maxLength={6}
               value={otpCode}
               onChange={(e) => setOtpCode(e.target.value)}
-              placeholder="48291"
-              className="w-32 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-400 text-xs text-center text-slate-900 dark:text-white focus:outline-none"
+              placeholder="482916"
+              className="w-32 px-3 py-2 rounded-xl bg-white dark:bg-[#050C0A] border border-emerald-400 text-xs text-center text-slate-900 dark:text-white focus:outline-none tabular-nums"
             />
             <button
               type="submit"

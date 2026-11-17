@@ -3,7 +3,7 @@ Theme Name:   iRamoAi Modern Theme
 Theme URI:    https://iramo.ai
 Author:       iRamoAi Engineering
 Description:  قالب بومی، سبک و راست‌به‌چپ (RTL) وردپرس و المنتور پرو برای iRamoAi — پیاده‌سازی کامل صفحات عمومی با HTML/CSS/PHP برای سئو و سرعت بالا، سازگار با Theme Builder المنتور پرو و پنل کاربری ری‌اکت.
-Version:      2.4.0
+Version:      2.5.0
 Requires at least: 6.0
 Requires PHP: 7.4
 Text Domain:  iramo-ai-theme
@@ -1209,5 +1209,24 @@ html.dark .iramo-logo-dark { display: block; }
   line-height: 1.85;
   color: var(--iramo-muted);
   max-width: 380px;
+}
+
+.iramo-loop-media-16x9,
+.iramo-loop-media-16x9 .elementor-widget-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.iramo-loop-media-16x9 img {
+  width: 100% !important;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.e-con.iramo-tool-card,
+.e-con.iramo-card {
+  height: 100%;
 }
 

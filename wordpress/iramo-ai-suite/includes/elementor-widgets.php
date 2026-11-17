@@ -83,6 +83,21 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
 
             $this->end_controls_section();
         }
+
+        protected function get_loop_item_options() {
+            $opts  = [ '' => 'کارت پیش‌فرض قالب (سریع)' ];
+            $posts = get_posts( [
+                'post_type'      => 'elementor_library',
+                'post_status'    => 'publish',
+                'meta_key'       => '_elementor_template_type',
+                'meta_value'     => 'loop-item',
+                'posts_per_page' => 30,
+            ] );
+            foreach ( $posts as $lp ) {
+                $opts[ (string) $lp->ID ] = $lp->post_title;
+            }
+            return $opts;
+        }
     }
 
     // =========================================================================
@@ -266,8 +281,8 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
 
         protected function register_controls() {
             $this->start_controls_section( 'sec_badge', [ 'label' => 'محتوای برچسب' ] );
-            $this->add_control( 'text', [ 'label' => 'متن برچسب', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '✨ اکوسیستم نرم‌افزار و هوش مصنوعی فارسی' ] );
-            $this->add_control( 'sub_label', [ 'label' => 'متن کناری اختیاری (مثل پروژه‌محور)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '' ] );
+            $this->add_control( 'text', [ 'label' => 'متن برچسب', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '✨ اکوسیستم نرم‌افزار و هوش مصنوعی فارسی', 'dynamic' => [ 'active' => true ] ] );
+            $this->add_control( 'sub_label', [ 'label' => 'متن کناری اختیاری (مثل پروژه‌محور)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '', 'dynamic' => [ 'active' => true ] ] );
             $this->add_responsive_control( 'align', [
                 'label' => 'چیدمان',
                 'type' => \Elementor\Controls_Manager::CHOOSE,
@@ -666,10 +681,16 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             <div class="iramo-card" dir="rtl" style="padding:20px;">
                 <h3 style="margin:0 0 12px;font-size:16px;font-weight:800;"><?php echo esc_html( $s['title'] ?: 'ابزارهای مرتبط' ); ?></h3>
                 <div style="display:grid;gap:10px;">
-                    <?php foreach ( $related as $rel ) : ?>
+                    <?php foreach ( $related as $rel ) :
+                        $rel_provider = trim( (string) get_post_meta( $rel->ID, '_iramo_provider', true ) );
+                        $rel_pricing  = trim( (string) get_post_meta( $rel->ID, '_iramo_pricing', true ) );
+                        $rel_meta     = implode( ' · ', array_filter( [ $rel_provider, $rel_pricing ] ) );
+                        ?>
                         <a href="<?php echo esc_url( get_permalink( $rel->ID ) ); ?>" style="display:block;padding:10px 12px;border-radius:12px;background:var(--iramo-canvas);border:1px solid var(--iramo-border-subtle);">
                             <div style="font-weight:800;font-size:14px;"><?php echo esc_html( get_the_title( $rel->ID ) ); ?></div>
-                            <div style="font-size:11.5px;color:var(--iramo-muted);margin-top:2px;"><?php echo esc_html( get_post_meta( $rel->ID, '_iramo_provider', true ) ?: 'AI Tool' ); ?> · <?php echo esc_html( get_post_meta( $rel->ID, '_iramo_pricing', true ) ?: 'Freemium' ); ?></div>
+                            <?php if ( $rel_meta !== '' ) : ?>
+                                <div style="font-size:11.5px;color:var(--iramo-muted);margin-top:2px;"><?php echo esc_html( $rel_meta ); ?></div>
+                            <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -921,6 +942,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'options' => [ '2' => '۲ ستونه', '3' => '۳ ستونه', '4' => '۴ ستونه' ],
             ] );
             $this->add_control( 'posts_count', [ 'label' => 'تعداد نمایش', 'type' => \Elementor\Controls_Manager::NUMBER, 'default' => 4, 'min' => 1, 'max' => 24 ] );
+            $this->add_control( 'loop_template_id', [ 'label' => 'قالب کارت (Loop Item)', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '', 'options' => $this->get_loop_item_options() ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls();
         }
@@ -930,6 +952,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $src  = $s['source'] ?? 'both';
             $pt   = $src === 'both' ? [ 'iramo_product', 'product' ] : $src;
             $col  = in_array( $s['columns'], [ '2', '3', '4' ], true ) ? $s['columns'] : '2';
+            $loop_tpl_id = (int) ( $s['loop_template_id'] ?? 0 );
             $q    = new \WP_Query( [ 'post_type' => $pt, 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 4 ) ] );
             $show_head = ( $s['show_header'] ?? 'yes' ) === 'yes';
             ?>
@@ -950,7 +973,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     if ( $q->have_posts() ) {
                         while ( $q->have_posts() ) {
                             $q->the_post();
-                            if ( function_exists( 'iramo_render_product_card' ) ) iramo_render_product_card( get_the_ID() );
+                            $pid = get_the_ID();
+                            if ( $loop_tpl_id && function_exists( 'iramo_render_loop_item_template' ) && iramo_render_loop_item_template( $loop_tpl_id, $pid ) ) {
+                                continue;
+                            }
+                            if ( function_exists( 'iramo_render_product_card' ) ) iramo_render_product_card( $pid );
                         }
                         wp_reset_postdata();
                     } else {
@@ -1257,15 +1284,16 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $this->add_control( 'title', [ 'label' => 'تیتر دایرکتوری', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'مجموعه تخصصی ابزارهای هوش مصنوعی', 'condition' => [ 'show_header' => 'yes' ] ] );
             $this->add_control( 'show_filters', [ 'label' => 'نمایش نوار جستجو و سلکت‌ها', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
             $this->add_control( 'show_chips', [ 'label' => 'نمایش تگ‌های سریع دسته‌بندی', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
-            $this->add_control( 'columns', [ 'label' => 'تعداد ستون', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '3', 'options' => [ '2' => '۲ ستونه', '3' => '۳ ستونه', '4' => '۴ ستونه' ] ] );
-            $this->add_control( 'posts_count', [ 'label' => 'تعداد ابزارها', 'type' => \Elementor\Controls_Manager::NUMBER, 'default' => 24, 'min' => 1, 'max' => 100 ] );
+            $this->add_control( 'show_grid', [ 'label' => 'نمایش گرید ابزارها', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
+            $this->add_control( 'columns', [ 'label' => 'تعداد ستون', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '3', 'options' => [ '2' => '۲ ستونه', '3' => '۳ ستونه', '4' => '۴ ستونه' ], 'condition' => [ 'show_grid' => 'yes' ] ] );
+            $this->add_control( 'posts_count', [ 'label' => 'تعداد ابزارها', 'type' => \Elementor\Controls_Manager::NUMBER, 'default' => 24, 'min' => 1, 'max' => 100, 'condition' => [ 'show_grid' => 'yes' ] ] );
+            $this->add_control( 'loop_template_id', [ 'label' => 'قالب کارت (Loop Item)', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '', 'options' => $this->get_loop_item_options(), 'condition' => [ 'show_grid' => 'yes' ] ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls();
         }
 
         protected function render() {
             $s        = $this->get_settings_for_display();
-            $q        = new \WP_Query( [ 'post_type' => 'iramo_ai_tool', 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 24 ) ] );
             $q_param  = sanitize_text_field( $_GET['q'] ?? '' );
             $tk_param = sanitize_text_field( $_GET['task'] ?? '' );
             $col      = in_array( $s['columns'], [ '2', '3', '4' ], true ) ? $s['columns'] : '3';
@@ -1291,15 +1319,36 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 }
                 echo '</div>';
             }
-            echo '<div class="iramo-grid-' . esc_attr( $col ) . '">';
-            if ( $q->have_posts() ) {
-                while ( $q->have_posts() ) {
-                    $q->the_post();
-                    if ( function_exists( 'iramo_render_tool_card' ) ) iramo_render_tool_card( get_the_ID() );
+            if ( ( $s['show_grid'] ?? 'yes' ) === 'yes' ) {
+                $loop_tpl_id = (int) ( $s['loop_template_id'] ?? 0 );
+                $q = new \WP_Query( [ 'post_type' => 'iramo_ai_tool', 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 24 ) ] );
+                echo '<div class="iramo-grid-' . esc_attr( $col ) . '">';
+                if ( $q->have_posts() ) {
+                    while ( $q->have_posts() ) {
+                        $q->the_post();
+                        $pid = get_the_ID();
+                        if ( $loop_tpl_id && function_exists( 'iramo_render_loop_item_template' ) ) {
+                            $t_title    = get_the_title( $pid );
+                            $t_provider = trim( (string) get_post_meta( $pid, '_iramo_provider', true ) );
+                            $t_tagline  = get_post_meta( $pid, '_iramo_tagline', true );
+                            $t_task     = get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant';
+                            $t_input    = get_post_meta( $pid, '_iramo_input', true ) ?: 'Text';
+                            $t_output   = get_post_meta( $pid, '_iramo_output', true ) ?: 'Text';
+                            $t_pricing  = get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium';
+                            echo '<div data-tool-item="1" data-title="' . esc_attr( mb_strtolower( trim( $t_title . ' ' . $t_provider . ' ' . $t_tagline . ' ' . $t_task ) ) ) . '" data-task="' . esc_attr( $t_task ) . '" data-input="' . esc_attr( $t_input ) . '" data-output="' . esc_attr( $t_output ) . '" data-pricing="' . esc_attr( $t_pricing ) . '">';
+                            if ( ! iramo_render_loop_item_template( $loop_tpl_id, $pid ) && function_exists( 'iramo_render_tool_card' ) ) {
+                                iramo_render_tool_card( $pid );
+                            }
+                            echo '</div>';
+                            continue;
+                        }
+                        if ( function_exists( 'iramo_render_tool_card' ) ) iramo_render_tool_card( $pid );
+                    }
+                    wp_reset_postdata();
                 }
-                wp_reset_postdata();
+                echo '</div>';
             }
-            echo '</div></div>';
+            echo '</div>';
         }
     }
 
@@ -1359,15 +1408,18 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $s   = $this->get_settings_for_display();
             $pid = get_the_ID();
             if ( ! $pid ) return;
-            $title     = get_the_title( $pid );
-            $provider  = get_post_meta( $pid, '_iramo_provider', true ) ?: 'AI Platform';
-            $tagline   = ! empty( $s['tagline_override'] ) ? $s['tagline_override'] : ( get_post_meta( $pid, '_iramo_tagline', true ) ?: get_the_excerpt( $pid ) );
-            $task      = get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant';
-            $pop       = (int) ( get_post_meta( $pid, '_iramo_popularity', true ) ?: 94 );
-            $likes     = (int) ( get_post_meta( $pid, '_iramo_likes', true ) ?: 120 );
-            $dislikes  = (int) ( get_post_meta( $pid, '_iramo_dislikes', true ) ?: 6 );
-            $url       = get_post_meta( $pid, '_iramo_url', true ) ?: '#';
-            $tools_url = get_post_type_archive_link( 'iramo_ai_tool' ) ?: home_url( '/ai-tools/' );
+            $title        = get_the_title( $pid );
+            $provider_raw = trim( (string) get_post_meta( $pid, '_iramo_provider', true ) );
+            $tagline      = ! empty( $s['tagline_override'] ) ? $s['tagline_override'] : ( get_post_meta( $pid, '_iramo_tagline', true ) ?: get_the_excerpt( $pid ) );
+            $task         = get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant';
+            $pop_raw      = trim( (string) get_post_meta( $pid, '_iramo_popularity', true ) );
+            $likes_raw    = trim( (string) get_post_meta( $pid, '_iramo_likes', true ) );
+            $dislikes_raw = trim( (string) get_post_meta( $pid, '_iramo_dislikes', true ) );
+            $has_votes    = ( $likes_raw !== '' || $dislikes_raw !== '' );
+            $likes        = $likes_raw !== '' ? (int) $likes_raw : 0;
+            $dislikes     = $dislikes_raw !== '' ? (int) $dislikes_raw : 0;
+            $url          = trim( (string) get_post_meta( $pid, '_iramo_url', true ) );
+            $tools_url    = get_post_type_archive_link( 'iramo_ai_tool' ) ?: home_url( '/ai-tools/' );
             ?>
             <div dir="rtl">
                 <?php if ( ( $s['show_breadcrumbs'] ?? 'yes' ) === 'yes' ) : ?>
@@ -1382,18 +1434,18 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                         <div style="flex:1;min-width:250px;">
                             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
                                 <?php if ( ( $s['show_task_badge'] ?? 'yes' ) === 'yes' ) : ?><span class="iramo-badge"><?php echo esc_html( $task ); ?></span><?php endif; ?>
-                                <?php if ( ( $s['show_provider'] ?? 'yes' ) === 'yes' ) : ?><span class="iramo-meta-pill">ارائه‌دهنده: <?php echo esc_html( $provider ); ?></span><?php endif; ?>
-                                <?php if ( ( $s['show_popularity'] ?? 'yes' ) === 'yes' ) : ?><span class="iramo-meta-pill">★ <?php echo esc_html( $pop ); ?></span><?php endif; ?>
+                                <?php if ( ( $s['show_provider'] ?? 'yes' ) === 'yes' && $provider_raw !== '' ) : ?><span class="iramo-meta-pill">ارائه‌دهنده: <?php echo esc_html( $provider_raw ); ?></span><?php endif; ?>
+                                <?php if ( ( $s['show_popularity'] ?? 'yes' ) === 'yes' && $pop_raw !== '' ) : ?><span class="iramo-meta-pill">★ <?php echo esc_html( $pop_raw ); ?></span><?php endif; ?>
                             </div>
                             <h1 style="margin:0 0 8px;font-size:26px;font-weight:900;"><?php echo esc_html( $title ); ?></h1>
                             <p style="margin:0;font-size:15px;color:var(--iramo-muted);line-height:1.8;"><?php echo esc_html( $tagline ); ?></p>
                         </div>
-                        <?php if ( ( $s['show_try_btn'] ?? 'yes' ) === 'yes' || ( $s['show_votes'] ?? 'yes' ) === 'yes' ) : ?>
+                        <?php if ( ( ( $s['show_try_btn'] ?? 'yes' ) === 'yes' && $url !== '' && $url !== '#' ) || ( ( $s['show_votes'] ?? 'yes' ) === 'yes' && $has_votes ) ) : ?>
                             <div style="display:flex;flex-direction:column;gap:10px;min-width:220px;">
-                                <?php if ( ( $s['show_try_btn'] ?? 'yes' ) === 'yes' ) : ?>
+                                <?php if ( ( $s['show_try_btn'] ?? 'yes' ) === 'yes' && $url !== '' && $url !== '#' ) : ?>
                                     <a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" class="iramo-btn iramo-btn-accent"><?php echo esc_html( $s['try_btn_text'] ?: 'ورود به سایت ابزار (Try Now) ↗' ); ?></a>
                                 <?php endif; ?>
-                                <?php if ( ( $s['show_votes'] ?? 'yes' ) === 'yes' ) : ?>
+                                <?php if ( ( $s['show_votes'] ?? 'yes' ) === 'yes' && $has_votes ) : ?>
                                     <div style="display:flex;gap:8px;">
                                         <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="like" data-tool-id="<?php echo esc_attr( $pid ); ?>">👍 مفید بود (<span data-vote-count><?php echo esc_html( $likes ); ?></span>)</button>
                                         <button type="button" class="iramo-btn iramo-btn-outline" style="flex:1;padding:8px 12px;font-size:12.5px;" data-iramo-tool-vote="dislike" data-tool-id="<?php echo esc_attr( $pid ); ?>">👎 (<span data-vote-count><?php echo esc_html( $dislikes ); ?></span>)</button>
@@ -1586,6 +1638,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $this->add_control( 'title', [ 'label' => 'تیتر بخش', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'دوره‌های آموزشی هوش مصنوعی و اتوماسیون', 'condition' => [ 'show_header' => 'yes' ] ] );
             $this->add_control( 'columns', [ 'label' => 'تعداد ستون', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '3', 'options' => [ '2' => '۲ ستونه', '3' => '۳ ستونه' ] ] );
             $this->add_control( 'posts_count', [ 'label' => 'تعداد دوره‌ها', 'type' => \Elementor\Controls_Manager::NUMBER, 'default' => 6, 'min' => 1, 'max' => 24 ] );
+            $this->add_control( 'loop_template_id', [ 'label' => 'قالب کارت (Loop Item)', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '', 'options' => $this->get_loop_item_options() ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls();
         }
@@ -1594,6 +1647,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $s   = $this->get_settings_for_display();
             $q   = new \WP_Query( [ 'post_type' => 'iramo_course', 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 6 ) ] );
             $col = ( $s['columns'] ?? '3' ) === '2' ? '2' : '3';
+            $loop_tpl_id = (int) ( $s['loop_template_id'] ?? 0 );
             echo '<div class="iramo-container" dir="rtl">';
             if ( ( $s['show_header'] ?? 'yes' ) === 'yes' && ! empty( $s['title'] ) ) {
                 echo '<div class="iramo-card" style="padding:22px;margin-bottom:20px;"><span class="iramo-badge">' . esc_html( $s['badge'] ) . '</span><h1 style="margin:8px 0 0;font-size:24px;font-weight:900;">' . esc_html( $s['title'] ) . '</h1></div>';
@@ -1602,7 +1656,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             if ( $q->have_posts() ) {
                 while ( $q->have_posts() ) {
                     $q->the_post();
-                    if ( function_exists( 'iramo_render_course_card' ) ) iramo_render_course_card( get_the_ID() );
+                    $pid = get_the_ID();
+                    if ( $loop_tpl_id && function_exists( 'iramo_render_loop_item_template' ) && iramo_render_loop_item_template( $loop_tpl_id, $pid ) ) {
+                        continue;
+                    }
+                    if ( function_exists( 'iramo_render_course_card' ) ) iramo_render_course_card( $pid );
                 }
                 wp_reset_postdata();
             }
@@ -1623,6 +1681,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $this->add_control( 'title', [ 'label' => 'تیتر بخش', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'مقالات تخصصی هوش مصنوعی و اتوماسیون', 'condition' => [ 'show_header' => 'yes' ] ] );
             $this->add_control( 'columns', [ 'label' => 'تعداد ستون', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '3', 'options' => [ '2' => '۲ ستونه', '3' => '۳ ستونه' ] ] );
             $this->add_control( 'posts_count', [ 'label' => 'تعداد مقالات', 'type' => \Elementor\Controls_Manager::NUMBER, 'default' => 6, 'min' => 1, 'max' => 24 ] );
+            $this->add_control( 'loop_template_id', [ 'label' => 'قالب کارت (Loop Item)', 'type' => \Elementor\Controls_Manager::SELECT, 'default' => '', 'options' => $this->get_loop_item_options() ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls();
         }
@@ -1631,6 +1690,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $s   = $this->get_settings_for_display();
             $q   = new \WP_Query( [ 'post_type' => [ 'iramo_article', 'post' ], 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 6 ) ] );
             $col = ( $s['columns'] ?? '3' ) === '2' ? '2' : '3';
+            $loop_tpl_id = (int) ( $s['loop_template_id'] ?? 0 );
             echo '<div class="iramo-container" dir="rtl">';
             if ( ( $s['show_header'] ?? 'yes' ) === 'yes' && ! empty( $s['title'] ) ) {
                 echo '<div class="iramo-card" style="padding:22px;margin-bottom:20px;"><span class="iramo-badge">' . esc_html( $s['badge'] ) . '</span><h1 style="margin:8px 0 0;font-size:24px;font-weight:900;">' . esc_html( $s['title'] ) . '</h1></div>';
@@ -1639,7 +1699,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             if ( $q->have_posts() ) {
                 while ( $q->have_posts() ) {
                     $q->the_post();
-                    if ( function_exists( 'iramo_render_article_card' ) ) iramo_render_article_card( get_the_ID() );
+                    $pid = get_the_ID();
+                    if ( $loop_tpl_id && function_exists( 'iramo_render_loop_item_template' ) && iramo_render_loop_item_template( $loop_tpl_id, $pid ) ) {
+                        continue;
+                    }
+                    if ( function_exists( 'iramo_render_article_card' ) ) iramo_render_article_card( $pid );
                 }
                 wp_reset_postdata();
             }

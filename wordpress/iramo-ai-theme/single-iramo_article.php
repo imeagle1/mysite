@@ -15,6 +15,9 @@ endif;
 
 while ( have_posts() ) :
     the_post();
+    if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-single-article', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+        break;
+    endif;
     $thumb = get_the_post_thumbnail_url( get_the_ID(), 'large' );
     ?>
     <main id="primary" class="iramo-main-wrap">
