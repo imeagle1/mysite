@@ -11,15 +11,17 @@ get_header();
 
 $is_elementor_front = false;
 if ( is_page() && class_exists( '\\Elementor\\Plugin' ) ) {
-    $doc = \Elementor\Plugin::$instance->documents->get( get_the_ID() );
-    if ( $doc && $doc->is_built_with_elementor() ) {
+    $front_pid = get_the_ID();
+    $doc       = \Elementor\Plugin::$instance->documents->get( $front_pid );
+    $has_data  = ! empty( get_post_meta( $front_pid, '_elementor_data', true ) );
+    if ( $has_data && ( ( $doc && $doc->is_built_with_elementor() ) || get_post_meta( $front_pid, '_elementor_edit_mode', true ) === 'builder' ) ) {
         $is_elementor_front = true;
     }
 }
 
 if ( $is_elementor_front ) :
     ?>
-    <main id="primary" class="iramo-main-wrap">
+    <main id="primary" class="iramo-home-main">
         <?php
         while ( have_posts() ) :
             the_post();

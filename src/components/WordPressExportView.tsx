@@ -17,6 +17,7 @@ import {
   GITHUB_ACTIONS_YML,
   WP_ADMIN_SETTINGS_PHP,
   WP_BOT_BRIDGE_PHP,
+  WP_ELEMENTOR_SEEDER_PHP,
   WP_ELEMENTOR_WIDGETS_PHP,
   WP_PLUGIN_CORE_PHP,
   WP_PLUGIN_FILES,
@@ -34,8 +35,9 @@ interface WordPressExportViewProps {
 
 type CodeTab =
   | 'plugin'
-  | 'seo-security'
+  | 'elementor-seeder'
   | 'elementor-widgets'
+  | 'seo-security'
   | 'admin'
   | 'bridge'
   | 'theme-front'
@@ -66,10 +68,10 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       icon: <FileCode2 className="w-3.5 h-3.5" />,
     },
     {
-      id: 'seo-security',
-      label: 'seo-security.php',
-      filename: 'seo-security.php',
-      code: WP_SEO_SECURITY_PHP,
+      id: 'elementor-seeder',
+      label: 'elementor-seeder.php',
+      filename: 'elementor-seeder.php',
+      code: WP_ELEMENTOR_SEEDER_PHP,
       icon: <Layers className="w-3.5 h-3.5" />,
     },
     {
@@ -78,6 +80,13 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
       filename: 'elementor-widgets.php',
       code: WP_ELEMENTOR_WIDGETS_PHP,
       icon: <Code2 className="w-3.5 h-3.5" />,
+    },
+    {
+      id: 'seo-security',
+      label: 'seo-security.php',
+      filename: 'seo-security.php',
+      code: WP_SEO_SECURITY_PHP,
+      icon: <Layers className="w-3.5 h-3.5" />,
     },
     {
       id: 'admin',
@@ -214,8 +223,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             <Layers className="w-4 h-4" />
             <span>
               {isFa
-                ? 'قالب بومی وردپرس + ۱۱ ویجت و Dynamic Tags المنتور پرو + پنل دانشجویی React'
-                : 'Native PHP WordPress Theme + 11 Elementor Widgets + Dynamic Tags + Student LMS'}
+                ? 'قالب بومی وردپرس + ۱۷ ویجت، Dynamic Tags و کاشت خودکار تمام صفحات در المنتور و المنتور پرو + پنل دانشجویی React'
+                : 'Native WP Theme + 17 Elementor Widgets + Pre-Seeded Elementor Pages & Templates + Student LMS'}
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -225,8 +234,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300/85 leading-relaxed max-w-4xl">
             {isFa
-              ? 'تمام صفحات عمومی سایت با قالب بومی PHP/HTML/CSS و سازگاری کامل با Elementor Pro Theme Builder (هدر، فوتر، آرشیو، تکی و ۴۰۴) رندر سمت سرور می‌شوند تا گوگل محتوا را کامل ایندکس کند؛ ۱۱ ویجت اختصاصی و ۸ تگ داینامیک در المنتور فعال است و بخش کاربری (/panel/) با اپلیکیشن ری‌اکت بارگذاری می‌شود.'
-              : 'Public pages render server-side in native PHP/HTML/CSS with Elementor Pro Theme Builder locations, 11 custom Elementor widgets, Dynamic Tags, SEO Schema JSON-LD, Security Hardening, and isolated React Student LMS portal on /panel/.'}
+              ? 'بلافاصله پس از فعال‌سازی افزونه، تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی ابزارهای AI، محصولات، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۱۷ ویجت اختصاصی داخل المنتور ساخته می‌شوند و مستقیماً در المنتور رایگان و المنتور پرو قابل ویرایش بصری هستند.'
+              : 'Upon activation, Home/Services/Panel pages and global templates (Header, Footer, AI Tools, Products, Courses, Articles, 404) are auto-seeded in Elementor with 17 custom widgets and 8 Dynamic Tags, editable in both Elementor Free and Pro.'}
           </p>
         </div>
 

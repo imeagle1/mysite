@@ -13,6 +13,11 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
     return;
 endif;
 
+if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-archive-articles', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+    get_footer();
+    return;
+endif;
+
 $opts = get_option( 'iramo_ai_settings', [] );
 $tips = array_values( array_filter( array_map( 'trim', explode( "\n", (string) ( $opts['quick_tips_text'] ?? '' ) ) ) ) );
 if ( empty( $tips ) ) {

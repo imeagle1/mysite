@@ -24,7 +24,11 @@ $services_url = iramo_get_page_url( 'services', '/services/' );
 $panel_url    = iramo_get_page_url( 'panel', '/panel/' );
 ?>
 
-<?php if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'footer' ) ) : ?>
+<?php
+$has_el_footer = ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'footer' ) )
+    || ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-footer' ) );
+if ( ! $has_el_footer ) :
+?>
 <footer class="iramo-footer" role="contentinfo">
     <div class="iramo-container">
         <div class="iramo-footer-grid">

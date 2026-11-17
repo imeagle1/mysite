@@ -36,7 +36,11 @@ $services_url  = iramo_get_page_url( 'services', '/services/' );
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
-<?php if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'header' ) ) : ?>
+<?php
+$has_el_header = ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'header' ) )
+    || ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-header' ) );
+if ( ! $has_el_header ) :
+?>
 <header class="iramo-header-wrap" role="banner">
     <div class="iramo-header-pill">
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="iramo-logo-link">

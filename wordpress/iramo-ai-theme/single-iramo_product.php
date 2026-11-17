@@ -15,6 +15,9 @@ endif;
 
 while ( have_posts() ) :
     the_post();
+    if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-single-product', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+        break;
+    endif;
     $pid           = get_the_ID();
     $title         = get_the_title();
     $tagline       = get_post_meta( $pid, '_iramo_tagline', true ) ?: get_the_excerpt();

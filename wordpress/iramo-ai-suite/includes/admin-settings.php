@@ -121,7 +121,7 @@ function iramo_render_admin_control_page() {
         <?php elseif ( $status === 'installed' ) : ?>
             <div class="notice notice-success is-dismissible"><p>داده‌های نمونه مجدداً نصب شدند.</p></div>
         <?php elseif ( $status === 'pages_synced' ) : ?>
-            <div class="notice notice-success is-dismissible"><p>تمام برگه‌ها (خانه، خدمات، پنل دانشجو)، آرشیوهای native و منوی اصلی سایت همگام‌سازی و پیوندهای یکتا بازسازی شدند.</p></div>
+            <div class="notice notice-success is-dismissible"><p>تمام برگه‌ها (خانه، خدمات، پنل دانشجو)، قالب‌های آماده المنتور (هدر، فوتر، آرشیو، تکی، ۴۰۴) و منوی اصلی سایت همگام‌سازی و پیوندهای یکتا بازسازی شدند.</p></div>
         <?php elseif ( $status === 'tools_synced' ) : ?>
             <div class="notice notice-success is-dismissible"><p>تمام ۱۸ ابزار واقعی هوش مصنوعی به‌صورت کامل درون پست‌تایپ <code>iramo_ai_tool</code> منتشر و به‌روزرسانی شدند.</p></div>
         <?php endif; ?>
@@ -203,15 +203,17 @@ function iramo_render_admin_control_page() {
         </form>
 
         <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
-            <h2>صفحات، آرشیوهای سئو و ابزارهای واقعی هوش مصنوعی</h2>
-            <p>صفحات عمومی سایت با قالب بومی PHP/HTML و المنتور پرو رندر می‌شوند تا سئو کامل داشته باشند و «پنل کاربری و آموزش» (`/panel`) از اپلیکیشن ری‌اکت استفاده می‌کند. ۱۸ ابزار واقعی AI به‌صورت پست مستقل برای گوگل و المنتور ثبت می‌شوند.</p>
+            <h2>صفحات المنتور، قالب‌های Theme Builder و ابزارهای واقعی هوش مصنوعی</h2>
+            <p>تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی محصولات و ابزارهای AI، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۱۷ ویجت اختصاصی در المنتور ساخته می‌شوند و در نسخه رایگان و پرو المنتور قابل ویرایش بصری هستند.</p>
             <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                     <?php wp_nonce_field( 'iramo_demo_nonce' ); ?>
                     <input type="hidden" name="action" value="iramo_manage_demo_data" />
                     <input type="hidden" name="demo_action" value="provision_pages" />
-                    <button type="submit" class="button button-primary">ساخت و همگام‌سازی خودکار برگه‌ها و منو</button>
+                    <button type="submit" class="button button-primary">ساخت و همگام‌سازی برگه‌ها، منو و قالب‌های المنتور</button>
                 </form>
+
+                <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=elementor_library' ) ); ?>" class="button button-secondary">مدیریت و ویرایش تمپلت‌های المنتور (هدر / فوتر / آرشیو / تکی)</a>
 
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                     <?php wp_nonce_field( 'iramo_demo_nonce' ); ?>

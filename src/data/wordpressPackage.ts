@@ -3,6 +3,7 @@ import wpAdminSettingsPhp from '../../wordpress/iramo-ai-suite/includes/admin-se
 import wpBotBridgePhp from '../../wordpress/iramo-ai-suite/includes/bot-bridge.php?raw';
 import wpElementorWidgetsPhp from '../../wordpress/iramo-ai-suite/includes/elementor-widgets.php?raw';
 import wpElementorDynamicTagsPhp from '../../wordpress/iramo-ai-suite/includes/elementor-dynamic-tags.php?raw';
+import wpElementorSeederPhp from '../../wordpress/iramo-ai-suite/includes/elementor-seeder.php?raw';
 import wpSeoSecurityPhp from '../../wordpress/iramo-ai-suite/includes/seo-security.php?raw';
 
 import wpThemeStyleCss from '../../wordpress/iramo-ai-theme/style.css?raw';
@@ -35,6 +36,7 @@ export const WP_ADMIN_SETTINGS_PHP = wpAdminSettingsPhp;
 export const WP_BOT_BRIDGE_PHP = wpBotBridgePhp;
 export const WP_ELEMENTOR_WIDGETS_PHP = wpElementorWidgetsPhp;
 export const WP_ELEMENTOR_DYNAMIC_TAGS_PHP = wpElementorDynamicTagsPhp;
+export const WP_ELEMENTOR_SEEDER_PHP = wpElementorSeederPhp;
 export const WP_SEO_SECURITY_PHP = wpSeoSecurityPhp;
 
 export const WP_THEME_STYLE_CSS = wpThemeStyleCss;
@@ -81,6 +83,7 @@ export const WP_PLUGIN_FILES: Record<string, string> = {
   'includes/bot-bridge.php': wpBotBridgePhp,
   'includes/elementor-dynamic-tags.php': wpElementorDynamicTagsPhp,
   'includes/elementor-widgets.php': wpElementorWidgetsPhp,
+  'includes/elementor-seeder.php': wpElementorSeederPhp,
 };
 
 export const GITHUB_ACTIONS_YML = `name: Build & Package WordPress Theme + Plugin ZIPs

@@ -13,6 +13,11 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
     return;
 endif;
 
+if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-archive-courses', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+    get_footer();
+    return;
+endif;
+
 $courses_q = new WP_Query( [
     'post_type'      => 'iramo_course',
     'post_status'    => 'publish',

@@ -3,7 +3,7 @@
  * Plugin Name: iRamoAi Suite (LMS, AI Tools, Products, SEO & Elementor Pro)
  * Plugin URI:  https://iramo.ai
  * Description: هسته اختصاصی iRamoAi برای وردپرس و المنتور پرو: ثبت پست‌تایپ‌ها با URL سئو شده، کاشت خودکار ۱۸ ابزار واقعی هوش مصنوعی، ویجت‌ها و Dynamic Tags المنتور پرو، اتصال ووکامرس، ربات تلگرام/بله، سئو/امنیت و پنل دانشجویی [iramo_lms].
- * Version:     2.2.1
+ * Version:     2.3.0
  * Author:      iRamoAi Engineering
  * Text Domain: iramo-ai
  */
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_AI_VERSION', '2.2.1' );
+define( 'IRAMO_AI_VERSION', '2.3.0' );
 define( 'IRAMO_AI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'IRAMO_AI_URL', plugin_dir_url( __FILE__ ) );
 
@@ -23,6 +23,7 @@ foreach ( [
     'includes/bot-bridge.php',
     'includes/elementor-dynamic-tags.php',
     'includes/elementor-widgets.php',
+    'includes/elementor-seeder.php',
 ] as $inc_file ) {
     if ( file_exists( IRAMO_AI_PATH . $inc_file ) ) {
         require_once IRAMO_AI_PATH . $inc_file;
@@ -1027,7 +1028,11 @@ function iramo_provision_site_pages( $force = false ) {
         }
     }
 
-    update_option( 'iramo_pages_provisioned', '2.2.0' );
+    if ( function_exists( 'iramo_provision_elementor_layouts' ) ) {
+        iramo_provision_elementor_layouts( $created_ids, $force );
+    }
+
+    update_option( 'iramo_pages_provisioned', '2.3.0' );
     delete_option( 'iramo_pending_page_setup' );
     flush_rewrite_rules();
     delete_transient( 'iramo_provisioning_lock' );
@@ -1041,8 +1046,19 @@ add_action( 'after_switch_theme', function() {
     iramo_provision_site_pages( false );
 } );
 
+add_action( 'elementor/init', function() {
+    if ( get_option( 'iramo_elementor_seeded' ) !== '2.3.0' ) {
+        iramo_provision_site_pages( false );
+    }
+} );
+
 add_action( 'admin_init', function() {
-    if ( get_option( 'iramo_pages_provisioned' ) !== '2.2.0' || get_option( 'iramo_curated_tools_seeded' ) !== '2.2.0' || get_option( 'iramo_pending_page_setup' ) ) {
+    if (
+        get_option( 'iramo_pages_provisioned' ) !== '2.3.0' ||
+        get_option( 'iramo_elementor_seeded' ) !== '2.3.0' ||
+        get_option( 'iramo_curated_tools_seeded' ) !== '2.2.0' ||
+        get_option( 'iramo_pending_page_setup' )
+    ) {
         iramo_provision_site_pages( false );
     }
 } );

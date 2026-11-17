@@ -13,6 +13,11 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
     return;
 endif;
 
+if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-archive-tools', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+    get_footer();
+    return;
+endif;
+
 $q_filter       = sanitize_text_field( $_GET['q'] ?? '' );
 $task_filter    = sanitize_text_field( $_GET['task'] ?? '' );
 $pricing_filter = sanitize_text_field( $_GET['pricing'] ?? '' );

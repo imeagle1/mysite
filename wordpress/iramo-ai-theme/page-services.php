@@ -10,15 +10,17 @@ get_header();
 
 $is_el = false;
 if ( class_exists( '\\Elementor\\Plugin' ) ) {
-    $doc = \Elementor\Plugin::$instance->documents->get( get_the_ID() );
-    if ( $doc && $doc->is_built_with_elementor() ) {
+    $srv_pid  = get_the_ID();
+    $doc      = \Elementor\Plugin::$instance->documents->get( $srv_pid );
+    $has_data = ! empty( get_post_meta( $srv_pid, '_elementor_data', true ) );
+    if ( $has_data && ( ( $doc && $doc->is_built_with_elementor() ) || get_post_meta( $srv_pid, '_elementor_edit_mode', true ) === 'builder' ) ) {
         $is_el = true;
     }
 }
 
 if ( $is_el ) :
     ?>
-    <main id="primary" class="iramo-main-wrap">
+    <main id="primary" class="iramo-home-main">
         <?php while ( have_posts() ) : the_post(); the_content(); endwhile; ?>
     </main>
     <?php

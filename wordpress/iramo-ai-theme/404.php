@@ -13,6 +13,11 @@ if ( function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_loca
     return;
 endif;
 
+if ( function_exists( 'iramo_render_elementor_template' ) && iramo_render_elementor_template( 'iramo-tpl-404', '<main id="primary" class="iramo-main-wrap">', '</main>' ) ) :
+    get_footer();
+    return;
+endif;
+
 $tools_url    = get_post_type_archive_link( 'iramo_ai_tool' ) ?: iramo_get_page_url( 'ai-tools', '/ai-tools/' );
 $products_url = get_post_type_archive_link( 'iramo_product' ) ?: iramo_get_page_url( 'products', '/products/' );
 ?>
