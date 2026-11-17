@@ -440,11 +440,11 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
         <div className="max-w-[1460px] mx-auto px-4 sm:px-6 pt-10 sm:pt-12 pb-7 sm:pb-8 space-y-8 sm:space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-7 sm:gap-8 lg:gap-10">
             {/* Column 1: Brand Identity + Glowing Social Row */}
-            <div className="md:col-span-2 lg:col-span-5 space-y-4 sm:space-y-5 text-start">
+            <div className="md:col-span-2 lg:col-span-5 space-y-4 sm:space-y-5 text-center md:text-start flex flex-col items-center md:items-start">
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="w-full flex items-center justify-start gap-3 text-start cursor-pointer"
+                className="w-full md:w-auto flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2.5 sm:gap-3 text-center md:text-start cursor-pointer"
               >
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-50 dark:bg-[#0B1B15] border border-slate-200 dark:border-emerald-500/25 flex items-center justify-center p-1.5 shadow-xs shrink-0">
                   <img
@@ -454,8 +454,8 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="min-w-0 flex-1 text-start">
-                  <div className="flex items-center justify-start">
+                <div className="min-w-0 text-center md:text-start">
+                  <div className="flex items-center justify-center md:justify-start">
                     <span
                       dir="ltr"
                       className="inline-block text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight"
@@ -463,7 +463,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                       {renderBrandWordmark(siteConfig.brandTitle)}
                     </span>
                   </div>
-                  <p className="text-[11px] sm:text-[11.5px] font-medium text-[var(--iramo-primary)] mt-0.5 text-start">
+                  <p className="text-[11px] sm:text-[11.5px] font-medium text-[var(--iramo-primary)] mt-0.5 text-center md:text-start">
                     {isFa
                       ? 'آکادمی هوش مصنوعی، ربات‌سازی و مهندسی نرم‌افزار'
                       : 'AI Academy, Bots & Software Studio'}
@@ -471,18 +471,18 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                 </div>
               </button>
 
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-md text-start">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-md mx-auto md:mx-0 text-center md:text-start">
                 {isFa
                   ? 'پلتفرم یکپارچه ارائه محصولات نرم‌افزاری هوشمند، دوره‌های تخصصی کاربردی، دایرکتوری انتخاب ابزارهای AI و زیرساخت بومی اتصال به تلگرام، بله و وردپرس.'
                   : 'Unified platform for intelligent software products, practical engineering courses, curated AI tools directory, and native Telegram, Bale & WordPress automation.'}
               </p>
 
               {/* Glowing Social Media Icons */}
-              <div className="space-y-2">
-                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+              <div className="w-full flex flex-col items-center md:items-start space-y-2.5">
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center md:text-start">
                   {isFa ? 'ما را در شبکه‌های اجتماعی دنبال کنید' : 'Connect with us'}
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                   {socialChannels.map((soc) => (
                     <a
                       key={soc.id}
@@ -504,13 +504,13 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
               </div>
             </div>
 
-            {/* Columns 2 & 3 Grouped: Clean 2-Column Mobile Grid instead of lonely stacked lists */}
-            <div className="md:col-span-1 lg:col-span-4 grid grid-cols-2 gap-6 text-start py-1 sm:py-0">
-              <div className="space-y-3">
+            {/* Columns 2 & 3 Grouped: Balanced 2-Column Mobile Grid (Centered on Mobile, Start-Aligned on Tablet/Desktop) */}
+            <div className="md:col-span-1 lg:col-span-4 grid grid-cols-2 gap-6 justify-items-center md:justify-items-stretch text-center md:text-start py-1 sm:py-0">
+              <div className="w-full space-y-3 flex flex-col items-center md:items-start">
                 <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
                   {isFa ? 'بخش‌های سایت' : 'Navigation'}
                 </h3>
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                <ul className="w-full space-y-2.5 text-xs text-slate-600 dark:text-slate-400 flex flex-col items-center md:items-start">
                   <li>
                     <button
                       type="button"
@@ -534,11 +534,11 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                 </ul>
               </div>
 
-              <div className="space-y-3">
+              <div className="w-full space-y-3 flex flex-col items-center md:items-start">
                 <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-wide">
                   {isFa ? 'امکانات و پلتفرم' : 'Ecosystem'}
                 </h3>
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+                <ul className="w-full space-y-2.5 text-xs text-slate-600 dark:text-slate-400 flex flex-col items-center md:items-start">
                   <li>
                     <button
                       type="button"
@@ -581,9 +581,9 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
 
             {/* Column 4: Newsletter + Project Advisory & Trust Highlights */}
             <div className="md:col-span-1 lg:col-span-3">
-              <div className="rounded-2xl p-4 sm:p-5 bg-slate-50/90 dark:bg-[#091511] border border-[var(--iramo-card-border)] space-y-3.5 text-start">
+              <div className="rounded-2xl p-4 sm:p-5 bg-slate-50/90 dark:bg-[#091511] border border-[var(--iramo-card-border)] space-y-3.5 text-center md:text-start">
                 <div className="space-y-1">
-                  <p className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <p className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--iramo-accent)] shrink-0" />
                     <span>
                       {isFa
@@ -599,7 +599,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                 </div>
 
                 {footerSubscribed ? (
-                  <div className="p-3 rounded-xl bg-[var(--iramo-primary-soft)] border border-[var(--iramo-primary-border)] text-xs text-[var(--iramo-primary)] flex items-center gap-2">
+                  <div className="p-3 rounded-xl bg-[var(--iramo-primary-soft)] border border-[var(--iramo-primary-border)] text-xs text-[var(--iramo-primary)] flex items-center justify-center md:justify-start gap-2">
                     <Check className="w-4 h-4 shrink-0" />
                     <span>
                       {isFa
@@ -633,7 +633,7 @@ export const WebsiteShell: React.FC<WebsiteShellProps> = ({
                   </form>
                 )}
 
-                <div className="pt-3 border-t border-[var(--iramo-card-border)] flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                <div className="pt-3 border-t border-[var(--iramo-card-border)] flex flex-wrap items-center justify-center md:justify-between gap-3 text-[11px]">
                   <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-medium">
                     <ShieldCheck className="w-3.5 h-3.5 text-[var(--iramo-primary)] shrink-0" />
                     <span>

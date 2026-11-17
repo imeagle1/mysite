@@ -789,7 +789,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                                 <?php endif; ?>
                                 <span class="iramo-brand-text"><?php echo esc_html( $brand ); ?></span>
                             </a>
-                            <p style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:380px;"><?php echo esc_html( $s['about'] ); ?></p>
+                            <p class="iramo-footer-about-text" style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:380px;"><?php echo esc_html( $s['about'] ); ?></p>
                         </div>
                         <div class="iramo-footer-nav-grid">
                             <div>

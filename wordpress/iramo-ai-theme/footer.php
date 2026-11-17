@@ -39,7 +39,7 @@ if ( ! $has_el_footer ) :
                     <img src="<?php echo esc_url( $logo_dark ); ?>" alt="<?php echo esc_attr( $brand_name ); ?>" class="iramo-logo-img iramo-logo-dark" />
                     <span class="iramo-brand-text"><?php echo esc_html( $brand_name ); ?></span>
                 </a>
-                <p style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:380px;">
+                <p class="iramo-footer-about-text" style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:380px;">
                     <?php echo esc_html( $footer_about ); ?>
                 </p>
                 <div class="iramo-social-row">

@@ -980,6 +980,46 @@ html.dark .iramo-logo-dark { display: block; }
   }
 }
 
+@media (max-width: 767px) {
+  .iramo-footer,
+  .iramo-footer .iramo-footer-grid,
+  .iramo-footer .iramo-footer-grid > div,
+  .iramo-footer .e-con.iramo-footer-grid > .e-con,
+  .iramo-footer .iramo-footer-nav-grid,
+  .iramo-footer .e-con.iramo-footer-nav-grid,
+  .iramo-footer .e-con.iramo-footer-nav-grid > .e-con,
+  .iramo-footer .iramo-footer-links,
+  .iramo-footer .iramo-el-col-stack {
+    text-align: center;
+    align-items: center;
+    justify-items: center;
+  }
+  .iramo-footer .iramo-logo-link {
+    justify-content: center;
+  }
+  .iramo-footer .iramo-brand-text {
+    display: inline-block;
+  }
+  .iramo-footer .iramo-footer-about-text,
+  .iramo-footer .iramo-el-footer-about p,
+  .iramo-footer .iramo-el-desc p {
+    margin-inline: auto !important;
+    text-align: center;
+  }
+  .iramo-footer .iramo-social-row {
+    justify-content: center;
+  }
+  .iramo-footer h4,
+  .iramo-footer .iramo-el-footer-title .elementor-heading-title {
+    text-align: center;
+  }
+  .iramo-footer .iramo-newsletter-form {
+    max-width: 360px;
+    margin-inline: auto;
+    justify-content: center;
+  }
+}
+
 /* Elementor Canvas Fix */
 .iramo-canvas-wrapper {
   min-height: 100vh;
