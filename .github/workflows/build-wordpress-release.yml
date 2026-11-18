@@ -36,11 +36,8 @@ jobs:
       - name: TypeScript typecheck
         run: npm run lint
 
-      - name: Build WordPress Assets Bundle
-        run: npm run build:wp
-
-      - name: Package Theme & Plugin ZIPs
-        run: node scripts/package-wordpress.mjs
+      - name: Package Pure WordPress Theme & Plugin ZIPs
+        run: npm run package:wp
 
       - name: Upload Downloadable ZIP Artifacts
         uses: actions/upload-artifact@v4

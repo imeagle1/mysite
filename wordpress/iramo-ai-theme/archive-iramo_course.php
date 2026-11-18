@@ -30,9 +30,9 @@ $courses_q = new WP_Query( [
             <div>
                 <span class="iramo-badge">آکادمی تخصصی iRamoAi</span>
                 <h1 style="margin:10px 0 6px;font-size:26px;font-weight:900;">دوره‌های آموزشی هوش مصنوعی و اتوماسیون</h1>
-                <p style="margin:0;font-size:14px;color:var(--iramo-muted);">آموزش پروژه‌محور ساخت ربات، پرامپت‌نویسی و اتوماسیون کسب‌وکار همراه با پنل دانشجویی اختصاصی.</p>
+                <p style="margin:0;font-size:14px;color:var(--iramo-muted);">آموزش پروژه‌محور ساخت ربات، پرامپت‌نویسی و اتوماسیون کسب‌وکار با پشتیبانی مدرس.</p>
             </div>
-            <a href="<?php echo esc_url( iramo_get_page_url( 'panel', '/panel/' ) ); ?>" class="iramo-btn iramo-btn-primary">ورود به پنل دانشجو ←</a>
+            <a href="<?php echo esc_url( iramo_get_page_url( 'services', '/services/' ) ); ?>" class="iramo-btn iramo-btn-primary">مشاوره انتخاب دوره ←</a>
         </div>
 
         <?php if ( $courses_q->have_posts() ) : ?>

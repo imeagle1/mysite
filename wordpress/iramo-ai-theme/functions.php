@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_THEME_VERSION', '2.5.0' );
+define( 'IRAMO_THEME_VERSION', '3.0.0' );
 
 /**
  * 1. Core Theme Setup
@@ -40,6 +40,18 @@ function iramo_fa_digits( $input ) {
     $en = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ];
     $fa = [ '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' ];
     return str_replace( $en, $fa, (string) $input );
+}
+
+function iramo_brand_wordmark_html( $raw_title = 'iRamoAi' ) {
+    $title = trim( (string) ( $raw_title ?: 'iRamoAi' ) );
+    if ( strpos( $title, '.' ) !== false ) {
+        $parts = explode( '.', $title, 2 );
+        return '<span dir="ltr">' . esc_html( $parts[0] ) . '<span class="accent-ai">.' . esc_html( $parts[1] ) . '</span></span>';
+    }
+    if ( preg_match( '/^(.+?)(ai)$/i', $title, $m ) ) {
+        return '<span dir="ltr">' . esc_html( $m[1] ) . '<span class="accent-ai">' . esc_html( $m[2] ) . '</span></span>';
+    }
+    return '<span dir="ltr">' . esc_html( $title ) . '</span>';
 }
 
 function iramo_format_toman( $amount ) {
@@ -83,6 +95,17 @@ function iramo_get_setting( $key, $default = '' ) {
         return $plugin_opts[ $key ];
     }
     return $default;
+}
+
+function iramo_has_woocommerce_account() {
+    return function_exists( 'wc_get_page_permalink' ) && (bool) wc_get_page_permalink( 'myaccount' );
+}
+
+function iramo_get_account_url() {
+    if ( iramo_has_woocommerce_account() ) {
+        return wc_get_page_permalink( 'myaccount' );
+    }
+    return iramo_get_page_url( 'services', '/services/' );
 }
 
 /**
@@ -239,16 +262,26 @@ add_action( 'wp_head', function() {
         : "'IRANYekanXVF', 'Vazirmatn', system-ui, -apple-system, sans-serif";
     ?>
     <style id="iramo-customizer-vars">
-      :root {
+      :root,
+      [class*="elementor-kit-"] {
         --iramo-primary: <?php echo esc_html( $primary ); ?>;
         --iramo-accent: <?php echo esc_html( $accent ); ?>;
         --iramo-canvas: <?php echo esc_html( $canvas ); ?>;
         --font-fa: <?php echo $font_stack; ?>;
         --e-global-color-primary: <?php echo esc_html( $primary ); ?>;
+        --e-global-color-secondary: #0F172A;
+        --e-global-color-text: #475569;
         --e-global-color-accent: <?php echo esc_html( $accent ); ?>;
+        --e-global-typography-primary-font-family: <?php echo $font_stack; ?>;
+        --e-global-typography-secondary-font-family: <?php echo $font_stack; ?>;
+        --e-global-typography-text-font-family: <?php echo $font_stack; ?>;
+        --e-global-typography-accent-font-family: <?php echo $font_stack; ?>;
       }
-      html.dark {
+      html.dark,
+      html.dark [class*="elementor-kit-"] {
         --iramo-canvas: <?php echo esc_html( $dark_bg ); ?>;
+        --e-global-color-secondary: #F8FAFC;
+        --e-global-color-text: #94A3B8;
       }
     </style>
     <?php
@@ -447,7 +480,7 @@ function iramo_render_course_card( $post_id ) {
                 <span class="price-label"><?php echo esc_html( iramo_format_toman( $price ) ); ?></span>
                 <span>←</span>
             </a>
-            <a href="<?php echo esc_url( iramo_get_page_url( 'panel', '/panel/' ) ); ?>" style="font-size:12px;font-weight:700;color:var(--iramo-primary);">ورود به پنل</a>
+            <a href="<?php echo esc_url( $permalink ); ?>" style="font-size:12px;font-weight:700;color:var(--iramo-primary);">مشاهده دوره ←</a>
         </div>
     </article>
     <?php

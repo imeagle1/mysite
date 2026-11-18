@@ -1,9 +1,9 @@
 <?php
 /**
- * Module: Granular Atomic Elementor Pages, Theme Builder Templates & Elementor Pro Loop Builders (v2.5.0)
- * Seeds every Page (Home, Services, Panel), every Loop Item (Product, AI Tool, Course, Article),
+ * Module: Granular Atomic Elementor Pages, Theme Builder Templates & Elementor Pro Loop Builders (v3.0.0)
+ * Seeds every Page (Home, Articles, Services), every Loop Item (Product, AI Tool, Course, Article),
  * and every Theme Builder Library Template (Header, Footer, AI Tools Archive/Single, Products Archive/Single,
- * Courses Archive/Single, Articles Archive/Single, 404) using core atomic Elementor widgets + Dynamic Tags.
+ * Courses Archive/Single, Posts Archive/Single, 404) using core atomic Elementor widgets + Dynamic Tags.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -59,7 +59,7 @@ function iramo_get_library_id_by_slug( $slug ) {
 }
 
 function iramo_save_elementor_payload( $post_id, $elements, $tpl_type = 'wp-page', $conditions = [], $extra_meta = [] ) {
-    $pro_tag = iramo_is_elementor_pro_active() ? '2.5.0-pro' : '2.5.0-free';
+    $pro_tag = iramo_is_elementor_pro_active() ? '3.0.0-pro' : '3.0.0-free';
     update_post_meta( $post_id, '_elementor_edit_mode', 'builder' );
     update_post_meta( $post_id, '_elementor_template_type', $tpl_type );
     update_post_meta( $post_id, '_elementor_version', '3.24.0' );
@@ -84,12 +84,12 @@ function iramo_should_upgrade_seed( $post_id, $force = false ) {
         return true;
     }
     $seed_ver = (string) get_post_meta( $post_id, '_iramo_seed_version', true );
-    $target   = iramo_is_elementor_pro_active() ? '2.5.0-pro' : '2.5.0-free';
+    $target   = iramo_is_elementor_pro_active() ? '3.0.0-pro' : '3.0.0-free';
     if ( $seed_ver === $target ) {
         return false;
     }
-    // Automatically upgrade untouched v2.4.0 / v2.5.0-free seeds to v2.5.0 / Loop Grid when Pro activates
-    if ( in_array( $seed_ver, [ '2.4.0', '2.5.0-free' ], true ) ) {
+    // Automatically upgrade untouched legacy seeds cleanly to v3.0.0
+    if ( in_array( $seed_ver, [ '2.4.0', '2.5.0-free', '2.5.0-pro', '2.6.0-free', '2.6.0-pro', '3.0.0-free' ], true ) ) {
         return true;
     }
     // Upgrade legacy 2.3.0 monolithic scaffolds cleanly without touching custom user layouts
@@ -183,9 +183,57 @@ function iramo_build_loop_grid_widget( $id, $post_type, $loop_template_id, $colu
 }
 
 /**
+ * Sync Elementor Active Kit System Colors & Typography with iRamoAi Brand Palette
+ * Prevents Elementor's default cyan (#6EC1E4) from overriding headings.
+ */
+function iramo_sync_elementor_active_kit( $force = false ) {
+    if ( ! $force && get_option( 'iramo_elementor_kit_synced' ) === '3.0.0' ) {
+        return;
+    }
+    $kit_id = (int) get_option( 'elementor_active_kit' );
+    if ( ! $kit_id ) {
+        return;
+    }
+
+    $opts    = get_option( 'iramo_ai_settings', [] );
+    $primary = ! empty( $opts['primary_color'] ) ? sanitize_hex_color( $opts['primary_color'] ) : '#059669';
+    $accent  = ! empty( $opts['accent_color'] ) ? sanitize_hex_color( $opts['accent_color'] ) : '#FFBA00';
+    $font    = ! empty( $opts['font_family'] ) && $opts['font_family'] === 'Vazirmatn' ? 'Vazirmatn' : 'IRANYekanXVF';
+
+    $kit_settings = get_post_meta( $kit_id, '_elementor_page_settings', true );
+    if ( ! is_array( $kit_settings ) ) {
+        $kit_settings = [];
+    }
+
+    $kit_settings['system_colors'] = [
+        [ '_id' => 'primary',   'title' => 'Primary (iRamoAi)',   'color' => $primary ?: '#059669' ],
+        [ '_id' => 'secondary', 'title' => 'Secondary (Heading)', 'color' => '#0F172A' ],
+        [ '_id' => 'text',      'title' => 'Text (Body)',         'color' => '#475569' ],
+        [ '_id' => 'accent',    'title' => 'Accent (Button)',     'color' => $accent ?: '#FFBA00' ],
+    ];
+
+    $kit_settings['system_typography'] = [
+        [ '_id' => 'primary',   'title' => 'Primary',   'typography_typography' => 'custom', 'typography_font_family' => $font, 'typography_font_weight' => '800' ],
+        [ '_id' => 'secondary', 'title' => 'Secondary', 'typography_typography' => 'custom', 'typography_font_family' => $font, 'typography_font_weight' => '700' ],
+        [ '_id' => 'text',      'title' => 'Text',      'typography_typography' => 'custom', 'typography_font_family' => $font, 'typography_font_weight' => '400' ],
+        [ '_id' => 'accent',    'title' => 'Accent',    'typography_typography' => 'custom', 'typography_font_family' => $font, 'typography_font_weight' => '700' ],
+    ];
+
+    update_post_meta( $kit_id, '_elementor_page_settings', $kit_settings );
+    delete_post_meta( $kit_id, '_elementor_css' );
+
+    if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->files_manager ) ) {
+        \Elementor\Plugin::$instance->files_manager->clear_cache();
+    }
+
+    update_option( 'iramo_elementor_kit_synced', '3.0.0' );
+}
+
+/**
  * Build & Seed Loop Item Templates + Granular Atomic Pages + Theme Builder Templates
  */
 function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
+    iramo_sync_elementor_active_kit( $force );
     // =========================================================================
     // A. ELEMENTOR PRO LOOP ITEM TEMPLATES (`elementor_library` / `loop-item`)
     // Built exclusively with standard draggable widgets + iRamoAi Dynamic Tags
@@ -448,10 +496,10 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
     );
 
     // =========================================================================
-    // B. PAGES (HOME, SERVICES, STUDENT PANEL)
+    // B. PAGES (HOME, ARTICLES, SERVICES)
     // =========================================================================
 
-    // 1. Page: Home
+    // 1. Page: Home (1-to-1 Aligned with React WebsiteHomeView)
     if ( ! empty( $page_ids['home'] ) ) {
         $home_id = (int) $page_ids['home'];
         if ( iramo_should_upgrade_seed( $home_id, $force ) ) {
@@ -460,43 +508,40 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                 iramo_el_container( 'irhs100', [
                     iramo_el_container( 'irhs110', [
                         iramo_el_container( 'irhs111', [
-                            iramo_el_widget( 'irhw101', 'iramo_badge', [
-                                'text'         => '✨ اکوسیستم نرم‌افزار و هوش مصنوعی فارسی',
-                                '_css_classes' => 'iramo-el-tight',
+                            iramo_el_widget( 'irhw101', 'heading', [
+                                'title'        => 'جایی برای خلق آینده هوشمند · iRamoAi',
+                                'header_size'  => 'p',
+                                '_css_classes' => 'iramo-el-eyebrow iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irhw102', 'heading', [
-                                'title'        => 'آینده کسب‌وکار شما با دستیارها و محصولات هوش مصنوعی',
+                                'title'        => 'محصولات نرم‌افزاری، آموزش حرفه‌ای و راهکارهای هوشمند AI',
                                 'header_size'  => 'h1',
                                 '_css_classes' => 'iramo-el-hero-title iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irhw103', 'text-editor', [
-                                'editor'       => '<p>نرم‌افزارهای آماده حسابیار و ویدئومی، دایرکتوری دست‌چین ابزارهای AI و آکادمی تخصصی آموزش و اتوماسیون در یک پلتفرم یکپارچه.</p>',
+                                'editor'       => '<p>از تجربه مهندسی ما در دنیای فناوری بهره ببرید؛ مجموعه نرم‌افزارهای آماده مثل حسابیار و ربات‌های آموزشی، دستیار انتخاب ابزارهای هوش مصنوعی و آکادمی تخصصی iRamo.</p>',
                                 '_css_classes' => 'iramo-el-subtitle iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irhw104', 'iramo_button_group', [
                                 'buttons' => [
-                                    [ 'label' => 'مشاهده محصولات آماده ←', 'url' => [ 'url' => '/products/' ], 'variant' => 'accent' ],
-                                    [ 'label' => 'دایرکتوری ابزارهای AI', 'url' => [ 'url' => '/ai-tools/' ], 'variant' => 'outline' ],
+                                    [ 'label' => 'مشاهده دمو محصولات', 'url' => [ 'url' => '/products/' ], 'variant' => 'accent' ],
+                                    [ 'label' => 'درخواست مشاوره و پروژه ←', 'url' => [ 'url' => '/services/' ], 'variant' => 'outline' ],
                                 ],
                                 '_css_classes' => 'iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irhw105', 'iramo_proof_list', [
                                 'items' => [
-                                    [ 'text' => '✓ اتصال بومی ووکامرس' ],
-                                    [ 'text' => '✓ پنل تلگرام و بله' ],
-                                    [ 'text' => '✓ ۱۸ ابزار دست‌چین AI' ],
-                                    [ 'text' => '✓ سئو کامل سمت سرور' ],
+                                    [ 'text' => '۵۰,۰۰۰+ دانشجو و کاربر فعال' ],
+                                    [ 'text' => '۲۴+ ابزار و ربات هوشمند' ],
+                                    [ 'text' => 'اتصال بومی به تلگرام و بله' ],
                                 ],
                                 '_css_classes' => 'iramo-el-tight',
                             ] ),
                         ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
                         iramo_el_container( 'irhs112', [
                             iramo_el_widget( 'irhw106', 'iramo_hero_media_box', [
-                                'show_float_chip' => 'yes',
-                                'chip_title'      => 'اتوماسیون حسابداری، محتوا و آموزش',
-                                'chip_sub'        => 'ساخته شده برای تیم‌های ایرانی',
-                                'chip_cta_text'   => 'ورود به پنل',
-                                'chip_cta_url'    => [ 'url' => '/panel/' ],
+                                'show_float_chip' => 'no',
+                                'image_alt'       => 'محیط کاری هوشمند iRamoAi',
                                 '_css_classes'    => 'iramo-el-tight',
                             ] ),
                         ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
@@ -517,9 +562,8 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     iramo_el_container( 'irps210', [
                         iramo_el_container( 'irps211', [
                             iramo_el_container( 'irps212', [
-                                iramo_el_widget( 'irpw201', 'iramo_badge', [ 'text' => 'محصولات نرم‌افزاری اختصاصی', '_css_classes' => 'iramo-el-tight' ] ),
-                                iramo_el_widget( 'irpw202', 'heading', [ 'title' => 'محصولات آماده برای رشد سریع کسب‌وکار', 'header_size' => 'h2', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
-                                iramo_el_widget( 'irpw203', 'text-editor', [ 'editor' => '<p>تمامی محصولات منتشرشده در ووکامرس یا بخش محصولات با قالب کارت قابل ویرایش Loop Item نمایش داده می‌شوند.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                                iramo_el_widget( 'irpw202', 'heading', [ 'title' => 'محصولات نرم‌افزاری برتر ما', 'header_size' => 'h2', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
+                                iramo_el_widget( 'irpw203', 'text-editor', [ 'editor' => '<p>نرم‌افزارها و ربات‌های آماده با طراحی اختصاصی برای کار و کسب‌وکار هوشمندتر</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                             ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
                             iramo_el_widget( 'irpw204', 'iramo_button_group', [
                                 'buttons' => [
@@ -528,7 +572,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                                 '_css_classes' => 'iramo-el-tight',
                             ] ),
                         ], [ 'css_classes' => 'iramo-sec-head' ], true ),
-                        iramo_build_loop_grid_widget( 'irpw205', 'iramo_product', $loop_product_id, '2', 4, 'iramo_products_grid' ),
+                        iramo_build_loop_grid_widget( 'irpw205', 'iramo_product', $loop_product_id, '4', 4, 'iramo_products_grid' ),
                     ], [
                         'css_classes'    => 'iramo-container',
                         'padding'        => [ 'unit' => 'px', 'top' => '0', 'right' => '24', 'bottom' => '0', 'left' => '24', 'isLinked' => false ],
@@ -536,17 +580,17 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     ], true ),
                 ], [
                     'css_classes'    => 'iramo-section',
-                    'padding'        => [ 'unit' => 'px', 'top' => '64', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
-                    'padding_mobile' => [ 'unit' => 'px', 'top' => '44', 'right' => '0', 'bottom' => '44', 'left' => '0', 'isLinked' => false ],
+                    'padding'        => [ 'unit' => 'px', 'top' => '56', 'right' => '0', 'bottom' => '56', 'left' => '0', 'isLinked' => false ],
+                    'padding_mobile' => [ 'unit' => 'px', 'top' => '40', 'right' => '0', 'bottom' => '40', 'left' => '0', 'isLinked' => false ],
                 ] ),
 
                 // Section 3: AI Discovery Box
                 iramo_el_container( 'irds300', [
                     iramo_el_container( 'irds310', [
                         iramo_el_container( 'irds311', [
-                            iramo_el_widget( 'irdw301', 'iramo_badge', [ 'text' => 'موتور جستجوی ابزارهای AI', '_css_classes' => 'iramo-el-tight' ] ),
-                            iramo_el_widget( 'irdw302', 'heading', [ 'title' => 'دایرکتوری تخصصی و بررسی ابزارهای هوش مصنوعی', 'header_size' => 'h2', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
-                            iramo_el_widget( 'irdw303', 'text-editor', [ 'editor' => '<p>ابزار مناسب خود را بر اساس نیاز، مدل قیمت‌گذاری، ورودی/خروجی و نمونه پرامپت پیدا کنید.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                            iramo_el_widget( 'irdw301', 'iramo_badge', [ 'text' => 'دستیار و بازار ابزارهای هوش مصنوعی', '_css_classes' => 'iramo-el-tight' ] ),
+                            iramo_el_widget( 'irdw302', 'heading', [ 'title' => 'چه کاری می‌خواهید با هوش مصنوعی انجام دهید؟', 'header_size' => 'h2', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
+                            iramo_el_widget( 'irdw303', 'text-editor', [ 'editor' => '<p>کافی است هدف خود را بنویسید یا نوع ورودی و خروجی را انتخاب کنید؛ موتور پیشنهادگر ابزارهای AI بهترین راهکار را با دستورالعمل گام‌به‌گام معرفی می‌کند.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                             iramo_el_widget( 'irdw304', 'iramo_ai_discovery_search', [
                                 'show_header'  => 'no',
                                 'show_chips'   => 'yes',
@@ -554,8 +598,8 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                             ] ),
                         ], [
                             'css_classes'    => 'iramo-discovery-box iramo-el-col-stack',
-                            'padding'        => [ 'unit' => 'px', 'top' => '36', 'right' => '36', 'bottom' => '36', 'left' => '36', 'isLinked' => true ],
-                            'padding_mobile' => [ 'unit' => 'px', 'top' => '24', 'right' => '18', 'bottom' => '24', 'left' => '18', 'isLinked' => false ],
+                            'padding'        => [ 'unit' => 'px', 'top' => '32', 'right' => '32', 'bottom' => '32', 'left' => '32', 'isLinked' => true ],
+                            'padding_mobile' => [ 'unit' => 'px', 'top' => '22', 'right' => '18', 'bottom' => '22', 'left' => '18', 'isLinked' => false ],
                         ], true ),
                     ], [
                         'css_classes'    => 'iramo-container',
@@ -564,24 +608,24 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     ], true ),
                 ], [
                     'css_classes'    => 'iramo-section',
-                    'padding'        => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
-                    'padding_mobile' => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '44', 'left' => '0', 'isLinked' => false ],
+                    'padding'        => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '56', 'left' => '0', 'isLinked' => false ],
+                    'padding_mobile' => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '40', 'left' => '0', 'isLinked' => false ],
                 ] ),
 
-                // Section 4: Dual Bento Cards
+                // Section 4: Dual Bento Cards (Academy + Consulting)
                 iramo_el_container( 'irbs400', [
                     iramo_el_container( 'irbs410', [
                         iramo_el_container( 'irbs420', [
                             iramo_el_container( 'irbs421', [
                                 iramo_el_container( 'irbs421t', [
-                                    iramo_el_widget( 'irbw401', 'iramo_badge', [ 'text' => 'آکادمی تخصصی iRamoAi', 'sub_label' => 'پروژه‌محور + لایسنس', '_css_classes' => 'iramo-el-tight' ] ),
-                                    iramo_el_widget( 'irbw402', 'heading', [ 'title' => 'دوره‌های کاربردی هوش مصنوعی و ساخت ربات', 'header_size' => 'h3', '_css_classes' => 'iramo-el-card-title iramo-el-tight' ] ),
-                                    iramo_el_widget( 'irbw403', 'text-editor', [ 'editor' => '<p>یادگیری عملی ساخت ربات‌های تلگرام و بله، پرامپت‌نویسی مهندسی‌شده، اتوماسیون n8n و استفاده حرفه‌ای از ابزارهای AI همراه با پنل دانشجویی اختصاصی.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                                    iramo_el_widget( 'irbw401', 'iramo_badge', [ 'text' => 'دوره‌های آموزشی و آکادمی', 'sub_label' => '۱۲ ساعت آموزش · ۶ پروژه عملی', '_css_classes' => 'iramo-el-tight' ] ),
+                                    iramo_el_widget( 'irbw402', 'heading', [ 'title' => 'دوره جامع هوش مصنوعی از صفر تا پیشرفته', 'header_size' => 'h3', '_css_classes' => 'iramo-el-card-title iramo-el-tight' ] ),
+                                    iramo_el_widget( 'irbw403', 'text-editor', [ 'editor' => '<p>از مبانی تا ساخت ایجنت‌های حرفه‌ای، اتصال به وردپرس و اتوماسیون ربات‌های تلگرام و بله.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                                 ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
                                 iramo_el_widget( 'irbw404', 'iramo_button_group', [
                                     'buttons' => [
-                                        [ 'label' => 'مشاهده دوره‌های آکادمی ←', 'url' => [ 'url' => '/academy/' ], 'variant' => 'primary' ],
-                                        [ 'label' => 'ورود به پنل دانشجو', 'url' => [ 'url' => '/panel/' ], 'variant' => 'outline' ],
+                                        [ 'label' => 'مشاهده همه دوره‌ها ←', 'url' => [ 'url' => '/academy/' ], 'variant' => 'primary' ],
+                                        [ 'label' => 'مشاوره انتخاب دوره', 'url' => [ 'url' => '/services/' ], 'variant' => 'outline' ],
                                     ],
                                     '_css_classes' => 'iramo-el-tight',
                                 ] ),
@@ -592,13 +636,13 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
 
                             iramo_el_container( 'irbs422', [
                                 iramo_el_container( 'irbs422t', [
-                                    iramo_el_widget( 'irbw405', 'iramo_badge', [ 'text' => 'خدمات مهندسی و مشاوره', 'sub_label' => 'پروژه اختصاصی سازمانی', '_css_classes' => 'iramo-el-tight' ] ),
+                                    iramo_el_widget( 'irbw405', 'iramo_badge', [ 'text' => 'خدمات و مشاوره تخصصی', 'sub_label' => 'پروژه اختصاصی سازمانی', '_css_classes' => 'iramo-el-tight' ] ),
                                     iramo_el_widget( 'irbw406', 'heading', [ 'title' => 'طراحی ربات، اتوماسیون و پیاده‌سازی AI برای سازمان شما', 'header_size' => 'h3', '_css_classes' => 'iramo-el-card-title iramo-el-tight' ] ),
-                                    iramo_el_widget( 'irbw407', 'text-editor', [ 'editor' => '<p>اگر برای اتصال CRM، ووکامرس، صدور خودکار فاکتور یا راه‌اندازی دستیار اختصاصی AI در تلگرام و بله به تیم فنی نیاز دارید، با مهندسان ما مشورت کنید.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                                    iramo_el_widget( 'irbw407', 'text-editor', [ 'editor' => '<p>مشاوره و اجرای پروژه‌های اختصاصی AI، توسعه ربات‌های فروش و پشتیبانی تلگرام و بله و اتوماسیون فرآیندها و اتصال به وردپرس و ووکامرس.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                                 ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
                                 iramo_el_widget( 'irbw408', 'iramo_button_group', [
                                     'buttons' => [
-                                        [ 'label' => 'ثبت درخواست مشاوره تخصصی ←', 'url' => [ 'url' => '/services/' ], 'variant' => 'accent' ],
+                                        [ 'label' => 'ثبت سفارش پروژه ←', 'url' => [ 'url' => '/services/' ], 'variant' => 'accent' ],
                                     ],
                                     '_css_classes' => 'iramo-el-tight',
                                 ] ),
@@ -614,72 +658,62 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     ], true ),
                 ], [
                     'css_classes'    => 'iramo-section',
-                    'padding'        => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
-                    'padding_mobile' => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '44', 'left' => '0', 'isLinked' => false ],
+                    'padding'        => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '56', 'left' => '0', 'isLinked' => false ],
+                    'padding_mobile' => [ 'unit' => 'px', 'top' => '12', 'right' => '0', 'bottom' => '40', 'left' => '0', 'isLinked' => false ],
                 ] ),
             ];
             iramo_save_elementor_payload( $home_id, $home_elements, 'wp-page' );
         }
     }
 
-    // 2. Page: Services (/services/)
+    // 2. Page: Articles (/articles/) — Queries Native WordPress Posts (`نوشته‌ها`)
+    if ( ! empty( $page_ids['articles'] ) ) {
+        $art_id = (int) $page_ids['articles'];
+        if ( iramo_should_upgrade_seed( $art_id, $force ) ) {
+            $art_elements = [
+                iramo_el_container( 'irapg100', [
+                    iramo_el_container( 'irapg110', [
+                        iramo_el_container( 'irapg111', [
+                            iramo_el_widget( 'irapgw1', 'iramo_badge', [ 'text' => 'مقالات و ابزارک‌های کاربردی', '_css_classes' => 'iramo-el-tight' ] ),
+                            iramo_el_widget( 'irapgw2', 'heading', [ 'title' => 'مقالات تخصصی هوش مصنوعی و اتوماسیون', 'header_size' => 'h1', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
+                            iramo_el_widget( 'irapgw3', 'text-editor', [ 'editor' => '<p>آموزش‌های فنی، بررسی معماری ربات‌ها، ترفندهای پرامپت‌نویسی و راهنمای استفاده عملی از AI در کسب‌وکار (مدیریت‌شده از بخش نوشته‌های وردپرس).</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                        ], [
+                            'css_classes' => 'iramo-card iramo-el-col-stack',
+                            'padding'     => [ 'unit' => 'px', 'top' => '24', 'right' => '24', 'bottom' => '24', 'left' => '24', 'isLinked' => true ],
+                            'margin'      => [ 'unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '24', 'left' => '0', 'isLinked' => false ],
+                        ], true ),
+                        iramo_build_loop_grid_widget( 'iraapw1', 'post', $loop_article_id, '3', 12, 'iramo_articles_grid' ),
+                    ], [
+                        'css_classes'    => 'iramo-container iramo-el-col-stack',
+                        'padding'        => [ 'unit' => 'px', 'top' => '0', 'right' => '24', 'bottom' => '0', 'left' => '24', 'isLinked' => false ],
+                        'padding_mobile' => [ 'unit' => 'px', 'top' => '0', 'right' => '16', 'bottom' => '0', 'left' => '16', 'isLinked' => false ],
+                    ], true ),
+                ], [
+                    'padding'        => [ 'unit' => 'px', 'top' => '108', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
+                    'padding_mobile' => [ 'unit' => 'px', 'top' => '88', 'right' => '0', 'bottom' => '48', 'left' => '0', 'isLinked' => false ],
+                ] ),
+            ];
+            iramo_save_elementor_payload( $art_id, $art_elements, 'wp-page' );
+        }
+    }
+
+    // 3. Page: Services (/services/) — Clean 2-Column Layout Matching React ServicesConsultationView
     if ( ! empty( $page_ids['services'] ) ) {
         $srv_id = (int) $page_ids['services'];
         if ( iramo_should_upgrade_seed( $srv_id, $force ) ) {
             $srv_elements = [
                 iramo_el_container( 'irsrv100', [
-                    iramo_el_container( 'irsrv110', [
-                        iramo_el_container( 'irsrv111', [
-                            iramo_el_widget( 'irsrvw1', 'iramo_badge', [ 'text' => 'خدمات مهندسی و اتوماسیون اختصاصی', '_css_classes' => 'iramo-el-tight' ] ),
-                            iramo_el_widget( 'irsrvw2', 'heading', [ 'title' => 'طراحی ربات هوشمند، ایجنت AI و اتوماسیون سازمانی', 'header_size' => 'h1', '_css_classes' => 'iramo-el-hero-title iramo-el-tight' ] ),
-                            iramo_el_widget( 'irsrvw3', 'text-editor', [ 'editor' => '<p>اتصال مستقیم وردپرس و ووکامرس به تلگرام، بله و مدل‌های پیشرفته هوش مصنوعی اختصاصی کسب‌وکار شما.</p>', '_css_classes' => 'iramo-el-subtitle iramo-el-tight' ] ),
-                            iramo_el_widget( 'irsrvw4', 'iramo_button_group', [
-                                'buttons' => [
-                                    [ 'label' => 'ثبت درخواست مشاوره ↓', 'url' => [ 'url' => '#iramo-consult-box' ], 'variant' => 'accent' ],
-                                    [ 'label' => 'مشاهده محصولات آماده', 'url' => [ 'url' => '/products/' ], 'variant' => 'outline' ],
-                                ],
-                                '_css_classes' => 'iramo-el-tight',
-                            ] ),
-                        ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
-                        iramo_el_container( 'irsrv112', [
-                            iramo_el_widget( 'irsrvw5', 'iramo_hero_media_box', [
-                                'show_float_chip' => 'no',
-                                'image_alt'       => 'خدمات مهندسی هوش مصنوعی iRamoAi',
-                                '_css_classes'    => 'iramo-el-tight',
-                            ] ),
-                        ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
-                    ], [
-                        'css_classes'    => 'iramo-container iramo-hero-grid',
-                        'padding'        => [ 'unit' => 'px', 'top' => '0', 'right' => '24', 'bottom' => '0', 'left' => '24', 'isLinked' => false ],
-                        'padding_mobile' => [ 'unit' => 'px', 'top' => '0', 'right' => '16', 'bottom' => '0', 'left' => '16', 'isLinked' => false ],
-                    ], true ),
+                    iramo_el_widget( 'irsrvw1', 'iramo_consultation_form', [
+                        'show_service_cards' => 'yes',
+                        '_css_classes'       => 'iramo-el-tight',
+                    ] ),
                 ], [
-                    'css_classes'    => 'iramo-hero',
-                    'padding'        => [ 'unit' => 'px', 'top' => '112', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
-                    'padding_tablet' => [ 'unit' => 'px', 'top' => '88', 'right' => '0', 'bottom' => '40', 'left' => '0', 'isLinked' => false ],
-                    'padding_mobile' => [ 'unit' => 'px', 'top' => '88', 'right' => '0', 'bottom' => '40', 'left' => '0', 'isLinked' => false ],
-                ] ),
-                iramo_el_container( 'irsrv200', [
-                    iramo_el_widget( 'irsrvw6', 'iramo_consultation_form' ),
-                ], [
-                    'css_id'  => 'iramo-consult-box',
-                    'padding' => [ 'unit' => 'px', 'top' => '36', 'right' => '0', 'bottom' => '56', 'left' => '0', 'isLinked' => false ],
+                    'css_id'         => 'iramo-consult-box',
+                    'padding'        => [ 'unit' => 'px', 'top' => '108', 'right' => '0', 'bottom' => '64', 'left' => '0', 'isLinked' => false ],
+                    'padding_mobile' => [ 'unit' => 'px', 'top' => '88', 'right' => '0', 'bottom' => '48', 'left' => '0', 'isLinked' => false ],
                 ] ),
             ];
             iramo_save_elementor_payload( $srv_id, $srv_elements, 'wp-page' );
-        }
-    }
-
-    // 3. Page: Student Panel (/panel/)
-    if ( ! empty( $page_ids['panel'] ) ) {
-        $panel_id = (int) $page_ids['panel'];
-        if ( iramo_should_upgrade_seed( $panel_id, $force ) ) {
-            $panel_elements = [
-                iramo_el_container( 'irpnl100', [
-                    iramo_el_widget( 'irpnlw1', 'iramo_lms_dashboard', [ 'default_view' => 'panel', 'default_theme' => 'light' ] ),
-                ] ),
-            ];
-            iramo_save_elementor_payload( $panel_id, $panel_elements, 'wp-page' );
         }
     }
 
@@ -687,7 +721,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
     // C. ELEMENTOR THEME BUILDER TEMPLATES (HEADER, FOOTER, ARCHIVES, SINGLES, 404)
     // =========================================================================
 
-    // 4. Atomic Header Template
+    // 5. Atomic Header Template (Floating Pill + Segmented Nav + Emerald CTA)
     iramo_upsert_elementor_library(
         'iramo-tpl-header',
         'هدر اصلی iRamoAi (قابل ویرایش جزئی در المنتور)',
@@ -709,7 +743,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
         $force
     );
 
-    // 5. Atomic Footer Template
+    // 6. Atomic Footer Template (1-to-1 Aligned with React WebsiteShell Footer + Centered Mobile)
     iramo_upsert_elementor_library(
         'iramo-tpl-footer',
         'فوتر اصلی iRamoAi (قابل ویرایش جزئی در المنتور)',
@@ -720,9 +754,17 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     iramo_el_container( 'irftr120', [
                         iramo_el_container( 'irftr121', [
                             iramo_el_widget( 'irftrw1', 'iramo_logo', [ 'brand_name' => 'iRamoAi', '_css_classes' => 'iramo-el-tight' ] ),
+                            iramo_el_widget( 'irftrw1b', 'text-editor', [
+                                'editor'       => '<p class="iramo-footer-tagline">آکادمی هوش مصنوعی، ربات‌سازی و مهندسی نرم‌افزار</p>',
+                                '_css_classes' => 'iramo-el-tight',
+                            ] ),
                             iramo_el_widget( 'irftrw2', 'text-editor', [
-                                'editor'       => '<p>پلتفرم تخصصی طراحی نرم‌افزارهای هوشمند، آکادمی آموزش کاربردی AI و مرجع معرفی برترین ابزارهای هوش مصنوعی جهان.</p>',
+                                'editor'       => '<p>پلتفرم یکپارچه ارائه محصولات نرم‌افزاری هوشمند، دوره‌های تخصصی کاربردی، دایرکتوری انتخاب ابزارهای AI و زیرساخت بومی اتصال به تلگرام، بله و وردپرس.</p>',
                                 '_css_classes' => 'iramo-el-footer-about iramo-el-tight',
+                            ] ),
+                            iramo_el_widget( 'irftrw2b', 'text-editor', [
+                                'editor'       => '<p class="iramo-social-caption">ما را در شبکه‌های اجتماعی دنبال کنید</p>',
+                                '_css_classes' => 'iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irftrw3', 'iramo_social_links', [ '_css_classes' => 'iramo-el-tight' ] ),
                         ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
@@ -732,37 +774,46 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                                 'title' => 'بخش‌های سایت',
                                 'links' => [
                                     [ 'text' => 'صفحه اصلی', 'url' => [ 'url' => '/' ] ],
-                                    [ 'text' => 'محصولات نرم‌افزاری', 'url' => [ 'url' => '/products/' ] ],
-                                    [ 'text' => 'دایرکتوری ابزارهای AI', 'url' => [ 'url' => '/ai-tools/' ] ],
-                                    [ 'text' => 'آکادمی و دوره‌ها', 'url' => [ 'url' => '/academy/' ] ],
+                                    [ 'text' => 'محصولات', 'url' => [ 'url' => '/products/' ] ],
+                                    [ 'text' => 'دوره‌های آموزشی', 'url' => [ 'url' => '/academy/' ] ],
+                                    [ 'text' => 'ابزارهای هوش مصنوعی', 'url' => [ 'url' => '/ai-tools/' ] ],
+                                    [ 'text' => 'مقالات', 'url' => [ 'url' => '/articles/' ] ],
+                                    [ 'text' => 'خدمات و مشاوره', 'url' => [ 'url' => '/services/' ] ],
                                 ],
                                 '_css_classes' => 'iramo-el-tight',
                             ] ),
                             iramo_el_widget( 'irftrw5', 'iramo_footer_links_col', [
                                 'title' => 'امکانات و پلتفرم',
                                 'links' => [
-                                    [ 'text' => 'مقالات و ابزارک‌ها', 'url' => [ 'url' => '/articles/' ] ],
-                                    [ 'text' => 'خدمات و مشاوره', 'url' => [ 'url' => '/services/' ] ],
-                                    [ 'text' => 'پنل کاربری و آموزش', 'url' => [ 'url' => '/panel/' ] ],
-                                    [ 'text' => 'ابزارهای رایگان AI', 'url' => [ 'url' => '/ai-tools/?pricing=Free' ] ],
+                                    [ 'text' => 'ثبت سفارش و مشاوره', 'url' => [ 'url' => '/services/' ] ],
+                                    [ 'text' => 'نرم‌افزار حسابیار', 'url' => [ 'url' => '/products/' ] ],
+                                    [ 'text' => 'دایرکتوری ابزارهای AI', 'url' => [ 'url' => '/ai-tools/' ] ],
+                                    [ 'text' => 'پلاگین وردپرس و المنتور', 'url' => [ 'url' => '/services/' ] ],
                                 ],
                                 '_css_classes' => 'iramo-el-tight',
                             ] ),
                         ], [ 'css_classes' => 'iramo-footer-nav-grid' ], true ),
 
                         iramo_el_container( 'irftr123', [
-                            iramo_el_widget( 'irftrw6', 'heading', [ 'title' => 'خبرنامه هوشمند تلگرام و بله', 'header_size' => 'h4', '_css_classes' => 'iramo-el-footer-title iramo-el-tight' ] ),
+                            iramo_el_widget( 'irftrw6', 'heading', [ 'title' => '✨ خبرنامه هفتگی ابزارها و آموزش‌های AI', 'header_size' => 'h4', '_css_classes' => 'iramo-el-footer-title iramo-el-tight' ] ),
                             iramo_el_widget( 'irftrw7', 'text-editor', [
-                                'editor'       => '<p>آیدی تلگرام یا شماره موبایل بله خود را وارد کنید تا معرفی ابزارهای جدید AI برایتان ارسال شود.</p>',
+                                'editor'       => '<p>معرفی جدیدترین ابزارهای هوش مصنوعی، پرامپت‌های کاربردی و آپدیت محصولات را در ایمیل دریافت کنید.</p>',
                                 '_css_classes' => 'iramo-el-desc iramo-el-tight',
                             ] ),
-                            iramo_el_widget( 'irftrw8', 'iramo_newsletter_form', [ '_css_classes' => 'iramo-el-tight' ] ),
-                        ], [ 'css_classes' => 'iramo-el-col-stack' ], true ),
+                            iramo_el_widget( 'irftrw8', 'iramo_newsletter_form', [ 'placeholder' => 'you@domain.com', 'button_text' => 'عضویت', '_css_classes' => 'iramo-el-tight' ] ),
+                            iramo_el_widget( 'irftrw8b', 'text-editor', [
+                                'editor'       => '<div class="iramo-newsletter-trust"><span>✓ تضمین آپدیت و پشتیبانی فنی</span><a href="/services/" style="color:var(--iramo-primary);font-weight:700;">مشاوره پروژه ←</a></div>',
+                                '_css_classes' => 'iramo-el-tight',
+                            ] ),
+                        ], [
+                            'css_classes' => 'iramo-newsletter-card iramo-el-col-stack',
+                            'padding'     => [ 'unit' => 'px', 'top' => '18', 'right' => '18', 'bottom' => '18', 'left' => '18', 'isLinked' => true ],
+                        ], true ),
                     ], [ 'css_classes' => 'iramo-footer-grid' ], true ),
 
                     iramo_el_container( 'irftr130', [
-                        iramo_el_widget( 'irftrw9', 'text-editor', [ 'editor' => '<p>© تمامی حقوق برای پلتفرم هوشمند iRamoAi محفوظ است.</p>', '_css_classes' => 'iramo-el-tight' ] ),
-                        iramo_el_widget( 'irftrw10', 'iramo_theme_toggle_chip', [ '_css_classes' => 'iramo-el-tight' ] ),
+                        iramo_el_widget( 'irftrw9', 'text-editor', [ 'editor' => '<p>© ۲۰۲۵ iRamoAi — طراحی و مهندسی پلتفرم هوشمند</p>', '_css_classes' => 'iramo-el-tight' ] ),
+                        iramo_el_widget( 'irftrw10', 'iramo_theme_toggle_chip', [ 'label' => 'نمای تیره / روشن سایت', '_css_classes' => 'iramo-el-tight' ] ),
                     ], [ 'css_classes' => 'iramo-footer-bottom' ], true ),
                 ], [
                     'css_classes'    => 'iramo-container',
@@ -892,7 +943,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     iramo_el_container( 'irac111', [
                         iramo_el_widget( 'iracw01', 'iramo_badge', [ 'text' => 'آکادمی تخصصی iRamoAi', '_css_classes' => 'iramo-el-tight' ] ),
                         iramo_el_widget( 'iracw02', 'heading', [ 'title' => 'دوره‌های آموزشی هوش مصنوعی و اتوماسیون', 'header_size' => 'h1', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
-                        iramo_el_widget( 'iracw03', 'text-editor', [ 'editor' => '<p>دوره‌های کاربردی و پروژه‌محور با پشتیبانی منتور، تکالیف عملی و دسترسی فوری در پنل دانشجویی.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
+                        iramo_el_widget( 'iracw03', 'text-editor', [ 'editor' => '<p>دوره‌های کاربردی و پروژه‌محور با پشتیبانی مدرس، فایل‌های تمرینی و دسترسی مستقیم پس از ثبت‌نام.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                     ], [ 'css_classes' => 'iramo-card iramo-el-col-stack', 'padding' => [ 'unit' => 'px', 'top' => '24', 'right' => '24', 'bottom' => '24', 'left' => '24', 'isLinked' => true ], 'margin' => [ 'unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '24', 'left' => '0', 'isLinked' => false ] ], true ),
                     iramo_build_loop_grid_widget( 'iracw1', 'iramo_course', $loop_course_id, '3', 12, 'iramo_courses_grid' ),
                 ], [
@@ -944,7 +995,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                         iramo_el_widget( 'irscw5', 'button', [
                             'text'               => '',
                             '__dynamic__'        => [ 'text' => iramo_el_tag( 'tscprc1', 'iramo-course-price' ) ],
-                            'link'               => [ 'url' => '/panel/' ],
+                            'link'               => [ 'url' => '/services/' ],
                             'background_color'   => '#059669',
                             'button_text_color'  => '#FFFFFF',
                             'border_radius'      => [ 'unit' => 'px', 'top' => '14', 'right' => '14', 'bottom' => '14', 'left' => '14', 'isLinked' => true ],
@@ -994,12 +1045,12 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                     iramo_el_widget( 'irscw10', 'accordion', [
                         'tabs' => [
                             [
-                                'tab_title'   => 'دسترسی فوری به ویدیوها و پنل دانشجویی',
-                                'tab_content' => '<p>بلافاصله پس از ثبت‌نام، تمام جلسات ویدیویی، فایل‌های تمرینی و پروژه عملی دوره در پنل کاربری شما فعال می‌شوند.</p>',
+                                'tab_title'   => 'دسترسی فوری به ویدیوها و سرفصل‌ها',
+                                'tab_content' => '<p>بلافاصله پس از ثبت‌نام در ووکامرس یا هماهنگی از طریق فرم مشاوره، تمام جلسات ویدیویی و فایل‌های تمرینی دوره در اختیار شما قرار می‌گیرد.</p>',
                             ],
                             [
                                 'tab_title'   => 'پشتیبانی مدرس و بررسی پروژه‌ها',
-                                'tab_content' => '<p>لینک تمرین و گیت‌هاب خود را در پنل ارسال کنید تا مدرس بررسی کرده و نتیجه را در تلگرام یا بله برای شما ارسال کند.</p>',
+                                'tab_content' => '<p>پروژه‌ها و سوالات فنی شما مستقیماً توسط تیم مدرس بررسی شده و بازخورد از طریق ایمیل، تلگرام یا بله ارسال می‌شود.</p>',
                             ],
                             [
                                 'tab_title'   => 'پیش‌نیازها و مخاطبان دوره',
@@ -1009,8 +1060,8 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                         'title_html_tag' => 'div',
                     ] ),
                     iramo_el_widget( 'irscw11', 'button', [
-                        'text'               => 'ورود به پنل دانشجو و شروع یادگیری ←',
-                        'link'               => [ 'url' => '/panel/' ],
+                        'text'               => 'ثبت‌نام و مشاوره دوره ←',
+                        'link'               => [ 'url' => '/services/' ],
                         'background_color'   => '#FFBA00',
                         'button_text_color'  => '#061A13',
                         'border_radius'      => [ 'unit' => 'px', 'top' => '12', 'right' => '12', 'bottom' => '12', 'left' => '12', 'isLinked' => true ],
@@ -1032,10 +1083,10 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
         $force
     );
 
-    // 12. Archive: Articles (Atomic Header + Loop Grid wired to Article Loop Item)
+    // 12. Archive: Articles / Blog Posts (`post` + Loop Grid wired to Article Loop Item)
     iramo_upsert_elementor_library(
         'iramo-tpl-archive-articles',
-        'آرشیو مقالات و ابزارک‌ها (Loop Grid)',
+        'آرشیو مقالات و نوشته‌ها (Loop Grid)',
         'archive',
         [
             iramo_el_container( 'iraa100', [
@@ -1045,7 +1096,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                         iramo_el_widget( 'iraaw02', 'heading', [ 'title' => 'مقالات تخصصی هوش مصنوعی و اتوماسیون', 'header_size' => 'h1', '_css_classes' => 'iramo-el-sec-title iramo-el-tight' ] ),
                         iramo_el_widget( 'iraaw03', 'text-editor', [ 'editor' => '<p>آموزش‌های فنی، بررسی معماری ربات‌ها، ترفندهای پرامپت‌نویسی و راهنمای استفاده عملی از AI در کسب‌وکار.</p>', '_css_classes' => 'iramo-el-desc iramo-el-tight' ] ),
                     ], [ 'css_classes' => 'iramo-card iramo-el-col-stack', 'padding' => [ 'unit' => 'px', 'top' => '24', 'right' => '24', 'bottom' => '24', 'left' => '24', 'isLinked' => true ], 'margin' => [ 'unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '24', 'left' => '0', 'isLinked' => false ] ], true ),
-                    iramo_build_loop_grid_widget( 'iraaw1', 'iramo_article', $loop_article_id, '3', 12, 'iramo_articles_grid' ),
+                    iramo_build_loop_grid_widget( 'iraaw1', 'post', $loop_article_id, '3', 12, 'iramo_articles_grid' ),
                 ], [
                     'css_classes'    => 'iramo-container iramo-el-col-stack',
                     'padding'        => [ 'unit' => 'px', 'top' => '0', 'right' => '24', 'bottom' => '0', 'left' => '24', 'isLinked' => false ],
@@ -1053,7 +1104,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                 ], true ),
             ], [ 'padding' => [ 'unit' => 'px', 'top' => '24', 'right' => '0', 'bottom' => '48', 'left' => '0', 'isLinked' => false ] ] ),
         ],
-        [ 'include/archive/iramo_article_archive' ],
+        [ 'include/archive/post_archive' ],
         $force
     );
 
@@ -1134,7 +1185,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
                 'padding_mobile' => [ 'unit' => 'px', 'top' => '20', 'right' => '16', 'bottom' => '40', 'left' => '16', 'isLinked' => false ],
             ] ),
         ],
-        [ 'include/singular/iramo_article' ],
+        [ 'include/singular/post' ],
         $force
     );
 
@@ -1169,7 +1220,7 @@ function iramo_provision_elementor_layouts( $page_ids = [], $force = false ) {
         $force
     );
 
-    update_option( 'iramo_elementor_seeded', iramo_is_elementor_pro_active() ? '2.5.0-pro' : '2.5.0-free' );
+    update_option( 'iramo_elementor_seeded', iramo_is_elementor_pro_active() ? '3.0.0-pro' : '3.0.0-free' );
 }
 
 /**
@@ -1196,10 +1247,10 @@ add_action( 'admin_bar_menu', function( $wp_admin_bar ) {
         $loop_slug = 'iramo-loop-course';
     } elseif ( is_singular( 'iramo_course' ) ) {
         $slug = 'iramo-tpl-single-course';
-    } elseif ( is_post_type_archive( 'iramo_article' ) ) {
+    } elseif ( is_page( 'articles' ) || is_home() || is_category() || is_tag() ) {
         $slug      = 'iramo-tpl-archive-articles';
         $loop_slug = 'iramo-loop-article';
-    } elseif ( is_singular( [ 'iramo_article', 'post' ] ) ) {
+    } elseif ( is_singular( 'post' ) ) {
         $slug = 'iramo-tpl-single-article';
     } elseif ( is_404() ) {
         $slug = 'iramo-tpl-404';

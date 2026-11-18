@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: iRamoAi Suite (LMS, AI Tools, Products, SEO & Elementor Pro)
+ * Plugin Name: iRamoAi Suite (AI Tools, Products, Academy, SEO & Elementor Pro)
  * Plugin URI:  https://iramo.ai
- * Description: هسته اختصاصی iRamoAi برای وردپرس و المنتور پرو: ثبت پست‌تایپ‌ها با URL سئو شده، کاشت خودکار ۱۸ ابزار واقعی هوش مصنوعی، ویجت‌ها و Dynamic Tags المنتور پرو، اتصال ووکامرس، ربات تلگرام/بله، سئو/امنیت و پنل دانشجویی [iramo_lms].
- * Version:     2.5.0
+ * Description: افزونه استاندارد iRamoAi برای وردپرس و المنتور پرو: پست‌تایپ‌های اختصاصی محصولات، دوره‌ها و ابزارهای AI با URL سئو شده، کاشت خودکار ۱۸ ابزار واقعی هوش مصنوعی، ۲۸ ویجت اتمیک و Dynamic Tags المنتور پرو، اتصال ووکامرس و اطلاع‌رسانی تلگرام/بله.
+ * Version:     3.0.0
  * Author:      iRamoAi Engineering
  * Text Domain: iramo-ai
  */
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'IRAMO_AI_VERSION', '2.5.0' );
+define( 'IRAMO_AI_VERSION', '3.0.0' );
 define( 'IRAMO_AI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'IRAMO_AI_URL', plugin_dir_url( __FILE__ ) );
 
@@ -74,31 +74,6 @@ add_action( 'init', function() {
         'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ],
         'has_archive'  => 'products',
         'rewrite'      => [ 'slug' => 'software', 'with_front' => false ],
-    ] );
-
-    register_post_type( 'iramo_article', [
-        'labels' => [
-            'name'          => __( 'مقالات تخصصی iRamo', 'iramo-ai' ),
-            'singular_name' => __( 'مقاله', 'iramo-ai' ),
-        ],
-        'public'       => true,
-        'show_in_rest' => true,
-        'menu_icon'    => 'dashicons-media-document',
-        'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt', 'author', 'custom-fields' ],
-        'has_archive'  => 'articles',
-        'rewrite'      => [ 'slug' => 'article', 'with_front' => false ],
-    ] );
-
-    register_post_type( 'iramo_assignment', [
-        'labels' => [
-            'name'          => __( 'تکالیف و پروژه‌ها', 'iramo-ai' ),
-            'singular_name' => __( 'تکلیف', 'iramo-ai' ),
-        ],
-        'public'       => false,
-        'show_ui'      => true,
-        'show_in_rest' => true,
-        'menu_icon'    => 'dashicons-clipboard',
-        'supports'     => [ 'title', 'editor', 'custom-fields' ],
     ] );
 
     register_taxonomy( 'iramo_tool_task', 'iramo_ai_tool', [
@@ -456,165 +431,13 @@ add_action( 'woocommerce_order_status_completed', function( $order_id ) {
     $order->update_meta_data( '_iramo_license_keys', $licenses );
     $order->save();
     update_user_meta( $user_id, '_iramo_enrolled_courses', array_values( array_unique( $enrolled ) ) );
-    do_action( 'iramo_lms_order_delivered', $order_id, $user_id, $enrolled );
+    do_action( 'iramo_order_delivered', $order_id, $user_id );
 } );
 
 /**
- * Helper: Build Authenticated WP User Payload (For Student LMS Panel)
- */
-function iramo_build_user_payload( $user_id ) {
-    $user = get_userdata( $user_id );
-    if ( ! $user ) return null;
-
-    $enrolled  = get_user_meta( $user_id, '_iramo_enrolled_courses', true );
-    if ( ! is_array( $enrolled ) ) $enrolled = [];
-
-    $completed = get_user_meta( $user_id, '_iramo_completed_lessons', true );
-    if ( ! is_array( $completed ) ) $completed = [];
-
-    $transactions = [];
-    if ( function_exists( 'wc_get_orders' ) ) {
-        $orders = wc_get_orders( [
-            'customer_id' => $user_id,
-            'limit'       => 30,
-            'orderby'     => 'date',
-            'order'       => 'DESC',
-        ] );
-        foreach ( $orders as $order ) {
-            $item_names = [];
-            foreach ( $order->get_items() as $item ) {
-                $item_names[] = $item->get_name();
-            }
-            $licenses      = $order->get_meta( '_iramo_license_keys' );
-            $first_license = ( is_array( $licenses ) && ! empty( $licenses ) ) ? reset( $licenses ) : '';
-            $date_created  = $order->get_date_created();
-            $date_str      = $date_created ? $date_created->date_i18n( 'Y/m/d' ) : '';
-            $total_toman   = (int) $order->get_total();
-
-            $transactions[] = [
-                'id'          => 'wc-ord-' . $order->get_id(),
-                'invoiceNo'   => '#' . $order->get_order_number(),
-                'item'        => [
-                    'fa' => implode( ' + ', $item_names ) ?: 'سفارش ووکامرس',
-                    'en' => implode( ' + ', $item_names ) ?: 'WooCommerce Order',
-                ],
-                'amountToman' => $total_toman,
-                'amountUsd'   => max( 1, (int) round( $total_toman / 60000 ) ),
-                'date'        => [ 'fa' => $date_str, 'en' => $date_str ],
-                'status'      => $order->get_status() === 'completed' ? 'paid' : ( $order->get_status() === 'failed' ? 'failed' : 'pending' ),
-                'licenseKey'  => $first_license ?: null,
-            ];
-        }
-    }
-
-    $submissions = get_user_meta( $user_id, '_iramo_assignment_submissions', true );
-    if ( ! is_array( $submissions ) ) $submissions = [];
-
-    $asg_posts   = get_posts( [ 'post_type' => 'iramo_assignment', 'post_status' => 'publish', 'posts_per_page' => 50 ] );
-    $assignments = [];
-    foreach ( $asg_posts as $ap ) {
-        $aid   = 'wp-asg-' . $ap->ID;
-        $sub   = $submissions[ $aid ] ?? null;
-        $due   = get_post_meta( $ap->ID, '_iramo_due_date', true ) ?: get_the_date( 'Y/m/d', $ap->ID );
-        $cid   = get_post_meta( $ap->ID, '_iramo_course_id', true ) ?: '';
-        $max_s = (int) ( get_post_meta( $ap->ID, '_iramo_max_score', true ) ?: 100 );
-        $title = get_the_title( $ap->ID );
-
-        $assignments[] = [
-            'id'           => $aid,
-            'courseId'     => $cid,
-            'title'        => [ 'fa' => $title, 'en' => $title ],
-            'dueDate'      => [ 'fa' => $due, 'en' => $due ],
-            'status'       => is_array( $sub ) && ! empty( $sub['status'] ) ? $sub['status'] : 'pending',
-            'score'        => is_array( $sub ) && isset( $sub['score'] ) ? (int) $sub['score'] : null,
-            'maxScore'     => $max_s,
-            'submittedUrl' => is_array( $sub ) && ! empty( $sub['url'] ) ? $sub['url'] : null,
-            'feedback'     => is_array( $sub ) && ! empty( $sub['feedback'] )
-                ? [ 'fa' => $sub['feedback'], 'en' => $sub['feedback'] ]
-                : null,
-        ];
-    }
-
-    return [
-        'id'           => $user->ID,
-        'name'         => $user->display_name ?: $user->user_login,
-        'email'        => $user->user_email,
-        'isAdmin'      => user_can( $user_id, 'manage_options' ),
-        'telegramId'   => get_user_meta( $user_id, '_iramo_telegram_chat_id', true ) ?: get_user_meta( $user_id, '_iramo_telegram_handle', true ) ?: '',
-        'balePhone'    => get_user_meta( $user_id, '_iramo_bale_chat_id', true ) ?: '',
-        'phone'        => get_user_meta( $user_id, '_iramo_phone', true ) ?: get_user_meta( $user_id, 'billing_phone', true ) ?: '',
-        'authMethod'   => get_user_meta( $user_id, '_iramo_auth_method', true ) ?: 'email',
-        'enrolled'     => array_values( array_map( 'strval', $enrolled ) ),
-        'completed'    => array_keys( $completed ),
-        'transactions' => $transactions,
-        'assignments'  => $assignments,
-        'botPrefs'     => get_user_meta( $user_id, '_iramo_bot_prefs', true ) ?: [
-            'autoLicense'  => true,
-            'lessonAlerts' => true,
-            'otpLogin'     => true,
-        ],
-        'nonce'        => wp_create_nonce( 'wp_rest' ),
-        'restUrl'      => esc_url_raw( rest_url( 'iramo/v1/' ) ),
-    ];
-}
-
-/**
- * 3. REST API Endpoints
+ * 3. Public WordPress REST API Endpoints (Newsletter, Consultation & Tool Voting)
  */
 add_action( 'rest_api_init', function() {
-    register_rest_route( 'iramo/v1', '/progress', [
-        'methods'             => 'POST',
-        'permission_callback' => function() { return is_user_logged_in(); },
-        'callback'            => function( WP_REST_Request $request ) {
-            $user_id   = get_current_user_id();
-            $lesson_id = sanitize_text_field( $request->get_param( 'lesson_id' ) );
-            $completed = (bool) $request->get_param( 'completed' );
-            $progress  = get_user_meta( $user_id, '_iramo_completed_lessons', true );
-            if ( ! is_array( $progress ) ) $progress = [];
-            if ( $completed ) $progress[ $lesson_id ] = current_time( 'mysql' );
-            else unset( $progress[ $lesson_id ] );
-            update_user_meta( $user_id, '_iramo_completed_lessons', $progress );
-            return rest_ensure_response( [ 'success' => true, 'completed' => array_keys( $progress ) ] );
-        },
-    ] );
-
-    register_rest_route( 'iramo/v1', '/enroll', [
-        'methods'             => 'POST',
-        'permission_callback' => function() { return is_user_logged_in(); },
-        'callback'            => function( WP_REST_Request $request ) {
-            $user_id   = get_current_user_id();
-            $course_id = sanitize_text_field( $request->get_param( 'course_id' ) );
-            if ( empty( $course_id ) ) {
-                return new WP_Error( 'missing_course', 'Course ID required', [ 'status' => 400 ] );
-            }
-            $enrolled = get_user_meta( $user_id, '_iramo_enrolled_courses', true );
-            if ( ! is_array( $enrolled ) ) $enrolled = [];
-            if ( ! in_array( $course_id, $enrolled, true ) ) {
-                $enrolled[] = $course_id;
-                update_user_meta( $user_id, '_iramo_enrolled_courses', $enrolled );
-            }
-            return rest_ensure_response( [ 'success' => true, 'enrolled' => $enrolled ] );
-        },
-    ] );
-
-    register_rest_route( 'iramo/v1', '/assignments/submit', [
-        'methods'             => 'POST',
-        'permission_callback' => function() { return is_user_logged_in(); },
-        'callback'            => function( WP_REST_Request $request ) {
-            $user_id       = get_current_user_id();
-            $assignment_id = sanitize_text_field( $request->get_param( 'assignment_id' ) );
-            $url           = esc_url_raw( $request->get_param( 'url' ) );
-            if ( empty( $assignment_id ) || empty( $url ) ) {
-                return new WP_Error( 'invalid_submission', 'Assignment ID and valid URL are required', [ 'status' => 400 ] );
-            }
-            $submissions = get_user_meta( $user_id, '_iramo_assignment_submissions', true );
-            if ( ! is_array( $submissions ) ) $submissions = [];
-            $submissions[ $assignment_id ] = [ 'url' => $url, 'status' => 'submitted', 'submitted_at' => current_time( 'mysql' ) ];
-            update_user_meta( $user_id, '_iramo_assignment_submissions', $submissions );
-            return rest_ensure_response( [ 'success' => true, 'submission' => $submissions[ $assignment_id ] ] );
-        },
-    ] );
-
     register_rest_route( 'iramo/v1', '/newsletter', [
         'methods'             => 'POST',
         'permission_callback' => '__return_true',
@@ -694,258 +517,10 @@ add_action( 'rest_api_init', function() {
         },
     ] );
 
-    register_rest_route( 'iramo/v1', '/admin/settings', [
-        'methods'             => 'POST',
-        'permission_callback' => function() { return current_user_can( 'manage_options' ); },
-        'callback'            => function( WP_REST_Request $request ) {
-            $payload = $request->get_json_params();
-            if ( ! is_array( $payload ) ) return new WP_Error( 'invalid_payload', 'Invalid settings JSON', [ 'status' => 400 ] );
-            $opts = get_option( 'iramo_ai_settings', [] );
-            if ( ! is_array( $opts ) ) $opts = [];
-            if ( isset( $payload['brandTitle'] ) ) $opts['brand_name'] = sanitize_text_field( $payload['brandTitle'] );
-            if ( isset( $payload['fontFamily'] ) ) $opts['font_family'] = sanitize_text_field( $payload['fontFamily'] );
-            if ( isset( $payload['demoCleared'] ) ) $opts['demo_cleared'] = ! empty( $payload['demoCleared'] ) ? 1 : 0;
-            update_option( 'iramo_ai_settings', $opts );
-            return rest_ensure_response( [ 'success' => true ] );
-        },
-    ] );
 } );
 
 /**
- * 3.5 Serialize Published Items for the Student Portal React App ([iramo_lms])
- */
-function iramo_collect_wp_products() {
-    $posts = get_posts( [ 'post_type' => [ 'product', 'iramo_product' ], 'post_status' => 'publish', 'posts_per_page' => 50 ] );
-    $items = [];
-    foreach ( $posts as $p ) {
-        $pid       = $p->ID;
-        $title     = get_the_title( $pid );
-        $excerpt   = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $p->post_content, 24 ) );
-        $price_tom = (int) get_post_meta( $pid, '_iramo_price_toman', true );
-        if ( $p->post_type === 'product' && function_exists( 'wc_get_product' ) ) {
-            $wc = wc_get_product( $pid );
-            if ( $wc && ! $price_tom && $wc->get_price() !== '' ) $price_tom = (int) $wc->get_price();
-        }
-        $items[] = [
-            'id'           => 'wp-prod-' . $pid,
-            'slug'         => $p->post_name ?: ( 'wp-prod-' . $pid ),
-            'name'         => [ 'fa' => $title, 'en' => $title ],
-            'category'     => [ 'fa' => 'محصول نرم‌افزاری', 'en' => 'Software' ],
-            'tagline'      => [ 'fa' => get_post_meta( $pid, '_iramo_tagline', true ) ?: $excerpt, 'en' => $excerpt ],
-            'description'  => [ 'fa' => $excerpt, 'en' => $excerpt ],
-            'accent'       => get_post_meta( $pid, '_iramo_accent', true ) ?: 'emerald',
-            'thumbnail'    => get_the_post_thumbnail_url( $pid, 'large' ) ?: '',
-            'priceToman'   => $price_tom ?: 1900000,
-            'priceUsd'     => max( 9, (int) round( ( $price_tom ?: 1900000 ) / 60000 ) ),
-            'billingLabel' => [ 'fa' => get_post_meta( $pid, '_iramo_billing_label', true ) ?: 'لایسنس دائمی', 'en' => 'License' ],
-            'highlights'   => [ 'fa' => [], 'en' => [] ],
-            'demoMetrics'  => [],
-            'checkoutUrl'  => get_permalink( $pid ),
-            'isDemo'       => false,
-        ];
-    }
-    return $items;
-}
-
-function iramo_collect_wp_tools() {
-    $posts = get_posts( [ 'post_type' => 'iramo_ai_tool', 'post_status' => 'publish', 'posts_per_page' => 100 ] );
-    $items = [];
-    foreach ( $posts as $p ) {
-        $pid     = $p->ID;
-        $title   = get_the_title( $pid );
-        $tagline = get_post_meta( $pid, '_iramo_tagline', true ) ?: wp_trim_words( wp_strip_all_tags( $p->post_content ), 16 );
-        $pop_raw = trim( (string) get_post_meta( $pid, '_iramo_popularity', true ) );
-        $items[] = [
-            'id'              => 'wp-tool-' . $pid,
-            'name'            => $title,
-            'provider'        => trim( (string) get_post_meta( $pid, '_iramo_provider', true ) ),
-            'tagline'         => [ 'fa' => $tagline, 'en' => $tagline ],
-            'task'            => get_post_meta( $pid, '_iramo_task', true ) ?: 'AI Assistant',
-            'input'           => get_post_meta( $pid, '_iramo_input', true ) ?: 'Text',
-            'output'          => get_post_meta( $pid, '_iramo_output', true ) ?: 'Text',
-            'pricing'         => get_post_meta( $pid, '_iramo_pricing', true ) ?: 'Freemium',
-            'hasApi'          => get_post_meta( $pid, '_iramo_has_api', true ) === '1',
-            'hasMobileApp'    => get_post_meta( $pid, '_iramo_has_mobile', true ) === '1',
-            'verified'        => get_post_meta( $pid, '_iramo_verified', true ) === '1',
-            'popularityScore' => $pop_raw !== '' ? (int) $pop_raw : null,
-            'thumbnail'       => get_the_post_thumbnail_url( $pid, 'medium' ) ?: '',
-            'isDemo'          => false,
-            'url'             => get_post_meta( $pid, '_iramo_url', true ) ?: get_permalink( $pid ),
-            'description'     => [ 'fa' => $tagline, 'en' => $tagline ],
-        ];
-    }
-    return $items;
-}
-
-function iramo_collect_wp_courses() {
-    $posts = get_posts( [ 'post_type' => 'iramo_course', 'post_status' => 'publish', 'posts_per_page' => 50 ] );
-    $items = [];
-    foreach ( $posts as $p ) {
-        $pid     = $p->ID;
-        $title   = get_the_title( $pid );
-        $excerpt = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $p->post_content, 18 ) );
-        $hours   = (int) ( get_post_meta( $pid, '_iramo_duration_hours', true ) ?: 12 );
-        $items[] = [
-            'id'            => 'wp-course-' . $pid,
-            'slug'          => $p->post_name ?: ( 'wp-course-' . $pid ),
-            'title'         => [ 'fa' => $title, 'en' => $title ],
-            'subtitle'      => [ 'fa' => $excerpt, 'en' => $excerpt ],
-            'description'   => [ 'fa' => wp_strip_all_tags( $p->post_content ) ?: $excerpt, 'en' => $excerpt ],
-            'category'      => 'AI',
-            'format'        => 'Video',
-            'durationTier'  => $hours > 15 ? 'long' : 'medium',
-            'totalDuration' => [ 'fa' => $hours . ' ساعت', 'en' => $hours . ' hrs' ],
-            'lessonCount'   => 1,
-            'moduleCount'   => 1,
-            'enrolled'      => false,
-            'featured'      => false,
-            'isDemo'        => false,
-            'accentColor'   => 'emerald',
-            'thumbnail'     => get_the_post_thumbnail_url( $pid, 'large' ) ?: '',
-            'instructor'    => [ 'fa' => 'آکادمی iRamoAi', 'en' => 'iRamoAi Academy' ],
-            'priceToman'    => (int) ( get_post_meta( $pid, '_iramo_price_toman', true ) ?: 2900000 ),
-            'priceUsd'      => (int) ( get_post_meta( $pid, '_iramo_price_usd', true ) ?: 49 ),
-            'modules'       => [],
-        ];
-    }
-    return $items;
-}
-
-function iramo_collect_wp_articles() {
-    $posts = get_posts( [ 'post_type' => [ 'iramo_article', 'post' ], 'post_status' => 'publish', 'posts_per_page' => 50 ] );
-    $items = [];
-    foreach ( $posts as $p ) {
-        if ( $p->post_type === 'post' && $p->post_name === 'hello-world' ) continue;
-        $pid     = $p->ID;
-        $title   = get_the_title( $pid );
-        $excerpt = wp_strip_all_tags( get_the_excerpt( $pid ) ?: wp_trim_words( $p->post_content, 24 ) );
-        $items[] = [
-            'id'          => 'wp-art-' . $pid,
-            'slug'        => $p->post_name ?: ( 'wp-art-' . $pid ),
-            'title'       => [ 'fa' => $title, 'en' => $title ],
-            'excerpt'     => [ 'fa' => $excerpt, 'en' => $excerpt ],
-            'category'    => 'AI',
-            'tags'        => [ 'fa' => [ 'iRamoAi' ], 'en' => [ 'iRamoAi' ] ],
-            'author'      => [ 'fa' => 'تحریریه iRamoAi', 'en' => 'iRamoAi' ],
-            'publishedAt' => [ 'fa' => get_the_date( 'j F Y', $pid ), 'en' => get_the_date( 'M j, Y', $pid ) ],
-            'readMinutes' => 4,
-            'views'       => 120,
-            'featured'    => false,
-            'isDemo'      => false,
-            'thumbnail'   => get_the_post_thumbnail_url( $pid, 'large' ) ?: '',
-            'sections'    => [],
-        ];
-    }
-    return $items;
-}
-
-/**
- * 4. Shortcode [iramo_lms] for Student Portal React App (/panel/)
- */
-function iramo_render_app_shortcode( $atts ) {
-    $options = get_option( 'iramo_ai_settings', [] );
-    $atts    = shortcode_atts( [
-        'theme' => $options['default_theme'] ?? 'light',
-        'lang'  => is_rtl() ? 'fa' : 'en',
-        'view'  => 'panel',
-    ], $atts, 'iramo_lms' );
-
-    $user_payload = is_user_logged_in() ? iramo_build_user_payload( get_current_user_id() ) : null;
-    $font_choice  = $options['font_family'] ?? ( file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ? 'custom' : 'vazirmatn' );
-    $custom_url   = file_exists( IRAMO_AI_PATH . 'assets/fonts/custom-font.css' ) ? IRAMO_AI_URL . 'assets/fonts/custom-font.css' : '';
-
-    if ( $custom_url ) {
-        wp_enqueue_style( 'iramo-custom-font', $custom_url, [], IRAMO_AI_VERSION );
-    }
-    if ( file_exists( IRAMO_AI_PATH . 'assets/iramo-lms.js' ) ) {
-        wp_enqueue_script( 'iramo-ai-bundle', IRAMO_AI_URL . 'assets/iramo-lms.js', [], IRAMO_AI_VERSION, true );
-    }
-    if ( file_exists( IRAMO_AI_PATH . 'assets/iramo-lms.css' ) ) {
-        wp_enqueue_style( 'iramo-ai-styles', IRAMO_AI_URL . 'assets/iramo-lms.css', [], IRAMO_AI_VERSION );
-    }
-
-    $auth_config = [
-        'telegram'            => ! isset( $options['enable_telegram_auth'] ) || ! empty( $options['enable_telegram_auth'] ),
-        'bale'                => ! isset( $options['enable_bale_auth'] ) || ! empty( $options['enable_bale_auth'] ),
-        'sms'                 => ! isset( $options['enable_sms_auth'] ) || ! empty( $options['enable_sms_auth'] ),
-        'email'               => ! isset( $options['enable_email_auth'] ) || ! empty( $options['enable_email_auth'] ),
-        'defaultChannel'      => $options['default_auth_channel'] ?? 'telegram',
-        'allowRegistration'   => ! isset( $options['allow_registration'] ) || ! empty( $options['allow_registration'] ),
-        'telegramBotUsername' => $options['telegram_bot_username'] ?? '@iRamoBot',
-        'baleBotUsername'     => $options['bale_bot_username'] ?? '@iRamoBaleBot',
-    ];
-
-    $color_config = [
-        'preset'          => $options['color_preset'] ?? 'emerald-classic',
-        'primaryHex'      => $options['primary_color'] ?? '#059669',
-        'accentHex'       => $options['accent_color'] ?? '#FFBA00',
-        'lightCanvasHex'  => $options['light_canvas_color'] ?? '#F8FAFC',
-        'borderIntensity' => $options['border_intensity'] ?? 'subtle',
-    ];
-
-    ob_start();
-    ?>
-    <div
-      id="iramo-lms-root"
-      data-theme="<?php echo esc_attr( $atts['theme'] ); ?>"
-      data-lang="<?php echo esc_attr( $atts['lang'] ); ?>"
-      data-view="<?php echo esc_attr( $atts['view'] ); ?>"
-      data-font="<?php echo esc_attr( $font_choice ); ?>"
-      data-custom-font="<?php echo esc_attr( $options['custom_font_name'] ?? 'IRANYekanXVF' ); ?>"
-      data-custom-font-css-url="<?php echo esc_attr( $custom_url ); ?>"
-      data-brand-name="<?php echo esc_attr( $options['brand_name'] ?? 'iRamoAi' ); ?>"
-      data-color-config="<?php echo esc_attr( wp_json_encode( $color_config ) ); ?>"
-      data-auth-config="<?php echo esc_attr( wp_json_encode( $auth_config ) ); ?>"
-      data-quick-tips="[]"
-      data-products="<?php echo esc_attr( wp_json_encode( iramo_collect_wp_products() ) ); ?>"
-      data-tools="<?php echo esc_attr( wp_json_encode( iramo_collect_wp_tools() ) ); ?>"
-      data-courses="<?php echo esc_attr( wp_json_encode( iramo_collect_wp_courses() ) ); ?>"
-      data-articles="<?php echo esc_attr( wp_json_encode( iramo_collect_wp_articles() ) ); ?>"
-      data-demo-cleared="<?php echo ! empty( $options['demo_cleared'] ) ? '1' : '0'; ?>"
-      data-plugin-url="<?php echo esc_url( IRAMO_AI_URL ); ?>"
-      data-rest-url="<?php echo esc_url( rest_url( 'iramo/v1/' ) ); ?>"
-      data-wp-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
-      data-user="<?php echo esc_attr( wp_json_encode( $user_payload ) ); ?>"
-      style="min-height: 100vh; width: 100%;"
-    ></div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode( 'iramo_lms', 'iramo_render_app_shortcode' );
-add_shortcode( 'iramo_site', 'iramo_render_app_shortcode' );
-
-/**
- * Load React LMS Vite ES module bundle with type="module" (required for import.meta.url)
- * and exclude it from LiteSpeed Cache / WP Rocket minification, combination & delay.
- */
-add_filter( 'script_loader_tag', function( $tag, $handle, $src ) {
-    if ( 'iramo-ai-bundle' !== $handle ) {
-        return $tag;
-    }
-    $cleaned = preg_replace( '/\s+type=[\'"][^\'"]*[\'"]/', '', (string) $tag );
-    return str_replace(
-        '<script ',
-        '<script type="module" data-no-optimize="1" data-no-defer="1" data-no-minify="1" ',
-        $cleaned
-    );
-}, 20, 3 );
-
-$iramo_exclude_bundle = function( $excludes ) {
-    if ( ! is_array( $excludes ) ) {
-        $excludes = [];
-    }
-    $excludes[] = 'iramo-lms.js';
-    $excludes[] = '/iramo-ai-suite/assets/iramo-lms.js';
-    return array_values( array_unique( $excludes ) );
-};
-add_filter( 'litespeed_optimize_js_excludes', $iramo_exclude_bundle );
-add_filter( 'litespeed_optm_js_defer_exc', $iramo_exclude_bundle );
-add_filter( 'rocket_exclude_js', $iramo_exclude_bundle );
-add_filter( 'rocket_exclude_defer_js', $iramo_exclude_bundle );
-add_filter( 'rocket_delay_js_exclusions', $iramo_exclude_bundle );
-
-/**
- * 5. Automatic Seeding of 18 Curated Real AI Tools from assets/curated-ai-tools.json
+ * 4. Automatic Seeding of 18 Curated Real AI Tools from assets/curated-ai-tools.json
  */
 function iramo_seed_curated_ai_tools( $force_update = false ) {
     $json_file = IRAMO_AI_PATH . 'assets/curated-ai-tools.json';
@@ -1052,15 +627,15 @@ function iramo_get_blueprint_pages() {
             'content'  => '',
             'template' => '',
         ],
+        'articles' => [
+            'title'    => 'مقالات',
+            'content'  => '',
+            'template' => '',
+        ],
         'services' => [
             'title'    => 'خدمات و مشاوره',
             'content'  => '',
             'template' => '',
-        ],
-        'panel' => [
-            'title'    => 'پنل کاربری و آموزش',
-            'content'  => '[iramo_lms view="panel"]',
-            'template' => 'templates/template-canvas.php',
         ],
     ];
 }
@@ -1070,6 +645,27 @@ function iramo_provision_site_pages( $force = false ) {
         return;
     }
     set_transient( 'iramo_provisioning_lock', 1, 15 );
+
+    global $wpdb;
+    if ( isset( $wpdb ) ) {
+        // Silently migrate any legacy `iramo_article` posts into native WordPress Posts (`نوشته‌ها`)
+        $wpdb->update( $wpdb->posts, [ 'post_type' => 'post' ], [ 'post_type' => 'iramo_article' ] );
+    }
+
+    // Cleanly remove obsolete React /panel/ page seeded by earlier versions
+    $legacy_panels = get_posts( [
+        'post_type'      => 'page',
+        'post_status'    => 'any',
+        'meta_key'       => '_iramo_page_slug',
+        'meta_value'     => 'panel',
+        'posts_per_page' => 5,
+        'fields'         => 'ids',
+    ] );
+    if ( ! empty( $legacy_panels ) ) {
+        foreach ( $legacy_panels as $legacy_panel_id ) {
+            wp_delete_post( (int) $legacy_panel_id, true );
+        }
+    }
 
     // Seed all 18 curated AI tools first
     iramo_seed_curated_ai_tools( $force );
@@ -1129,39 +725,36 @@ function iramo_provision_site_pages( $force = false ) {
         }
     }
 
-    // Build clean WordPress Navigation Menu pointing to SSR pages + CPT Archives + React Panel
-    $menu_name = 'منوی اصلی iRamoAi';
-    $menu_obj  = wp_get_nav_menu_object( $menu_name );
-    if ( ! $menu_obj || $force ) {
+    // Build clean WordPress Navigation Menu matching React WebsiteShell (5 links inside inner segmented pill)
+    $menu_name    = 'منوی اصلی iRamoAi';
+    $menu_obj     = wp_get_nav_menu_object( $menu_name );
+    $needs_upgrade = get_option( 'iramo_pages_provisioned' ) !== '3.0.0';
+    $refresh_menu = ! $menu_obj || $force || $needs_upgrade;
+    if ( $refresh_menu ) {
         $menu_id = $menu_obj ? (int) $menu_obj->term_id : wp_create_nav_menu( $menu_name );
         if ( $menu_id && ! is_wp_error( $menu_id ) ) {
-            if ( $force ) {
-                $old_items = wp_get_nav_menu_items( $menu_id );
-                if ( is_array( $old_items ) ) {
-                    foreach ( $old_items as $oi ) {
-                        wp_delete_post( $oi->ID, true );
-                    }
+            $old_items = wp_get_nav_menu_items( $menu_id );
+            if ( is_array( $old_items ) ) {
+                foreach ( $old_items as $oi ) {
+                    wp_delete_post( $oi->ID, true );
                 }
             }
-            $existing_items = wp_get_nav_menu_items( $menu_id );
-            if ( empty( $existing_items ) ) {
-                $nav_entries = [
-                    [ 'title' => 'صفحه اصلی', 'url' => home_url( '/' ) ],
-                    [ 'title' => 'محصولات', 'url' => home_url( '/products/' ) ],
-                    [ 'title' => 'ابزارهای هوش مصنوعی', 'url' => home_url( '/ai-tools/' ) ],
-                    [ 'title' => 'آکادمی و دوره‌ها', 'url' => home_url( '/academy/' ) ],
-                    [ 'title' => 'مقالات', 'url' => home_url( '/articles/' ) ],
-                    [ 'title' => 'خدمات و مشاوره', 'url' => home_url( '/services/' ) ],
-                    [ 'title' => 'پنل کاربری', 'url' => home_url( '/panel/' ) ],
-                ];
-                foreach ( $nav_entries as $entry ) {
-                    wp_update_nav_menu_item( $menu_id, 0, [
-                        'menu-item-title'  => $entry['title'],
-                        'menu-item-url'    => $entry['url'],
-                        'menu-item-type'   => 'custom',
-                        'menu-item-status' => 'publish',
-                    ] );
-                }
+            $articles_url = ! empty( $created_ids['articles'] ) ? get_permalink( $created_ids['articles'] ) : home_url( '/articles/' );
+            $services_url = ! empty( $created_ids['services'] ) ? get_permalink( $created_ids['services'] ) : home_url( '/services/' );
+            $nav_entries  = [
+                [ 'title' => 'محصولات', 'url' => home_url( '/products/' ) ],
+                [ 'title' => 'دوره‌های آموزشی', 'url' => home_url( '/academy/' ) ],
+                [ 'title' => 'ابزارهای هوش مصنوعی', 'url' => home_url( '/ai-tools/' ) ],
+                [ 'title' => 'مقالات', 'url' => $articles_url ],
+                [ 'title' => 'خدمات و مشاوره', 'url' => $services_url ],
+            ];
+            foreach ( $nav_entries as $entry ) {
+                wp_update_nav_menu_item( $menu_id, 0, [
+                    'menu-item-title'  => $entry['title'],
+                    'menu-item-url'    => $entry['url'],
+                    'menu-item-type'   => 'custom',
+                    'menu-item-status' => 'publish',
+                ] );
             }
             $locations = get_theme_mod( 'nav_menu_locations', [] );
             if ( ! is_array( $locations ) ) $locations = [];
@@ -1185,7 +778,7 @@ function iramo_provision_site_pages( $force = false ) {
         iramo_get_or_create_webhook_secret();
     }
 
-    update_option( 'iramo_pages_provisioned', '2.5.0' );
+    update_option( 'iramo_pages_provisioned', '3.0.0' );
     delete_option( 'iramo_pending_page_setup' );
     flush_rewrite_rules();
     delete_transient( 'iramo_provisioning_lock' );
@@ -1203,14 +796,14 @@ add_action( 'after_switch_theme', function() {
 } );
 
 add_action( 'elementor/init', function() {
-    $target_seed = ( function_exists( 'iramo_is_elementor_pro_active' ) && iramo_is_elementor_pro_active() ) ? '2.5.0-pro' : '2.5.0-free';
+    $target_seed = ( function_exists( 'iramo_is_elementor_pro_active' ) && iramo_is_elementor_pro_active() ) ? '3.0.0-pro' : '3.0.0-free';
     if ( get_option( 'iramo_elementor_seeded' ) !== $target_seed ) {
         iramo_provision_site_pages( false );
     }
 } );
 
 add_action( 'elementor_pro/init', function() {
-    if ( get_option( 'iramo_elementor_seeded' ) !== '2.5.0-pro' ) {
+    if ( get_option( 'iramo_elementor_seeded' ) !== '3.0.0-pro' ) {
         iramo_provision_site_pages( false );
     }
 } );
@@ -1219,9 +812,9 @@ add_action( 'admin_init', function() {
     if ( function_exists( 'iramo_get_or_create_webhook_secret' ) ) {
         iramo_get_or_create_webhook_secret();
     }
-    $target_seed = ( function_exists( 'iramo_is_elementor_pro_active' ) && iramo_is_elementor_pro_active() ) ? '2.5.0-pro' : '2.5.0-free';
+    $target_seed = ( function_exists( 'iramo_is_elementor_pro_active' ) && iramo_is_elementor_pro_active() ) ? '3.0.0-pro' : '3.0.0-free';
     if (
-        get_option( 'iramo_pages_provisioned' ) !== '2.5.0' ||
+        get_option( 'iramo_pages_provisioned' ) !== '3.0.0' ||
         get_option( 'iramo_elementor_seeded' ) !== $target_seed ||
         get_option( 'iramo_curated_tools_seeded' ) !== '2.2.0' ||
         get_option( 'iramo_pending_page_setup' )

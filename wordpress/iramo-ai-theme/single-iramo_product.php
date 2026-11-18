@@ -34,7 +34,7 @@ while ( have_posts() ) :
         $highlights = [
             'نصب سریع و بدون نیاز به دانش برنامه‌نویسی',
             'اتصال خودکار به ربات تلگرام و بله پس از خرید',
-            'صدور آنی کلید لایسنس و نمایش در پنل کاربری',
+            'صدور آنی کلید لایسنس و ارسال در سفارش و ایمیل',
         ];
     }
     $raw_metrics   = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_metrics', true ) ) ) ) );
@@ -55,7 +55,7 @@ while ( have_posts() ) :
     }
     $checkout_url = ( get_post_type() === 'product' && function_exists( 'wc_get_checkout_url' ) )
         ? add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() )
-        : iramo_get_page_url( 'panel', '/panel/' );
+        : iramo_get_page_url( 'services', '/services/' );
     $thumb = get_the_post_thumbnail_url( $pid, 'large' ) ?: iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' );
     ?>
     <main id="primary" class="iramo-main-wrap">
@@ -124,7 +124,7 @@ while ( have_posts() ) :
                     <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);">
                         <span class="iramo-badge">گام ۲</span>
                         <h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">تحویل فایل و دوره همراه</h3>
-                        <p style="margin:0;font-size:13px;color:var(--iramo-muted);">فایل نصب، آموزش ویدئویی و لایسنس در پنل کاربری و ربات تلگرام/بله ظاهر می‌شوند.</p>
+                        <p style="margin:0;font-size:13px;color:var(--iramo-muted);">فایل نصب، آموزش ویدئویی و لایسنس در صفحه سفارش و ربات تلگرام/بله ارسال می‌شوند.</p>
                     </div>
                     <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);">
                         <span class="iramo-badge">گام ۳</span>
@@ -154,7 +154,7 @@ while ( have_posts() ) :
                             <span>آیا بلافاصله بعد از پرداخت امکان دانلود و استفاده وجود دارد؟</span>
                             <span>+</span>
                         </button>
-                        <div class="iramo-faq-body">بله. لایسنس و دسترسی دوره آموزشی همراه به‌صورت خودکار پس از تایید ووکامرس در پنل کاربری و ربات شما فعال می‌شود.</div>
+                        <div class="iramo-faq-body">بله. لایسنس و دسترسی فایل‌ها به‌صورت خودکار پس از تایید ووکامرس در حساب کاربری و ربات شما فعال می‌شود.</div>
                     </div>
                     <div class="iramo-faq-item">
                         <button type="button" class="iramo-faq-btn" data-iramo-faq-toggle>

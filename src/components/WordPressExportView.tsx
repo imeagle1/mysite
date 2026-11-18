@@ -204,7 +204,7 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
         folder.file('elementor-templates/iramo-canvas-template.json', ELEMENTOR_TEMPLATE_JSON);
         folder.file(
           'assets/README.txt',
-          'Run `npm run package:wp` or push to GitHub Actions (`.github/workflows/build-wordpress-release.yml`) to bundle compiled iramo-lms.js, iramo-lms.css & curated-ai-tools.json.'
+          'Run `npm run package:wp` or push to GitHub Actions (`.github/workflows/build-wordpress-release.yml`) to generate clean WordPress theme & plugin ZIPs with curated-ai-tools.json.'
         );
       }
       const blob = await zip.generateAsync({ type: 'blob' });
@@ -223,8 +223,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
             <Layers className="w-4 h-4" />
             <span>
               {isFa
-                ? 'قالب بومی وردپرس + ۲۹ ویجت اتمیک و اختصاصی، Dynamic Tags و کاشت خودکار تمام صفحات در المنتور و المنتور پرو + پنل دانشجویی React'
-                : 'Native WP Theme + 29 Atomic & Custom Elementor Widgets + Pre-Seeded Elementor Pages & Templates + Student LMS'}
+                ? 'قالب بومی استاندارد وردپرس + ۲۸ ویجت اتمیک و اختصاصی، Dynamic Tags و کاشت خودکار صفحات و تمپلت‌ها در المنتور و المنتور پرو (بدون React)'
+                : 'Standard Native WP Theme + 28 Atomic Elementor Widgets + Pre-Seeded Elementor Pages & Templates (Zero React)'}
             </span>
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -234,8 +234,8 @@ export const WordPressExportView: React.FC<WordPressExportViewProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300/85 leading-relaxed max-w-4xl">
             {isFa
-              ? 'بلافاصله پس از فعال‌سازی افزونه، تمام برگه‌ها (خانه، خدمات، پنل) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی ابزارهای AI، محصولات، دوره‌ها، مقالات و ۴۰۴) به‌صورت خودکار با ۲۹ ویجت اتمیک و اختصاصی و کانتینرهای تودرتو داخل المنتور ساخته می‌شوند و با حفظ دقیق UI سایت در المنتور رایگان و پرو قابل ویرایش بصری هستند.'
-              : 'Upon activation, Home/Services/Panel pages and global templates (Header, Footer, AI Tools, Products, Courses, Articles, 404) are auto-seeded in Elementor with 29 atomic & custom widgets inside nested Flexbox Containers and 8 Dynamic Tags, editable in both Elementor Free and Pro.'}
+              ? 'بلافاصله پس از فعال‌سازی افزونه، تمام برگه‌ها (خانه، مقالات، خدمات) و تمپلت‌های سراسری (هدر، فوتر، آرشیو و تکی ابزارهای AI، محصولات، دوره‌ها، نوشته‌ها و ۴۰۴) به‌صورت خودکار با ۲۸ ویجت اتمیک و اختصاصی داخل المنتور ساخته می‌شوند و ۱۰۰٪ منطبق با استانداردهای وردپرس و ووکامرس هستند.'
+              : 'Upon activation, Home/Articles/Services pages and global templates (Header, Footer, AI Tools, Products, Courses, Posts, 404) are auto-seeded in Elementor with 28 widgets and Dynamic Tags, 100% pure PHP + Elementor + WooCommerce.'}
           </p>
         </div>
 

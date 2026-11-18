@@ -5,4 +5,4 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-include get_template_directory() . '/archive-iramo_article.php';
+include get_template_directory() . '/archive.php';

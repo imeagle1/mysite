@@ -25,7 +25,11 @@ while ( have_posts() ) :
     $level      = trim( (string) get_post_meta( $pid, '_iramo_level', true ) );
     $instructor = trim( (string) get_post_meta( $pid, '_iramo_instructor', true ) );
     $thumb      = get_the_post_thumbnail_url( $pid, 'large' ) ?: iramo_get_theme_image( 'course_ai_mastery_1794737810266.jpg' );
-    $panel_url  = iramo_get_page_url( 'panel', '/panel/' );
+    $services_url = iramo_get_page_url( 'services', '/services/' );
+    $linked_prod  = (int) get_post_meta( $pid, '_iramo_linked_product_id', true );
+    $enroll_url   = ( $linked_prod && function_exists( 'wc_get_checkout_url' ) )
+        ? add_query_arg( 'add-to-cart', $linked_prod, wc_get_checkout_url() )
+        : $services_url;
     ?>
     <main id="primary" class="iramo-main-wrap">
         <div class="iramo-container" style="display:grid;gap:24px;">
@@ -39,8 +43,8 @@ while ( have_posts() ) :
                         <?php endif; ?>
                         <p style="margin:0 0 18px;font-size:15px;color:var(--iramo-muted);"><?php echo esc_html( get_the_excerpt() ); ?></p>
                         <div style="display:flex;flex-wrap:wrap;gap:10px;">
-                            <a href="<?php echo esc_url( $panel_url ); ?>" class="iramo-price-btn iramo-price-btn-green" style="padding:12px 22px;font-size:14px;">
-                                <span class="price-label">ثبت‌نام و مشاهده در پنل · <?php echo esc_html( iramo_format_toman( $price ) ); ?></span>
+                            <a href="<?php echo esc_url( $enroll_url ); ?>" class="iramo-price-btn iramo-price-btn-green" style="padding:12px 22px;font-size:14px;">
+                                <span class="price-label">ثبت‌نام در دوره · <?php echo esc_html( iramo_format_toman( $price ) ); ?></span>
                                 <span>←</span>
                             </a>
                         </div>

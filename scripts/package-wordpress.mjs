@@ -93,14 +93,6 @@ async function buildPluginZip() {
   addDirectoryRecursive(base, wpPluginDir);
 
   const assetsFolder = base.folder('assets');
-  if (fs.existsSync(distAssetsDir)) {
-    for (const file of fs.readdirSync(distAssetsDir)) {
-      const fullPath = path.join(distAssetsDir, file);
-      if (fs.statSync(fullPath).isFile()) {
-        assetsFolder.file(file, fs.readFileSync(fullPath));
-      }
-    }
-  }
 
   const logoDir = path.join(root, 'public', 'assets', 'aistudio');
   const brandLogos = ['Group_179_659a031b.png', 'logo_brand_19b8e3d7.png'];

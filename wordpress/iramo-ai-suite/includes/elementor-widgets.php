@@ -1,13 +1,27 @@
 <?php
 /**
- * Module: 29 Granular Atomic & Full-Featured Elementor Widgets for iRamoAi
+ * Module: 28 Granular Atomic & Full-Featured Elementor Widgets for iRamoAi
  * Allows pixel-accurate ZLM-style drag-and-drop editing of every badge, heading,
  * button, proof strip, menu, footer column, social row, AI tool part & product section
- * without changing the clean iRamoAi visual UI.
+ * built strictly with standard WordPress + Elementor + WooCommerce templates.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
+}
+
+if ( ! function_exists( 'iramo_plugin_brand_wordmark_html' ) ) {
+    function iramo_plugin_brand_wordmark_html( $raw_title = 'iRamoAi' ) {
+        $title = trim( (string) ( $raw_title ?: 'iRamoAi' ) );
+        if ( strpos( $title, '.' ) !== false ) {
+            $parts = explode( '.', $title, 2 );
+            return '<span dir="ltr">' . esc_html( $parts[0] ) . '<span class="accent-ai">.' . esc_html( $parts[1] ) . '</span></span>';
+        }
+        if ( preg_match( '/^(.+?)(ai)$/i', $title, $m ) ) {
+            return '<span dir="ltr">' . esc_html( $m[1] ) . '<span class="accent-ai">' . esc_html( $m[2] ) . '</span></span>';
+        }
+        return '<span dir="ltr">' . esc_html( $title ) . '</span>';
+    }
 }
 
 add_action( 'elementor/elements/categories_registered', function( $elements_manager ) {
@@ -152,7 +166,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     <img src="<?php echo esc_url( $logo_dark ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-dark" />
                 <?php endif; ?>
                 <?php if ( ( $s['show_brand_text'] ?? 'yes' ) === 'yes' ) : ?>
-                    <span class="iramo-brand-text"><?php echo esc_html( $brand ); ?></span>
+                    <span class="iramo-brand-text"><?php echo iramo_plugin_brand_wordmark_html( $brand ); ?></span>
                 <?php endif; ?>
             </a>
             <?php
@@ -187,15 +201,17 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
 
         protected function render() {
-            $s         = $this->get_settings_for_display();
-            $menu_slug = $s['menu_slug'] ?? '';
-            $panel_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' );
-            $fallback_li = '<li><a href="' . esc_url( home_url( '/' ) ) . '">خانه</a></li>'
-                . '<li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li>'
+            $s            = $this->get_settings_for_display();
+            $menu_slug    = $s['menu_slug'] ?? '';
+            $has_wc       = function_exists( 'iramo_has_woocommerce_account' ) && iramo_has_woocommerce_account();
+            $account_url  = function_exists( 'iramo_get_account_url' ) ? iramo_get_account_url() : home_url( '/services/' );
+            $articles_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'articles', '/articles/' ) : home_url( '/articles/' );
+            $services_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'services', '/services/' ) : home_url( '/services/' );
+            $fallback_li  = '<li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li>'
+                . '<li><a href="' . esc_url( home_url( '/academy/' ) ) . '">دوره‌های آموزشی</a></li>'
                 . '<li><a href="' . esc_url( home_url( '/ai-tools/' ) ) . '">ابزارهای هوش مصنوعی</a></li>'
-                . '<li><a href="' . esc_url( home_url( '/academy/' ) ) . '">آکادمی</a></li>'
-                . '<li><a href="' . esc_url( home_url( '/articles/' ) ) . '">مقالات</a></li>'
-                . '<li><a href="' . esc_url( home_url( '/services/' ) ) . '">خدمات و مشاوره</a></li>';
+                . '<li><a href="' . esc_url( $articles_url ) . '">مقالات</a></li>'
+                . '<li><a href="' . esc_url( $services_url ) . '">خدمات و مشاوره</a></li>';
             ?>
             <nav aria-label="منوی اصلی سایت">
                 <?php
@@ -216,7 +232,8 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     } elseif ( has_nav_menu( 'primary' ) ) {
                         wp_nav_menu( [ 'theme_location' => 'primary', 'container' => false, 'depth' => 1 ] );
                     } else {
-                        echo '<ul>' . $fallback_li . '<li><a href="' . esc_url( $panel_url ) . '">پنل کاربری و آموزش</a></li></ul>';
+                        $extra_wc_li = $has_wc ? '<li><a href="' . esc_url( $account_url ) . '">حساب کاربری و سفارش‌ها</a></li>' : '';
+                        echo '<ul><li><a href="' . esc_url( home_url( '/' ) ) . '">صفحه اصلی</a></li>' . $fallback_li . $extra_wc_li . '</ul>';
                     }
                     ?>
                 </div>
@@ -224,23 +241,23 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
     }
 
-    // 3. Atomic Header Actions (Theme Switcher + Panel CTA + Hamburger)
+    // 3. Atomic Header Actions (Theme Switcher + Account/Consultation CTA + Hamburger)
     class iRamo_Widget_Header_Actions extends iRamo_Base_Widget {
         public function get_name() { return 'iramo_header_actions'; }
-        public function get_title() { return __( 'دکمه‌های هدر (تم + پنل + موبایل)', 'iramo-ai' ); }
+        public function get_title() { return __( 'دکمه‌های هدر (تم + حساب/مشاوره + موبایل)', 'iramo-ai' ); }
         public function get_icon() { return 'eicon-button'; }
 
         protected function register_controls() {
             $this->start_controls_section( 'sec_hact', [ 'label' => __( 'تنظیمات دکمه‌های هدر', 'iramo-ai' ) ] );
             $this->add_control( 'show_theme_toggle', [ 'label' => 'دکمه تغییر تم روشن/تیره', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
-            $this->add_control( 'show_cta', [ 'label' => 'دکمه ورود / پنل کاربری', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
-            $this->add_control( 'cta_text', [ 'label' => 'متن دکمه دسکتاپ', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ورود / پنل کاربری' ] );
-            $this->add_control( 'cta_short', [ 'label' => 'متن کوتاه موبایل', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ورود / پنل' ] );
-            $this->add_control( 'cta_url', [ 'label' => 'لینک دکمه (خالی = پنل خودکار)', 'type' => \Elementor\Controls_Manager::URL ] );
+            $this->add_control( 'show_cta', [ 'label' => 'دکمه اصلی هدر', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
+            $this->add_control( 'cta_text', [ 'label' => 'متن دکمه دسکتاپ (خالی = خودکار)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '' ] );
+            $this->add_control( 'cta_short', [ 'label' => 'متن کوتاه موبایل (خالی = خودکار)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '' ] );
+            $this->add_control( 'cta_url', [ 'label' => 'لینک دکمه (خالی = حساب ووکامرس / مشاوره)', 'type' => \Elementor\Controls_Manager::URL ] );
             $this->add_control( 'show_mobile_toggle', [ 'label' => 'دکمه همبرگری موبایل', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
             $this->end_controls_section();
 
-            $this->start_controls_section( 'sec_hact_style', [ 'label' => 'استایل دکمه پنل', 'tab' => \Elementor\Controls_Manager::TAB_STYLE ] );
+            $this->start_controls_section( 'sec_hact_style', [ 'label' => 'استایل دکمه اصلی هدر', 'tab' => \Elementor\Controls_Manager::TAB_STYLE ] );
             $this->add_control( 'cta_bg', [ 'label' => 'رنگ پس‌زمینه دکمه', 'type' => \Elementor\Controls_Manager::COLOR, 'selectors' => [ '{{WRAPPER}} .iramo-panel-cta' => 'background-color: {{VALUE}};' ] ] );
             $this->add_control( 'cta_color', [ 'label' => 'رنگ متن دکمه', 'type' => \Elementor\Controls_Manager::COLOR, 'selectors' => [ '{{WRAPPER}} .iramo-panel-cta' => 'color: {{VALUE}};' ] ] );
             $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [ 'name' => 'cta_typo', 'selector' => '{{WRAPPER}} .iramo-panel-cta' ] );
@@ -248,24 +265,31 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
 
         protected function render() {
-            $s         = $this->get_settings_for_display();
-            $panel_url = ! empty( $s['cta_url']['url'] ) ? $s['cta_url']['url'] : ( function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' ) );
+            $s          = $this->get_settings_for_display();
+            $has_wc     = function_exists( 'iramo_has_woocommerce_account' ) && iramo_has_woocommerce_account();
+            $auto_url   = function_exists( 'iramo_get_account_url' ) ? iramo_get_account_url() : home_url( '/services/' );
+            $cta_url    = ! empty( $s['cta_url']['url'] ) ? $s['cta_url']['url'] : $auto_url;
+            $auto_full  = $has_wc ? ( is_user_logged_in() ? 'حساب کاربری' : 'ورود / حساب کاربری' ) : 'درخواست مشاوره';
+            $auto_short = $has_wc ? ( is_user_logged_in() ? 'حساب من' : 'ورود / حساب' ) : 'مشاوره';
+            $full_label = ! empty( trim( (string) ( $s['cta_text'] ?? '' ) ) ) ? $s['cta_text'] : $auto_full;
+            $short_lbl  = ! empty( trim( (string) ( $s['cta_short'] ?? '' ) ) ) ? $s['cta_short'] : $auto_short;
             ?>
             <div class="iramo-header-actions">
                 <?php if ( ( $s['show_theme_toggle'] ?? 'yes' ) === 'yes' ) : ?>
                     <button type="button" class="iramo-icon-btn" data-iramo-theme-toggle aria-label="تغییر تم روشن و تیره" title="تغییر تم">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                     </button>
                 <?php endif; ?>
                 <?php if ( ( $s['show_cta'] ?? 'yes' ) === 'yes' ) : ?>
-                    <a href="<?php echo esc_url( $panel_url ); ?>" class="iramo-panel-cta">
-                        <span class="label-full"><?php echo esc_html( is_user_logged_in() ? 'پنل کاربری من' : ( $s['cta_text'] ?: 'ورود / پنل کاربری' ) ); ?></span>
-                        <span class="label-short"><?php echo esc_html( is_user_logged_in() ? 'پنل من' : ( $s['cta_short'] ?: 'ورود / پنل' ) ); ?></span>
+                    <a href="<?php echo esc_url( $cta_url ); ?>" class="iramo-panel-cta">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                        <span class="label-full"><?php echo esc_html( $full_label ); ?></span>
+                        <span class="label-short"><?php echo esc_html( $short_lbl ); ?></span>
                     </a>
                 <?php endif; ?>
                 <?php if ( ( $s['show_mobile_toggle'] ?? 'yes' ) === 'yes' ) : ?>
                     <button type="button" class="iramo-icon-btn iramo-menu-toggle" data-iramo-menu-toggle aria-label="منوی موبایل" aria-expanded="false">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                     </button>
                 <?php endif; ?>
             </div>
@@ -441,18 +465,18 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $this->add_control( 'show_float_chip', [ 'label' => 'نمایش کارت شناور روی تصویر', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
             $this->add_control( 'chip_title', [ 'label' => 'تیتر کارت شناور', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'اتوماسیون حسابداری، محتوا و آموزش' ] );
             $this->add_control( 'chip_sub', [ 'label' => 'زیرنویس کارت شناور', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ساخته شده برای تیم‌های ایرانی' ] );
-            $this->add_control( 'chip_cta_text', [ 'label' => 'متن دکمه کارت شناور', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ورود به پنل' ] );
-            $this->add_control( 'chip_cta_url', [ 'label' => 'لینک دکمه کارت شناور', 'type' => \Elementor\Controls_Manager::URL, 'default' => [ 'url' => '/panel/' ] ] );
+            $this->add_control( 'chip_cta_text', [ 'label' => 'متن دکمه کارت شناور', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'مشاهده محصولات' ] );
+            $this->add_control( 'chip_cta_url', [ 'label' => 'لینک دکمه کارت شناور', 'type' => \Elementor\Controls_Manager::URL, 'default' => [ 'url' => '/products/' ] ] );
             $this->end_controls_section();
 
             $this->register_iramo_card_style_controls( '{{WRAPPER}} .iramo-hero-media', 'استایل قاب تصویر' );
         }
 
         protected function render() {
-            $s      = $this->get_settings_for_display();
-            $custom = ! empty( $s['image']['url'] ) ? $s['image']['url'] : '';
-            $img    = $custom ?: ( function_exists( 'iramo_get_theme_image' ) ? iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' ) : '' );
-            $panel  = ! empty( $s['chip_cta_url']['url'] ) ? $s['chip_cta_url']['url'] : ( function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' ) );
+            $s        = $this->get_settings_for_display();
+            $custom   = ! empty( $s['image']['url'] ) ? $s['image']['url'] : '';
+            $img      = $custom ?: ( function_exists( 'iramo_get_theme_image' ) ? iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' ) : '' );
+            $chip_url = ! empty( $s['chip_cta_url']['url'] ) ? $s['chip_cta_url']['url'] : home_url( '/products/' );
             if ( ! $img ) return;
             ?>
             <div class="iramo-hero-media">
@@ -464,7 +488,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                             <div style="font-size:11px;opacity:0.85;"><?php echo esc_html( $s['chip_sub'] ); ?></div>
                         </div>
                         <?php if ( ! empty( $s['chip_cta_text'] ) ) : ?>
-                            <a href="<?php echo esc_url( $panel ); ?>" class="iramo-price-btn" style="padding:5px 12px;font-size:11px;"><?php echo esc_html( $s['chip_cta_text'] ); ?></a>
+                            <a href="<?php echo esc_url( $chip_url ); ?>" class="iramo-price-btn" style="padding:5px 12px;font-size:11px;"><?php echo esc_html( $s['chip_cta_text'] ); ?></a>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -486,7 +510,15 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'label' => 'پلتفرم',
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'default' => 'telegram',
-                'options' => [ 'telegram' => 'تلگرام', 'bale' => 'بله', 'instagram' => 'اینستاگرام', 'github' => 'گیت‌هاب', 'link' => 'وب‌سایت / لینک دلخواه' ],
+                'options' => [
+                    'telegram'  => 'تلگرام',
+                    'bale'      => 'بله',
+                    'instagram' => 'اینستاگرام',
+                    'youtube'   => 'یوتیوب',
+                    'github'    => 'گیت‌هاب',
+                    'linkedin'  => 'لینکدین',
+                    'link'      => 'وب‌سایت / لینک دلخواه',
+                ],
             ] );
             $rep->add_control( 'label', [ 'label' => 'عنوان (Tooltip)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'تلگرام' ] );
             $rep->add_control( 'url', [ 'label' => 'آدرس لینک', 'type' => \Elementor\Controls_Manager::URL, 'default' => [ 'url' => 'https://t.me/iRamoBot' ] ] );
@@ -496,10 +528,12 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'fields' => $rep->get_controls(),
                 'title_field' => '{{{ label }}}',
                 'default' => [
-                    [ 'network' => 'telegram', 'label' => 'ربات تلگرام', 'url' => [ 'url' => 'https://t.me/iRamoBot' ] ],
-                    [ 'network' => 'bale', 'label' => 'ربات بله', 'url' => [ 'url' => 'https://ble.ir/iRamoBaleBot' ] ],
+                    [ 'network' => 'telegram', 'label' => 'تلگرام', 'url' => [ 'url' => 'https://t.me/iRamoBot' ] ],
+                    [ 'network' => 'bale', 'label' => 'پیام‌رسان بله', 'url' => [ 'url' => 'https://ble.ir/iRamoBaleBot' ] ],
                     [ 'network' => 'instagram', 'label' => 'اینستاگرام', 'url' => [ 'url' => 'https://instagram.com' ] ],
+                    [ 'network' => 'youtube', 'label' => 'یوتیوب', 'url' => [ 'url' => 'https://youtube.com' ] ],
                     [ 'network' => 'github', 'label' => 'گیت‌هاب', 'url' => [ 'url' => 'https://github.com' ] ],
+                    [ 'network' => 'linkedin', 'label' => 'لینکدین', 'url' => [ 'url' => 'https://linkedin.com' ] ],
                 ],
             ] );
             $this->end_controls_section();
@@ -515,11 +549,13 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $list = $s['socials'] ?? [];
             if ( empty( $list ) ) return;
             $svgs = [
-                'telegram'  => '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
-                'bale'      => '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
-                'instagram' => '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>',
-                'github'    => '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/></svg>',
-                'link'      => '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+                'telegram'  => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.5 2.8 10.7c-.9.3-.8 1.6.1 1.9l4.7 1.5 1.8 5.5c.3.8 1.3 1 1.9.4l2.7-2.7 4.9 3.6c.7.5 1.7.1 1.9-.8l2.7-15.2c.2-.9-.7-1.6-1.5-1.3Z"/><path d="m8 14 9.5-7"/></svg>',
+                'bale'      => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/><path d="m9.5 12 1.8 1.8 3.5-3.6"/></svg>',
+                'instagram' => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>',
+                'youtube'   => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3v6Z" fill="currentColor" stroke="none"/></svg>',
+                'github'    => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>',
+                'linkedin'  => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>',
+                'link'      => '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
             ];
             echo '<div class="iramo-social-row">';
             foreach ( $list as $item ) {
@@ -550,9 +586,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'title_field' => '{{{ text }}}',
                 'default' => [
                     [ 'text' => 'صفحه اصلی', 'url' => [ 'url' => '/' ] ],
-                    [ 'text' => 'محصولات نرم‌افزاری', 'url' => [ 'url' => '/products/' ] ],
-                    [ 'text' => 'دایرکتوری ابزارهای AI', 'url' => [ 'url' => '/ai-tools/' ] ],
-                    [ 'text' => 'آکادمی و دوره‌ها', 'url' => [ 'url' => '/academy/' ] ],
+                    [ 'text' => 'محصولات', 'url' => [ 'url' => '/products/' ] ],
+                    [ 'text' => 'دوره‌های آموزشی', 'url' => [ 'url' => '/academy/' ] ],
+                    [ 'text' => 'ابزارهای هوش مصنوعی', 'url' => [ 'url' => '/ai-tools/' ] ],
+                    [ 'text' => 'مقالات', 'url' => [ 'url' => '/articles/' ] ],
+                    [ 'text' => 'خدمات و مشاوره', 'url' => [ 'url' => '/services/' ] ],
                 ],
             ] );
             $this->end_controls_section();
@@ -569,7 +607,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $links = $s['links'] ?? [];
             echo '<div dir="rtl">';
             if ( ! empty( $s['title'] ) ) {
-                echo '<h4 style="margin:0;font-size:14px;font-weight:800;">' . esc_html( $s['title'] ) . '</h4>';
+                echo '<h4 style="margin:0;font-size:13px;font-weight:800;">' . esc_html( $s['title'] ) . '</h4>';
             }
             if ( ! empty( $links ) ) {
                 echo '<ul class="iramo-footer-links">';
@@ -583,15 +621,15 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
     }
 
-    // 10. Atomic Newsletter Form Widget (Bot Telegram/Bale)
+    // 10. Atomic Newsletter Form Widget (Modern Card + Email/Bot Input)
     class iRamo_Widget_Newsletter_Form extends iRamo_Base_Widget {
         public function get_name() { return 'iramo_newsletter_form'; }
-        public function get_title() { return __( 'فرم خبرنامه تلگرام و بله', 'iramo-ai' ); }
+        public function get_title() { return __( 'فرم خبرنامه هفتگی و ابزارهای AI', 'iramo-ai' ); }
         public function get_icon() { return 'eicon-mail'; }
 
         protected function register_controls() {
             $this->start_controls_section( 'sec_nl', [ 'label' => 'تنظیمات فرم' ] );
-            $this->add_control( 'placeholder', [ 'label' => 'متن پیش‌فرض فیلد', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '@username یا 0912...' ] );
+            $this->add_control( 'placeholder', [ 'label' => 'متن پیش‌فرض فیلد', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'you@domain.com' ] );
             $this->add_control( 'button_text', [ 'label' => 'متن دکمه', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'عضویت' ] );
             $this->add_control( 'layout_dir', [
                 'label' => 'چیدمان فرم',
@@ -613,8 +651,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             ?>
             <div dir="rtl">
                 <form class="iramo-newsletter-form" data-iramo-newsletter style="<?php echo esc_attr( $dir ); ?>">
-                    <input type="text" name="handle" class="iramo-input" placeholder="<?php echo esc_attr( $s['placeholder'] ?: '@username یا 0912...' ); ?>" required />
-                    <button type="submit" class="iramo-btn iramo-btn-accent" style="padding:10px 16px;font-size:13px;white-space:nowrap;"><?php echo esc_html( $s['button_text'] ?: 'عضویت' ); ?></button>
+                    <div class="iramo-newsletter-input-wrap">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        <input type="text" dir="ltr" name="handle" class="iramo-input" placeholder="<?php echo esc_attr( $s['placeholder'] ?: 'you@domain.com' ); ?>" required />
+                    </div>
+                    <button type="submit" class="iramo-btn iramo-btn-accent" style="padding:9px 16px;font-size:12.5px;white-space:nowrap;border-radius:12px;"><?php echo esc_html( $s['button_text'] ?: 'عضویت' ); ?></button>
                 </form>
                 <div data-iramo-newsletter-msg style="font-size:12px;margin-top:8px;color:var(--iramo-primary);font-weight:700;"></div>
             </div>
@@ -715,8 +756,8 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         protected function register_controls() {
             $this->start_controls_section( 'sec_header', [ 'label' => __( 'تنظیمات هدر', 'iramo-ai' ) ] );
             $this->add_control( 'brand_name', [ 'label' => 'نام برند', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'iRamoAi' ] );
-            $this->add_control( 'cta_text', [ 'label' => 'متن دکمه پنل', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ورود / پنل کاربری' ] );
-            $this->add_control( 'cta_short', [ 'label' => 'متن کوتاه موبایل', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ورود / پنل' ] );
+            $this->add_control( 'cta_text', [ 'label' => 'متن دکمه دسکتاپ (خالی = خودکار)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '' ] );
+            $this->add_control( 'cta_short', [ 'label' => 'متن کوتاه موبایل (خالی = خودکار)', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '' ] );
             $this->add_control( 'show_theme_toggle', [ 'label' => 'نمایش دکمه تغییر تم', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls( '{{WRAPPER}} .iramo-header-pill' );
@@ -728,7 +769,12 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $img_fn     = function_exists( 'iramo_get_theme_image' );
             $logo_light = $img_fn ? iramo_get_theme_image( 'Group_179_659a031b.png' ) : '';
             $logo_dark  = $img_fn ? iramo_get_theme_image( 'logo_brand_19b8e3d7.png' ) : '';
-            $panel_url  = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' );
+            $has_wc     = function_exists( 'iramo_has_woocommerce_account' ) && iramo_has_woocommerce_account();
+            $cta_url    = function_exists( 'iramo_get_account_url' ) ? iramo_get_account_url() : home_url( '/services/' );
+            $auto_full  = $has_wc ? ( is_user_logged_in() ? 'حساب کاربری' : 'ورود / حساب کاربری' ) : 'درخواست مشاوره';
+            $auto_short = $has_wc ? ( is_user_logged_in() ? 'حساب من' : 'ورود / حساب' ) : 'مشاوره';
+            $full_label = ! empty( trim( (string) ( $s['cta_text'] ?? '' ) ) ) ? $s['cta_text'] : $auto_full;
+            $short_lbl  = ! empty( trim( (string) ( $s['cta_short'] ?? '' ) ) ) ? $s['cta_short'] : $auto_short;
             $is_editor  = class_exists( '\Elementor\Plugin' ) && \Elementor\Plugin::$instance->editor->is_edit_mode();
             $wrap_style = $is_editor ? 'position:relative;padding:12px;' : '';
             ?>
@@ -739,24 +785,29 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                             <img src="<?php echo esc_url( $logo_light ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-light" />
                             <img src="<?php echo esc_url( $logo_dark ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-dark" />
                         <?php endif; ?>
-                        <span class="iramo-brand-text"><?php echo esc_html( $brand ); ?></span>
+                        <span class="iramo-brand-text"><?php echo iramo_plugin_brand_wordmark_html( $brand ); ?></span>
                     </a>
                     <nav aria-label="منوی اصلی">
                         <?php
+                        $articles_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'articles', '/articles/' ) : home_url( '/articles/' );
+                        $services_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'services', '/services/' ) : home_url( '/services/' );
                         if ( has_nav_menu( 'primary' ) ) {
                             wp_nav_menu( [ 'theme_location' => 'primary', 'container' => false, 'menu_class' => 'iramo-nav-list', 'depth' => 1 ] );
                         } else {
-                            echo '<ul class="iramo-nav-list"><li><a href="' . esc_url( home_url( '/' ) ) . '">خانه</a></li><li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li><li><a href="' . esc_url( home_url( '/ai-tools/' ) ) . '">ابزارهای AI</a></li><li><a href="' . esc_url( home_url( '/academy/' ) ) . '">آکادمی</a></li><li><a href="' . esc_url( home_url( '/articles/' ) ) . '">مقالات</a></li><li><a href="' . esc_url( home_url( '/services/' ) ) . '">خدمات</a></li></ul>';
+                            echo '<ul class="iramo-nav-list"><li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li><li><a href="' . esc_url( home_url( '/academy/' ) ) . '">دوره‌های آموزشی</a></li><li><a href="' . esc_url( home_url( '/ai-tools/' ) ) . '">ابزارهای هوش مصنوعی</a></li><li><a href="' . esc_url( $articles_url ) . '">مقالات</a></li><li><a href="' . esc_url( $services_url ) . '">خدمات و مشاوره</a></li></ul>';
                         }
                         ?>
                     </nav>
                     <div class="iramo-header-actions">
                         <?php if ( ( $s['show_theme_toggle'] ?? 'yes' ) === 'yes' ) : ?>
-                            <button type="button" class="iramo-icon-btn" data-iramo-theme-toggle aria-label="تغییر تم">☀</button>
+                            <button type="button" class="iramo-icon-btn" data-iramo-theme-toggle aria-label="تغییر تم">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                            </button>
                         <?php endif; ?>
-                        <a href="<?php echo esc_url( $panel_url ); ?>" class="iramo-panel-cta">
-                            <span class="label-full"><?php echo esc_html( is_user_logged_in() ? 'پنل کاربری من' : ( $s['cta_text'] ?: 'ورود / پنل کاربری' ) ); ?></span>
-                            <span class="label-short"><?php echo esc_html( is_user_logged_in() ? 'پنل من' : ( $s['cta_short'] ?: 'ورود / پنل' ) ); ?></span>
+                        <a href="<?php echo esc_url( $cta_url ); ?>" class="iramo-panel-cta">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                            <span class="label-full"><?php echo esc_html( $full_label ); ?></span>
+                            <span class="label-short"><?php echo esc_html( $short_lbl ); ?></span>
                         </a>
                         <button type="button" class="iramo-icon-btn iramo-menu-toggle" data-iramo-menu-toggle aria-label="منوی موبایل">☰</button>
                     </div>
@@ -766,7 +817,8 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     if ( has_nav_menu( 'primary' ) ) {
                         wp_nav_menu( [ 'theme_location' => 'primary', 'container' => false, 'depth' => 1 ] );
                     } else {
-                        echo '<ul><li><a href="' . esc_url( home_url( '/' ) ) . '">صفحه اصلی</a></li><li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li><li><a href="' . esc_url( home_url( '/ai-tools/' ) ) . '">ابزارهای هوش مصنوعی</a></li><li><a href="' . esc_url( home_url( '/academy/' ) ) . '">آکادمی</a></li><li><a href="' . esc_url( home_url( '/articles/' ) ) . '">مقالات</a></li><li><a href="' . esc_url( home_url( '/services/' ) ) . '">خدمات و مشاوره</a></li><li><a href="' . esc_url( $panel_url ) . '">پنل کاربری</a></li></ul>';
+                        $extra_wc_li = $has_wc ? '<li><a href="' . esc_url( $cta_url ) . '">حساب کاربری</a></li>' : '';
+                        echo '<ul><li><a href="' . esc_url( home_url( '/' ) ) . '">صفحه اصلی</a></li><li><a href="' . esc_url( home_url( '/products/' ) ) . '">محصولات</a></li><li><a href="' . esc_url( home_url( '/academy/' ) ) . '">دوره‌های آموزشی</a></li><li><a href="' . esc_url( home_url( '/ai-tools/' ) ) . '">ابزارهای هوش مصنوعی</a></li><li><a href="' . esc_url( $articles_url ) . '">مقالات</a></li><li><a href="' . esc_url( $services_url ) . '">خدمات و مشاوره</a></li>' . $extra_wc_li . '</ul>';
                     }
                     ?>
                 </div>
@@ -784,20 +836,23 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         protected function register_controls() {
             $this->start_controls_section( 'sec_footer', [ 'label' => __( 'محتوای فوتر', 'iramo-ai' ) ] );
             $this->add_control( 'brand_name', [ 'label' => 'نام برند', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'iRamoAi' ] );
-            $this->add_control( 'about', [ 'label' => 'معرفی کوتاه', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'پلتفرم تخصصی طراحی نرم‌افزارهای هوشمند، آکادمی آموزش کاربردی AI و مرجع معرفی برترین ابزارهای هوش مصنوعی جهان.' ] );
-            $this->add_control( 'newsletter_title', [ 'label' => 'عنوان خبرنامه', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'خبرنامه هوشمند تلگرام و بله' ] );
-            $this->add_control( 'copyright', [ 'label' => 'متن کپی‌رایت', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '© تمامی حقوق برای پلتفرم هوشمند iRamoAi محفوظ است.' ] );
+            $this->add_control( 'about', [ 'label' => 'معرفی کوتاه', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'پلتفرم یکپارچه ارائه محصولات نرم‌افزاری هوشمند، دوره‌های تخصصی کاربردی، دایرکتوری انتخاب ابزارهای AI و زیرساخت بومی اتصال به تلگرام، بله و وردپرس.' ] );
+            $this->add_control( 'newsletter_title', [ 'label' => 'عنوان خبرنامه', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'خبرنامه هفتگی ابزارها و آموزش‌های AI' ] );
+            $this->add_control( 'copyright', [ 'label' => 'متن کپی‌رایت', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '© ۲۰۲۵ iRamoAi — طراحی و مهندسی پلتفرم هوشمند' ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls( '{{WRAPPER}} .iramo-footer' );
         }
 
         protected function render() {
-            $s          = $this->get_settings_for_display();
-            $brand      = $s['brand_name'] ?: 'iRamoAi';
-            $img_fn     = function_exists( 'iramo_get_theme_image' );
-            $logo_light = $img_fn ? iramo_get_theme_image( 'Group_179_659a031b.png' ) : '';
-            $logo_dark  = $img_fn ? iramo_get_theme_image( 'logo_brand_19b8e3d7.png' ) : '';
-            $panel_url  = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' );
+            $s            = $this->get_settings_for_display();
+            $brand        = $s['brand_name'] ?: 'iRamoAi';
+            $img_fn       = function_exists( 'iramo_get_theme_image' );
+            $logo_light   = $img_fn ? iramo_get_theme_image( 'Group_179_659a031b.png' ) : '';
+            $logo_dark    = $img_fn ? iramo_get_theme_image( 'logo_brand_19b8e3d7.png' ) : '';
+            $has_wc       = function_exists( 'iramo_has_woocommerce_account' ) && iramo_has_woocommerce_account();
+            $account_url  = function_exists( 'iramo_get_account_url' ) ? iramo_get_account_url() : home_url( '/services/' );
+            $articles_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'articles', '/articles/' ) : home_url( '/articles/' );
+            $services_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'services', '/services/' ) : home_url( '/services/' );
             ?>
             <footer class="iramo-footer" role="contentinfo" dir="rtl">
                 <div class="iramo-container">
@@ -805,44 +860,60 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                         <div>
                             <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="iramo-logo-link">
                                 <?php if ( $logo_light ) : ?>
-                                    <img src="<?php echo esc_url( $logo_light ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-light" />
-                                    <img src="<?php echo esc_url( $logo_dark ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-dark" />
+                                    <span class="iramo-footer-logo-box">
+                                        <img src="<?php echo esc_url( $logo_light ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-light" />
+                                        <img src="<?php echo esc_url( $logo_dark ); ?>" alt="<?php echo esc_attr( $brand ); ?>" class="iramo-logo-img iramo-logo-dark" />
+                                    </span>
                                 <?php endif; ?>
-                                <span class="iramo-brand-text"><?php echo esc_html( $brand ); ?></span>
+                                <span>
+                                    <span class="iramo-brand-text" style="display:block;font-size:19px;"><?php echo iramo_plugin_brand_wordmark_html( $brand ); ?></span>
+                                    <span style="display:block;font-size:11.5px;font-weight:600;color:var(--iramo-primary);">آکادمی هوش مصنوعی، ربات‌سازی و مهندسی نرم‌افزار</span>
+                                </span>
                             </a>
-                            <p class="iramo-footer-about-text" style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:380px;"><?php echo esc_html( $s['about'] ); ?></p>
+                            <p class="iramo-footer-about-text" style="margin:12px 0 0;font-size:13px;color:var(--iramo-muted);line-height:1.85;max-width:420px;"><?php echo esc_html( $s['about'] ); ?></p>
                         </div>
                         <div class="iramo-footer-nav-grid">
                             <div>
-                                <h4 style="margin:0;font-size:14px;font-weight:800;">بخش‌های سایت</h4>
+                                <h4 style="margin:0;font-size:13px;font-weight:800;">بخش‌های سایت</h4>
                                 <ul class="iramo-footer-links">
                                     <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>">صفحه اصلی</a></li>
-                                    <li><a href="<?php echo esc_url( home_url( '/products/' ) ); ?>">محصولات نرم‌افزاری</a></li>
-                                    <li><a href="<?php echo esc_url( home_url( '/ai-tools/' ) ); ?>">دایرکتوری ابزارهای AI</a></li>
-                                    <li><a href="<?php echo esc_url( home_url( '/academy/' ) ); ?>">آکادمی و دوره‌ها</a></li>
+                                    <li><a href="<?php echo esc_url( home_url( '/products/' ) ); ?>">محصولات</a></li>
+                                    <li><a href="<?php echo esc_url( home_url( '/academy/' ) ); ?>">دوره‌های آموزشی</a></li>
+                                    <li><a href="<?php echo esc_url( home_url( '/ai-tools/' ) ); ?>">ابزارهای هوش مصنوعی</a></li>
+                                    <li><a href="<?php echo esc_url( $articles_url ); ?>">مقالات</a></li>
+                                    <li><a href="<?php echo esc_url( $services_url ); ?>">خدمات و مشاوره</a></li>
                                 </ul>
                             </div>
                             <div>
-                                <h4 style="margin:0;font-size:14px;font-weight:800;">امکانات و پلتفرم</h4>
+                                <h4 style="margin:0;font-size:13px;font-weight:800;">امکانات و پلتفرم</h4>
                                 <ul class="iramo-footer-links">
-                                    <li><a href="<?php echo esc_url( home_url( '/articles/' ) ); ?>">مقالات و ابزارک‌ها</a></li>
-                                    <li><a href="<?php echo esc_url( home_url( '/services/' ) ); ?>">خدمات و مشاوره</a></li>
-                                    <li><a href="<?php echo esc_url( $panel_url ); ?>">پنل کاربری و آموزش</a></li>
+                                    <li><a href="<?php echo esc_url( $account_url ); ?>"><?php echo esc_html( $has_wc ? 'حساب کاربری و سفارش‌ها' : 'مشاوره و ثبت سفارش' ); ?></a></li>
+                                    <li><a href="<?php echo esc_url( home_url( '/products/' ) ); ?>">نرم‌افزار حسابیار</a></li>
+                                    <li><a href="<?php echo esc_url( home_url( '/ai-tools/' ) ); ?>">دایرکتوری ابزارهای AI</a></li>
+                                    <li><a href="<?php echo esc_url( $services_url ); ?>">پلاگین وردپرس و المنتور</a></li>
                                 </ul>
                             </div>
                         </div>
-                        <div>
-                            <h4 style="margin:0;font-size:14px;font-weight:800;"><?php echo esc_html( $s['newsletter_title'] ); ?></h4>
+                        <div class="iramo-newsletter-card">
+                            <h4 style="margin:0;font-size:13px;font-weight:800;"><?php echo esc_html( $s['newsletter_title'] ); ?></h4>
+                            <p style="margin:6px 0 0;font-size:11.5px;color:var(--iramo-muted);line-height:1.75;">معرفی جدیدترین ابزارهای هوش مصنوعی، پرامپت‌های کاربردی و آپدیت محصولات را در ایمیل دریافت کنید.</p>
                             <form class="iramo-newsletter-form" data-iramo-newsletter>
-                                <input type="text" name="handle" class="iramo-input" placeholder="@username یا 0912..." required />
-                                <button type="submit" class="iramo-btn iramo-btn-accent" style="padding:10px 16px;font-size:13px;white-space:nowrap;">عضویت</button>
+                                <div class="iramo-newsletter-input-wrap">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                    <input type="text" dir="ltr" name="handle" class="iramo-input" placeholder="you@domain.com" required />
+                                </div>
+                                <button type="submit" class="iramo-btn iramo-btn-accent" style="padding:9px 16px;font-size:12.5px;white-space:nowrap;border-radius:12px;">عضویت</button>
                             </form>
                             <div data-iramo-newsletter-msg style="font-size:12px;margin-top:8px;color:var(--iramo-primary);font-weight:700;"></div>
+                            <div class="iramo-newsletter-trust">
+                                <span>✓ تضمین آپدیت و پشتیبانی فنی</span>
+                                <a href="<?php echo esc_url( $services_url ); ?>" style="color:var(--iramo-primary);font-weight:700;">مشاوره پروژه ←</a>
+                            </div>
                         </div>
                     </div>
                     <div class="iramo-footer-bottom">
                         <div><?php echo esc_html( $s['copyright'] ); ?></div>
-                        <button type="button" class="iramo-chip" data-iramo-theme-toggle>تغییر حالت روشن / تیره</button>
+                        <button type="button" class="iramo-chip" data-iramo-theme-toggle>نمای تیره / روشن سایت</button>
                     </div>
                 </div>
             </footer>
@@ -871,10 +942,10 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
 
         protected function render() {
-            $s        = $this->get_settings_for_display();
-            $custom   = ! empty( $s['image']['url'] ) ? $s['image']['url'] : '';
-            $hero_img = $custom ?: ( function_exists( 'iramo_get_theme_image' ) ? iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' ) : '' );
-            $panel    = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' );
+            $s            = $this->get_settings_for_display();
+            $custom       = ! empty( $s['image']['url'] ) ? $s['image']['url'] : '';
+            $hero_img     = $custom ?: ( function_exists( 'iramo_get_theme_image' ) ? iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' ) : '' );
+            $products_url = get_post_type_archive_link( 'iramo_product' ) ?: home_url( '/products/' );
             ?>
             <section class="iramo-hero" dir="rtl">
                 <div class="iramo-container">
@@ -889,7 +960,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                             </div>
                             <div class="iramo-hero-proof">
                                 <span>✓ اتصال بومی ووکامرس</span><span class="proof-dot">•</span>
-                                <span>✓ پنل تلگرام و بله</span><span class="proof-dot">•</span>
+                                <span>✓ اتصال ربات تلگرام و بله</span><span class="proof-dot">•</span>
                                 <span>✓ ۱۸ ابزار دست‌چین AI</span><span class="proof-dot">•</span>
                                 <span>✓ سئو کامل سمت سرور</span>
                             </div>
@@ -902,7 +973,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                                         <div style="font-weight:800;">اتوماسیون حسابداری، محتوا و آموزش</div>
                                         <div style="font-size:11px;opacity:0.85;">ساخته شده برای تیم‌های ایرانی</div>
                                     </div>
-                                    <a href="<?php echo esc_url( $panel ); ?>" class="iramo-price-btn" style="padding:5px 12px;font-size:11px;">ورود به پنل</a>
+                                    <a href="<?php echo esc_url( $products_url ); ?>" class="iramo-price-btn" style="padding:5px 12px;font-size:11px;">مشاهده محصولات</a>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -1074,7 +1145,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         protected function register_controls() {
             $this->start_controls_section( 'sec_bento', [ 'label' => __( 'محتوای دو کارت', 'iramo-ai' ) ] );
             $this->add_control( 'card1_title', [ 'label' => 'تیتر کارت آکادمی', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'دوره‌های کاربردی هوش مصنوعی و ساخت ربات' ] );
-            $this->add_control( 'card1_desc', [ 'label' => 'توضیح کارت آکادمی', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'یادگیری عملی ساخت ربات‌های تلگرام و بله، پرامپت‌نویسی مهندسی‌شده، اتوماسیون n8n و استفاده حرفه‌ای از ابزارهای AI همراه با پنل دانشجویی اختصاصی.' ] );
+            $this->add_control( 'card1_desc', [ 'label' => 'توضیح کارت آکادمی', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'یادگیری عملی ساخت ربات‌های تلگرام و بله، پرامپت‌نویسی مهندسی‌شده، اتوماسیون n8n و استفاده حرفه‌ای از ابزارهای AI همراه با پشتیبانی تخصصی.' ] );
             $this->add_control( 'card2_title', [ 'label' => 'تیتر کارت خدمات و مشاوره', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'طراحی ربات، اتوماسیون و پیاده‌سازی AI برای سازمان شما' ] );
             $this->add_control( 'card2_desc', [ 'label' => 'توضیح کارت خدمات و مشاوره', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'اگر برای اتصال CRM، ووکامرس، صدور خودکار فاکتور یا راه‌اندازی دستیار اختصاصی AI در تلگرام و بله به تیم فنی نیاز دارید، با مهندسان ما مشورت کنید.' ] );
             $this->end_controls_section();
@@ -1085,20 +1156,19 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $s            = $this->get_settings_for_display();
             $academy_url  = get_post_type_archive_link( 'iramo_course' ) ?: home_url( '/academy/' );
             $services_url = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'services', '/services/' ) : home_url( '/services/' );
-            $panel_url    = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' );
             ?>
             <section class="iramo-section" style="padding-top:12px;" dir="rtl">
                 <div class="iramo-container">
                     <div class="iramo-grid-2">
                         <div class="iramo-card iramo-bento-card">
                             <div>
-                                <div class="iramo-bento-head"><span class="iramo-badge">آکادمی تخصصی iRamoAi</span><span style="font-size:12px;font-weight:700;color:var(--iramo-primary);">پروژه‌محور + لایسنس</span></div>
+                                <div class="iramo-bento-head"><span class="iramo-badge">آکادمی تخصصی iRamoAi</span><span style="font-size:12px;font-weight:700;color:var(--iramo-primary);">پروژه‌محور + گواهینامه</span></div>
                                 <h3 style="margin:12px 0 8px;font-size:21px;font-weight:800;"><?php echo esc_html( $s['card1_title'] ); ?></h3>
                                 <p style="margin:0;font-size:13.5px;color:var(--iramo-muted);line-height:1.8;"><?php echo esc_html( $s['card1_desc'] ); ?></p>
                             </div>
                             <div style="display:flex;flex-wrap:wrap;gap:10px;">
                                 <a href="<?php echo esc_url( $academy_url ); ?>" class="iramo-btn iramo-btn-primary">مشاهده دوره‌های آکادمی ←</a>
-                                <a href="<?php echo esc_url( $panel_url ); ?>" class="iramo-btn iramo-btn-outline">ورود به پنل دانشجو</a>
+                                <a href="<?php echo esc_url( $services_url ); ?>" class="iramo-btn iramo-btn-outline">مشاوره انتخاب دوره</a>
                             </div>
                         </div>
                         <div class="iramo-card iramo-bento-card">
@@ -1138,7 +1208,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
             $this->add_control( 'show_faq', [ 'label' => 'نمایش سوالات متداول', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
             $rep = new \Elementor\Repeater();
             $rep->add_control( 'q', [ 'label' => 'پرسش', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'آیا بلافاصله پس از پرداخت دسترسی فعال می‌شود؟' ] );
-            $rep->add_control( 'a', [ 'label' => 'پاسخ', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'بله؛ لایسنس و دوره آموزشی متصل به‌صورت خودکار در پنل کاربری شما فعال می‌شود.' ] );
+            $rep->add_control( 'a', [ 'label' => 'پاسخ', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'بله؛ بلافاصله پس از تکمیل سفارش در ووکامرس، لینک دانلود و راهنمای فعال‌سازی در بخش سفارش‌های شما و ایمیل ثبت‌نامی قرار می‌گیرد.' ] );
             $this->add_control( 'faqs', [
                 'label' => 'سوالات متداول',
                 'type' => \Elementor\Controls_Manager::REPEATER,
@@ -1146,7 +1216,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'title_field' => '{{{ q }}}',
                 'condition' => [ 'show_faq' => 'yes' ],
                 'default' => [
-                    [ 'q' => 'آیا بلافاصله پس از پرداخت دسترسی فعال می‌شود؟', 'a' => 'بله؛ لایسنس و دوره آموزشی متصل به‌صورت خودکار در پنل کاربری و ربات شما فعال می‌شود.' ],
+                    [ 'q' => 'آیا بلافاصله پس از پرداخت دسترسی فعال می‌شود؟', 'a' => 'بله؛ بلافاصله پس از پرداخت در ووکامرس، لینک دانلود و جزئیات سفارش در حساب کاربری شما فعال شده و اعلان آن به تلگرام یا بله ارسال می‌شود.' ],
                     [ 'q' => 'آیا می‌توانم در چند سیستم استفاده کنم؟', 'a' => 'هر لایسنس استاندارد شامل نصب اصلی و پشتیبانی است؛ برای استقرار سازمانی با ما هماهنگ کنید.' ],
                 ],
             ] );
@@ -1167,9 +1237,14 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 if ( $wc && $wc->get_price() !== '' ) $price_toman = (int) $wc->get_price();
             }
             $billing  = get_post_meta( $pid, '_iramo_billing_label', true ) ?: 'لایسنس دائمی + آپدیت خودکار';
-            $checkout = ( get_post_type( $pid ) === 'product' && function_exists( 'wc_get_checkout_url' ) )
-                ? add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() )
-                : ( function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'panel', '/panel/' ) : home_url( '/panel/' ) );
+            $wc_linked = (int) get_post_meta( $pid, '_iramo_linked_product_id', true );
+            if ( get_post_type( $pid ) === 'product' && function_exists( 'wc_get_checkout_url' ) ) {
+                $checkout = add_query_arg( 'add-to-cart', $pid, wc_get_checkout_url() );
+            } elseif ( $wc_linked && function_exists( 'wc_get_checkout_url' ) ) {
+                $checkout = add_query_arg( 'add-to-cart', $wc_linked, wc_get_checkout_url() );
+            } else {
+                $checkout = function_exists( 'iramo_get_page_url' ) ? iramo_get_page_url( 'services', '/services/' ) : home_url( '/services/' );
+            }
             $thumb = get_the_post_thumbnail_url( $pid, 'large' ) ?: ( function_exists( 'iramo_get_theme_image' ) ? iramo_get_theme_image( 'hero_iramo_desk_1794738858107.jpg' ) : '' );
             ?>
             <div class="iramo-container" dir="rtl" style="display:grid;gap:26px;">
@@ -1210,7 +1285,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     $raw_body   = get_post_field( 'post_content', $pid );
                     $highlights = array_values( array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pid, '_iramo_highlights', true ) ) ) ) );
                     if ( empty( $highlights ) ) {
-                        $highlights = [ 'نصب سریع و بدون نیاز به دانش برنامه‌نویسی', 'اتصال خودکار به ربات تلگرام و بله پس از خرید', 'صدور آنی کلید لایسنس و نمایش در پنل کاربری' ];
+                        $highlights = [ 'نصب سریع و بدون نیاز به دانش برنامه‌نویسی', 'اعلان خودکار سفارش به ربات تلگرام و بله مدیر', 'تحویل آنی فایل‌ها و جزئیات سفارش در حساب ووکامرس' ];
                     }
                     ?>
                     <section class="iramo-grid-2">
@@ -1235,9 +1310,9 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                     <section class="iramo-card" style="padding:24px;">
                         <h2 style="margin:0 0 16px;font-size:20px;font-weight:800;"><?php echo esc_html( $s['steps_title'] ?: 'روند کار و فعال‌سازی در ۳ گام' ); ?></h2>
                         <div class="iramo-grid-3">
-                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۱</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">ثبت سفارش و پرداخت</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">پس از پرداخت در ووکامرس کلید لایسنس یکتا صادر می‌شود.</p></div>
-                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۲</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">تحویل در پنل و ربات</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">لایسنس و دوره همراه هم در پنل و هم ربات تلگرام/بله فعال می‌شوند.</p></div>
-                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۳</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">آپدیت دائمی</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">به‌روزرسانی‌های بعدی به‌صورت رایگان در پنل قابل دریافت است.</p></div>
+                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۱</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">ثبت سفارش و پرداخت</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">پرداخت آنلاین امن از طریق درگاه ووکامرس انجام می‌شود.</p></div>
+                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۲</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">تحویل فوری و اعلان ربات</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">فایل‌ها در بخش سفارش‌های ووکامرس فعال و اعلان به تلگرام و بله ارسال می‌شود.</p></div>
+                            <div style="padding:16px;border-radius:16px;background:var(--iramo-canvas);"><span class="iramo-badge">گام ۳</span><h3 style="margin:10px 0 6px;font-size:16px;font-weight:800;">آپدیت و پشتیبانی</h3><p style="margin:0;font-size:13px;color:var(--iramo-muted);">به‌روزرسانی‌های بعدی به‌صورت استاندارد از حساب کاربری قابل دریافت است.</p></div>
                         </div>
                     </section>
                 <?php endif; ?>
@@ -1688,7 +1763,11 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
 
         protected function render() {
             $s   = $this->get_settings_for_display();
-            $q   = new \WP_Query( [ 'post_type' => [ 'iramo_article', 'post' ], 'post_status' => 'publish', 'posts_per_page' => (int) ( $s['posts_count'] ?? 6 ) ] );
+            $q   = new \WP_Query( [
+                'post_type'      => 'post',
+                'post_status'    => 'publish',
+                'posts_per_page' => (int) ( $s['posts_count'] ?? 6 ),
+            ] );
             $col = ( $s['columns'] ?? '3' ) === '2' ? '2' : '3';
             $loop_tpl_id = (int) ( $s['loop_template_id'] ?? 0 );
             echo '<div class="iramo-container" dir="rtl">';
@@ -1700,6 +1779,9 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 while ( $q->have_posts() ) {
                     $q->the_post();
                     $pid = get_the_ID();
+                    if ( get_post_field( 'post_name', $pid ) === 'hello-world' && $q->found_posts > 1 ) {
+                        continue;
+                    }
                     if ( $loop_tpl_id && function_exists( 'iramo_render_loop_item_template' ) && iramo_render_loop_item_template( $loop_tpl_id, $pid ) ) {
                         continue;
                     }
@@ -1711,7 +1793,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
     }
 
-    // 28. Consultation & Services Form Widget (Editable Services Repeater + Form Controls)
+    // 28. Consultation & Services Form Widget (1-to-1 Match with ServicesConsultationView)
     class iRamo_Widget_Consultation_Form extends iRamo_Base_Widget {
         public function get_name() { return 'iramo_consultation_form'; }
         public function get_title() { return __( 'خدمات و فرم مشاوره متصل به ربات (iRamoAi)', 'iramo-ai' ); }
@@ -1719,10 +1801,14 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
 
         protected function register_controls() {
             $this->start_controls_section( 'sec_form', [ 'label' => __( 'تنظیمات فرم مشاوره', 'iramo-ai' ) ] );
-            $this->add_control( 'show_service_cards', [ 'label' => 'نمایش ستون کارت‌های خدمات کنار فرم', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
+            $this->add_control( 'show_service_cards', [ 'label' => 'نمایش ستون معرفی و کارت‌های خدمات', 'type' => \Elementor\Controls_Manager::SWITCHER, 'default' => 'yes' ] );
+            $this->add_control( 'eyebrow', [ 'label' => 'برچسب بالای عنوان', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'مهندسی پروژه و مشاوره تخصصی', 'condition' => [ 'show_service_cards' => 'yes' ] ] );
+            $this->add_control( 'hero_heading', [ 'label' => 'تیتر اصلی بخش خدمات', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'پروژه هوشمند کسب‌وکار خود را به تیم iRamoAi بسپارید', 'condition' => [ 'show_service_cards' => 'yes' ] ] );
+            $this->add_control( 'hero_desc', [ 'label' => 'توضیح زیر تیتر خدمات', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'تمامی درخواست‌های ثبت‌شده بلافاصله از طریق پل ربات به تلگرام و بله تیم فنی ارسال می‌شوند تا در کمتر از ۲ ساعت جلسه بررسی زمان‌بندی شود.', 'condition' => [ 'show_service_cards' => 'yes' ] ] );
             $rep = new \Elementor\Repeater();
-            $rep->add_control( 'title', [ 'label' => 'تیتر خدمت', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ساخت ربات فروش و پشتیبانی تلگرام و بله' ] );
-            $rep->add_control( 'desc', [ 'label' => 'توضیح کوتاه', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'اتصال مستقیم ووکامرس، احراز هویت OTP و صدور لایسنس.' ] );
+            $rep->add_control( 'num', [ 'label' => 'شماره ردیف', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => '۰۱.' ] );
+            $rep->add_control( 'title', [ 'label' => 'تیتر خدمت', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'طراحی ربات‌های فروشگاهی و پشتیبانی تلگرام و بله' ] );
+            $rep->add_control( 'desc', [ 'label' => 'توضیح کوتاه', 'type' => \Elementor\Controls_Manager::TEXTAREA, 'default' => 'اتصال کامل به درگاه پرداخت، ووکامرس، احراز هویت کد تایید و پشتیبانی هوشمند ۲۴ ساعته.' ] );
             $this->add_control( 'services', [
                 'label' => 'کارت‌های معرفی خدمات',
                 'type' => \Elementor\Controls_Manager::REPEATER,
@@ -1730,46 +1816,81 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
                 'title_field' => '{{{ title }}}',
                 'condition' => [ 'show_service_cards' => 'yes' ],
                 'default' => [
-                    [ 'title' => '۱. ساخت ربات فروش و پشتیبانی تلگرام و بله', 'desc' => 'اتصال مستقیم ووکامرس، احراز هویت OTP و صدور لایسنس.' ],
-                    [ 'title' => '۲. اتوماسیون مالی، OCR و پردازش اسناد', 'desc' => 'استخراج خودکار اطلاعات فاکتورها و گزارش‌ها در اکسل و CRM.' ],
-                    [ 'title' => '۳. مشاوره معماری و پیاده‌سازی ایجنت‌های AI', 'desc' => 'راه‌اندازی پایپ‌لاین‌های n8n و دستیارهای اختصاصی تیم.' ],
+                    [ 'num' => '۰۱.', 'title' => 'طراحی ربات‌های فروشگاهی و پشتیبانی تلگرام و بله', 'desc' => 'اتصال کامل به درگاه پرداخت، ووکامرس، احراز هویت کد تایید و پشتیبانی هوشمند ۲۴ ساعته.' ],
+                    [ 'num' => '۰۲.', 'title' => 'هوشمندسازی و اتوماسیون فرآیندهای سازمانی', 'desc' => 'حذف کارهای تکراری، تحلیل فاکتورها با حسابیار و اتصال فرم‌های المنتور به CRM.' ],
+                    [ 'num' => '۰۳.', 'title' => 'توسعه پلاگین‌های اختصاصی وردپرس و آکادمی', 'desc' => 'پیاده‌سازی سیستم‌های آموزش آنلاین، بازار ابزارها و داشبورد کاربری سریع بدون کندی سایت.' ],
                 ],
             ] );
-            $this->add_control( 'title', [ 'label' => 'تیتر فرم', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ثبت درخواست مشاوره و سفارش پروژه' ] );
-            $this->add_control( 'subtitle', [ 'label' => 'زیرعنوان', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'درخواست شما بلافاصله در پنل مدیریت و ربات تلگرام/بله ادمین ارسال می‌شود.' ] );
-            $this->add_control( 'btn_text', [ 'label' => 'متن دکمه ارسال', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ارسال درخواست مشاوره ←' ] );
+            $this->add_control( 'title', [ 'label' => 'تیتر فرم', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'فرم درخواست مشاوره و برآورد پروژه' ] );
+            $this->add_control( 'btn_text', [ 'label' => 'متن دکمه ارسال', 'type' => \Elementor\Controls_Manager::TEXT, 'default' => 'ارسال درخواست مشاوره' ] );
             $this->end_controls_section();
             $this->register_iramo_card_style_controls();
         }
 
         protected function render() {
-            $s    = $this->get_settings_for_display();
-            $list = $s['services'] ?? [];
-            $show_cards = ( $s['show_service_cards'] ?? 'yes' ) === 'yes' && ! empty( $list );
+            $s          = $this->get_settings_for_display();
+            $list       = $s['services'] ?? [];
+            $show_cards = ( $s['show_service_cards'] ?? 'yes' ) === 'yes';
             ?>
             <section class="iramo-container" dir="rtl">
-                <div class="<?php echo $show_cards ? 'iramo-grid-2' : ''; ?>">
+                <div class="<?php echo $show_cards ? 'iramo-grid-2' : ''; ?>" style="align-items:start;gap:28px;">
                     <?php if ( $show_cards ) : ?>
-                        <div style="display:grid;gap:14px;">
-                            <?php foreach ( $list as $srv ) : ?>
-                                <div class="iramo-card" style="padding:20px;"><h3 style="margin:0 0 6px;font-size:17px;font-weight:800;"><?php echo esc_html( $srv['title'] ); ?></h3><p style="margin:0;font-size:13.5px;color:var(--iramo-muted);"><?php echo esc_html( $srv['desc'] ); ?></p></div>
-                            <?php endforeach; ?>
+                        <div style="display:grid;gap:20px;">
+                            <div style="display:grid;gap:8px;">
+                                <?php if ( ! empty( $s['eyebrow'] ) ) : ?>
+                                    <p style="margin:0;font-size:12px;font-weight:700;color:var(--iramo-primary);"><?php echo esc_html( $s['eyebrow'] ); ?></p>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $s['hero_heading'] ) ) : ?>
+                                    <h1 style="margin:0;font-size:28px;font-weight:800;line-height:1.35;color:var(--iramo-ink);"><?php echo esc_html( $s['hero_heading'] ); ?></h1>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $s['hero_desc'] ) ) : ?>
+                                    <p style="margin:4px 0 0;font-size:14px;color:var(--iramo-muted);line-height:1.85;"><?php echo esc_html( $s['hero_desc'] ); ?></p>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ( ! empty( $list ) ) : ?>
+                                <div style="display:grid;gap:12px;">
+                                    <?php foreach ( $list as $srv ) : ?>
+                                        <div class="iramo-card" style="padding:18px 20px;">
+                                            <p style="margin:0 0 6px;font-size:14.5px;font-weight:800;color:var(--iramo-ink);">
+                                                <?php if ( ! empty( $srv['num'] ) ) : ?><span style="color:var(--iramo-primary);margin-inline-end:8px;"><?php echo esc_html( $srv['num'] ); ?></span><?php endif; ?>
+                                                <?php echo esc_html( $srv['title'] ); ?>
+                                            </p>
+                                            <p style="margin:0;font-size:12.5px;color:var(--iramo-muted);line-height:1.75;"><?php echo esc_html( $srv['desc'] ); ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
-                    <div class="iramo-card" style="padding:24px;">
-                        <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;"><?php echo esc_html( $s['title'] ); ?></h2>
-                        <p style="margin:0 0 16px;font-size:13px;color:var(--iramo-muted);"><?php echo esc_html( $s['subtitle'] ); ?></p>
-                        <form data-iramo-consultation style="display:grid;gap:12px;">
-                            <input type="text" name="name" class="iramo-input" placeholder="نام و نام خانوادگی / نام مجموعه" required />
-                            <input type="text" name="contact" class="iramo-input" placeholder="شماره تماس یا آیدی تلگرام / بله" required />
-                            <select name="serviceType" class="iramo-input">
-                                <option value="bot">ساخت ربات تلگرام و بله متصل به سایت</option>
-                                <option value="automation">اتوماسیون سازمانی و n8n</option>
-                                <option value="ocr">پردازش اسناد و OCR مالی</option>
-                                <option value="consulting">مشاوره تخصصی AI</option>
-                            </select>
-                            <textarea name="details" rows="4" class="iramo-input" placeholder="توضیح کوتاهی درباره نیاز پروژه بنویسید..."></textarea>
-                            <button type="submit" class="iramo-btn iramo-btn-accent" style="width:100%;"><?php echo esc_html( $s['btn_text'] ?: 'ارسال درخواست مشاوره ←' ); ?></button>
+
+                    <div class="iramo-card" style="padding:26px;">
+                        <h2 style="margin:0 0 18px;font-size:18px;font-weight:800;color:var(--iramo-ink);"><?php echo esc_html( $s['title'] ); ?></h2>
+                        <form data-iramo-consultation style="display:grid;gap:14px;">
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--iramo-muted);margin-bottom:6px;">نام و نام خانوادگی</label>
+                                <input type="text" name="name" class="iramo-input" placeholder="مثلاً: علی محمدی" required />
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--iramo-muted);margin-bottom:6px;">شماره تماس یا آیدی تلگرام/بله</label>
+                                <input type="text" dir="ltr" name="contact" class="iramo-input" placeholder="@username / 0912..." required />
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--iramo-muted);margin-bottom:6px;">نوع پروژه مورد نیاز</label>
+                                <select name="serviceType" class="iramo-input">
+                                    <option value="bot">توسعه ربات هوشمند تلگرام و بله</option>
+                                    <option value="ai">پیاده‌سازی سیستم هوش مصنوعی و پایگاه دانش</option>
+                                    <option value="wp">پلاگین اختصاصی وردپرس و المنتور پرو</option>
+                                    <option value="hesabyar">سفارشی‌سازی حسابیار و اتوماسیون مالی</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--iramo-muted);margin-bottom:6px;">توضیحات کوتاه درباره ایده یا نیاز شما</label>
+                                <textarea name="details" rows="4" class="iramo-input" placeholder="بفرمایید ربات یا سیستم هوشمند قرار است چه کاری برای کسب‌وکار شما انجام دهد..."></textarea>
+                            </div>
+                            <button type="submit" class="iramo-btn iramo-btn-accent" style="width:100%;padding:12px 18px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                <span><?php echo esc_html( $s['btn_text'] ?: 'ارسال درخواست مشاوره' ); ?></span>
+                            </button>
                             <div data-consultation-msg style="font-size:12.5px;font-weight:700;color:var(--iramo-primary);"></div>
                         </form>
                     </div>
@@ -1779,44 +1900,7 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
         }
     }
 
-    // 29. Student LMS Portal React App Widget (/panel/)
-    class iRamo_Widget_LMS_Dashboard extends iRamo_Base_Widget {
-        public function get_name() { return 'iramo_lms_dashboard'; }
-        public function get_title() { return __( 'پنل کاربری و آموزش (Student LMS)', 'iramo-ai' ); }
-        public function get_icon() { return 'eicon-apps'; }
-
-        protected function register_controls() {
-            $this->start_controls_section( 'section_config', [ 'label' => __( 'تنظیمات پنل دانشجو', 'iramo-ai' ) ] );
-            $this->add_control( 'default_view', [
-                'label'   => __( 'نمای پیش‌فرض', 'iramo-ai' ),
-                'type'    => \Elementor\Controls_Manager::SELECT,
-                'default' => 'panel',
-                'options' => [
-                    'panel'  => __( 'پنل دانشجو و دوره‌ها (پیشنهادی)', 'iramo-ai' ),
-                    'course' => __( 'کتابخانه دوره‌ها', 'iramo-ai' ),
-                    'home'   => __( 'وب‌سایت کامل در شورت‌کد', 'iramo-ai' ),
-                ],
-            ] );
-            $this->add_control( 'default_theme', [
-                'label'   => __( 'تم پنل', 'iramo-ai' ),
-                'type'    => \Elementor\Controls_Manager::SELECT,
-                'default' => 'light',
-                'options' => [ 'light' => 'روشن مدرن', 'dark' => 'زمردی تیره' ],
-            ] );
-            $this->end_controls_section();
-        }
-
-        protected function render() {
-            $s = $this->get_settings_for_display();
-            echo do_shortcode( sprintf(
-                '[iramo_lms theme="%s" view="%s"]',
-                esc_attr( $s['default_theme'] ),
-                esc_attr( $s['default_view'] )
-            ) );
-        }
-    }
-
-    // Register All 29 Granular + Full Widgets
+    // Register All 28 Granular + Full Pure WordPress & Elementor Widgets
     $widgets_manager->register( new iRamo_Widget_Logo() );
     $widgets_manager->register( new iRamo_Widget_Nav_Menu() );
     $widgets_manager->register( new iRamo_Widget_Header_Actions() );
@@ -1846,5 +1930,4 @@ add_action( 'elementor/widgets/register', function( $widgets_manager ) {
     $widgets_manager->register( new iRamo_Widget_Courses_Grid() );
     $widgets_manager->register( new iRamo_Widget_Articles_Grid() );
     $widgets_manager->register( new iRamo_Widget_Consultation_Form() );
-    $widgets_manager->register( new iRamo_Widget_LMS_Dashboard() );
 } );

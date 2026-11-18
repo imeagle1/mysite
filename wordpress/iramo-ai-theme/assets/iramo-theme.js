@@ -198,14 +198,16 @@
         var input = form.querySelector('input[name="handle"]');
         var msgEl = form.parentElement.querySelector('[data-iramo-newsletter-msg]');
         if (!input || !input.value.trim()) return;
+        var val = input.value.trim();
+        var channel = val.indexOf('@') > 0 ? 'email' : (/^(?:\+?98|0)?9\d{9}$/.test(val.replace(/[\s-]/g, '')) ? 'bale' : 'telegram');
         fetch(cfg.restUrl + 'newsletter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce || '' },
-          body: JSON.stringify({ channel: 'telegram', handle: input.value.trim() })
+          body: JSON.stringify({ channel: channel, handle: val })
         })
           .then(function (r) { return r.json(); })
           .then(function () {
-            if (msgEl) msgEl.textContent = 'عضویت شما در خبرنامه هوشمند ثبت شد ✓';
+            if (msgEl) msgEl.textContent = 'عضویت شما در خبرنامه iRamoAi با موفقیت ثبت شد ✓';
             input.value = '';
           })
           .catch(function () {

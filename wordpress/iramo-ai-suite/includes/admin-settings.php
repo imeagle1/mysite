@@ -19,11 +19,41 @@ add_action( 'admin_menu', function() {
     );
 } );
 
+function iramo_sanitize_ai_settings( $input ) {
+    $existing = get_option( 'iramo_ai_settings', [] );
+    if ( ! is_array( $existing ) ) {
+        $existing = [];
+    }
+    if ( ! is_array( $input ) ) {
+        $input = [];
+    }
+
+    $merged = $existing;
+
+    $merged['brand_name']            = sanitize_text_field( $input['brand_name'] ?? ( $existing['brand_name'] ?? 'iRamoAi' ) ) ?: 'iRamoAi';
+    $merged['default_theme']         = ( isset( $input['default_theme'] ) && $input['default_theme'] === 'dark' ) ? 'dark' : 'light';
+    $merged['font_family']           = sanitize_text_field( $input['font_family'] ?? ( $existing['font_family'] ?? 'custom' ) );
+    $merged['primary_color']         = sanitize_hex_color( $input['primary_color'] ?? '' ) ?: '#059669';
+    $merged['accent_color']          = sanitize_hex_color( $input['accent_color'] ?? '' ) ?: '#FFBA00';
+    $merged['telegram_bot_username'] = sanitize_text_field( $input['telegram_bot_username'] ?? ( $existing['telegram_bot_username'] ?? '@iRamoBot' ) );
+    $merged['bale_bot_username']     = sanitize_text_field( $input['bale_bot_username'] ?? ( $existing['bale_bot_username'] ?? '@iRamoBaleBot' ) );
+
+    foreach ( [ 'enable_builtin_seo', 'enable_security_hardening' ] as $bool_key ) {
+        $merged[ $bool_key ] = ! empty( $input[ $bool_key ] ) ? '1' : '0';
+    }
+
+    return $merged;
+}
+
 add_action( 'admin_init', function() {
-    register_setting( 'iramo_ai_settings_group', 'iramo_ai_settings' );
-    register_setting( 'iramo_ai_settings_group', 'iramo_telegram_bot_token' );
-    register_setting( 'iramo_ai_settings_group', 'iramo_bale_bot_token' );
-    register_setting( 'iramo_ai_settings_group', 'iramo_admin_chat_id' );
+    register_setting( 'iramo_ai_settings_group', 'iramo_ai_settings', [
+        'type'              => 'array',
+        'sanitize_callback' => 'iramo_sanitize_ai_settings',
+        'default'           => [],
+    ] );
+    register_setting( 'iramo_ai_settings_group', 'iramo_telegram_bot_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+    register_setting( 'iramo_ai_settings_group', 'iramo_bale_bot_token', [ 'sanitize_callback' => 'sanitize_text_field' ] );
+    register_setting( 'iramo_ai_settings_group', 'iramo_admin_chat_id', [ 'sanitize_callback' => 'sanitize_text_field' ] );
 } );
 
 /**
@@ -95,7 +125,7 @@ function iramo_get_demo_dataset() {
         ],
         [
             'demo_key'  => 'demo-art-bot-arch',
-            'post_type' => 'iramo_article',
+            'post_type' => 'post',
             'slug'      => 'secure-telegram-bale-webhook-architecture',
             'title'     => 'معماری امن اتصال ربات تلگرام و بله به وردپرس و ووکامرس',
             'excerpt'   => 'چگونه با استفاده از Secret Token، کد اتصال یکبارمصرف و Rate Limit جلوی سوءاستفاده در وبهوک ربات‌ها را بگیریم.',
@@ -106,7 +136,7 @@ function iramo_get_demo_dataset() {
         ],
         [
             'demo_key'  => 'demo-art-prompt-eng',
-            'post_type' => 'iramo_article',
+            'post_type' => 'post',
             'slug'      => 'structured-prompt-engineering-for-teams',
             'title'     => 'الگوهای مهندسی پرامپت برای گرفتن خروجی دقیق از ابزارهای هوش مصنوعی',
             'excerpt'   => '۵ چارچوب کاربردی برای نوشتن پرامپت‌های قابل تکرار در تولید محتوا، تحلیل داده و کدنویسی.',
@@ -126,7 +156,7 @@ add_action( 'admin_post_iramo_manage_demo_data', function() {
     check_admin_referer( 'iramo_demo_nonce' );
 
     $action_type = sanitize_text_field( $_POST['demo_action'] ?? '' );
-    $post_types  = [ 'iramo_product', 'iramo_course', 'iramo_ai_tool', 'iramo_article', 'product' ];
+    $post_types  = [ 'iramo_product', 'iramo_course', 'iramo_ai_tool', 'post', 'product' ];
 
     if ( $action_type === 'purge_demo' ) {
         // Strictly purge ONLY items marked _iramo_is_demo = '1' and NEVER touch _iramo_curated_tool = '1'
@@ -314,7 +344,7 @@ function iramo_render_admin_control_page() {
         'fields'         => 'ids',
     ] ) );
     $demo_live = count( get_posts( [
-        'post_type'      => [ 'iramo_product', 'iramo_course', 'iramo_ai_tool', 'iramo_article', 'product' ],
+        'post_type'      => [ 'iramo_product', 'iramo_course', 'iramo_ai_tool', 'post', 'product' ],
         'post_status'    => 'any',
         'posts_per_page' => -1,
         'meta_key'       => '_iramo_is_demo',
@@ -350,7 +380,7 @@ function iramo_render_admin_control_page() {
                     <td><input type="text" name="iramo_ai_settings[brand_name]" value="<?php echo esc_attr( $opts['brand_name'] ?? 'iRamoAi' ); ?>" class="regular-text" /></td>
                 </tr>
                 <tr>
-                    <th>حالت پیش‌فرض سایت و پنل کاربری</th>
+                    <th>حالت پیش‌فرض نمایش سایت</th>
                     <td>
                         <select name="iramo_ai_settings[default_theme]">
                             <option value="light" <?php selected( $opts['default_theme'] ?? 'light', 'light' ); ?>>روشن مدرن (Modern Light)</option>
@@ -361,8 +391,10 @@ function iramo_render_admin_control_page() {
                 <tr>
                     <th>سئو و امنیت داخلی (Built-in)</th>
                     <td>
-                        <label style="display:block;margin-bottom:6px;"><input type="checkbox" name="iramo_ai_settings[enable_builtin_seo]" value="1" <?php checked( ! isset( $opts['enable_builtin_seo'] ) || ! empty( $opts['enable_builtin_seo'] ) ); ?> /> فعال‌سازی تگ‌های سئو، OpenGraph و اسکیما (Schema.org JSON-LD) داخلی (در صورت نصب RankMath/Yoast تداخل ایجاد نمی‌کند)</label>
-                        <label style="display:block;"><input type="checkbox" name="iramo_ai_settings[enable_security_hardening]" value="1" <?php checked( ! isset( $opts['enable_security_hardening'] ) || ! empty( $opts['enable_security_hardening'] ) ); ?> /> فعال‌سازی سخت‌گیری امنیتی (محدودسازی درخواست OTP، غیرفعال کردن XML-RPC و مخفی‌سازی شناسه کاربران)</label>
+                        <input type="hidden" name="iramo_ai_settings[enable_builtin_seo]" value="0" />
+                        <label style="display:block;margin-bottom:6px;"><input type="checkbox" name="iramo_ai_settings[enable_builtin_seo]" value="1" <?php checked( ! array_key_exists( 'enable_builtin_seo', $opts ) || ! empty( $opts['enable_builtin_seo'] ) ); ?> /> فعال‌سازی تگ‌های سئو، OpenGraph و اسکیما (Schema.org JSON-LD) داخلی (در صورت نصب RankMath/Yoast تداخل ایجاد نمی‌کند)</label>
+                        <input type="hidden" name="iramo_ai_settings[enable_security_hardening]" value="0" />
+                        <label style="display:block;"><input type="checkbox" name="iramo_ai_settings[enable_security_hardening]" value="1" <?php checked( ! array_key_exists( 'enable_security_hardening', $opts ) || ! empty( $opts['enable_security_hardening'] ) ); ?> /> فعال‌سازی سخت‌گیری امنیتی (محدودسازی درخواست فرم‌ها، غیرفعال کردن XML-RPC و مخفی‌سازی شناسه کاربران)</label>
                     </td>
                 </tr>
                 <tr>
@@ -384,33 +416,24 @@ function iramo_render_admin_control_page() {
                     </td>
                 </tr>
                 <tr>
-                    <th>روش‌های ورود فعال در پنل</th>
-                    <td>
-                        <label style="margin-left:14px;"><input type="checkbox" name="iramo_ai_settings[enable_telegram_auth]" value="1" <?php checked( ! isset( $opts['enable_telegram_auth'] ) || ! empty( $opts['enable_telegram_auth'] ) ); ?> /> تلگرام</label>
-                        <label style="margin-left:14px;"><input type="checkbox" name="iramo_ai_settings[enable_bale_auth]" value="1" <?php checked( ! isset( $opts['enable_bale_auth'] ) || ! empty( $opts['enable_bale_auth'] ) ); ?> /> بله</label>
-                        <label style="margin-left:14px;"><input type="checkbox" name="iramo_ai_settings[enable_sms_auth]" value="1" <?php checked( ! isset( $opts['enable_sms_auth'] ) || ! empty( $opts['enable_sms_auth'] ) ); ?> /> پیامک (SMS)</label>
-                        <label><input type="checkbox" name="iramo_ai_settings[enable_email_auth]" value="1" <?php checked( ! isset( $opts['enable_email_auth'] ) || ! empty( $opts['enable_email_auth'] ) ); ?> /> ایمیل</label>
-                    </td>
-                </tr>
-                <tr>
-                    <th>یوزرنیم و توکن ربات تلگرام</th>
+                    <th>یوزرنیم و توکن ربات تلگرام (اطلاع‌رسانی)</th>
                     <td>
                         <input type="text" dir="ltr" name="iramo_ai_settings[telegram_bot_username]" value="<?php echo esc_attr( $opts['telegram_bot_username'] ?? '@iRamoBot' ); ?>" style="width:150px;margin-left:8px;" />
                         <input type="text" dir="ltr" name="iramo_telegram_bot_token" value="<?php echo esc_attr( get_option( 'iramo_telegram_bot_token' ) ); ?>" class="regular-text" placeholder="123456:ABC..." />
                     </td>
                 </tr>
                 <tr>
-                    <th>یوزرنیم و توکن ربات بله (Bale)</th>
+                    <th>یوزرنیم و توکن ربات بله (اطلاع‌رسانی)</th>
                     <td>
                         <input type="text" dir="ltr" name="iramo_ai_settings[bale_bot_username]" value="<?php echo esc_attr( $opts['bale_bot_username'] ?? '@iRamoBaleBot' ); ?>" style="width:150px;margin-left:8px;" />
                         <input type="text" dir="ltr" name="iramo_bale_bot_token" value="<?php echo esc_attr( get_option( 'iramo_bale_bot_token' ) ); ?>" class="regular-text" placeholder="987654:XYZ..." />
                     </td>
                 </tr>
                 <tr>
-                    <th>چت آیدی مدیر و کلید پیامک</th>
+                    <th>چت آیدی مدیر (برای دریافت فرم مشاوره و سفارش‌ها)</th>
                     <td>
-                        <input type="text" dir="ltr" name="iramo_admin_chat_id" value="<?php echo esc_attr( get_option( 'iramo_admin_chat_id' ) ); ?>" placeholder="Admin Chat ID" style="width:180px;margin-left:8px;" />
-                        <input type="text" dir="ltr" name="iramo_ai_settings[sms_api_key]" value="<?php echo esc_attr( $opts['sms_api_key'] ?? '' ); ?>" class="regular-text" placeholder="SMS API Key" />
+                        <input type="text" dir="ltr" name="iramo_admin_chat_id" value="<?php echo esc_attr( get_option( 'iramo_admin_chat_id' ) ); ?>" placeholder="Admin Chat ID" class="regular-text" />
+                        <p class="description">برای دریافت شناسه عددی چت، به ربات خود دستور <code>/start</code> بفرستید.</p>
                     </td>
                 </tr>
             </table>
@@ -419,8 +442,8 @@ function iramo_render_admin_control_page() {
 
         <!-- Webhook Security & Endpoint Inspection Card -->
         <div style="background:#fff;padding:24px;border-radius:12px;border:1px solid #dcdcde;margin-top:20px;">
-            <h2>امنیت وبهوک ربات تلگرام و بله (Secret Token + کد اتصال یکبارمصرف)</h2>
-            <p class="description">نقطه پایان <code>/iramo/v1/bot/webhook</code> با مقایسه ثابت‌زمان <code>hash_equals</code> محافظت می‌شود و درخواست‌های فاقد Secret معتبر خطای <strong>403 Forbidden</strong> می‌گیرند. همچنین اتصال کاربران به ربات فقط با کد موقت ۱۰ دقیقه‌ای انجام می‌شود.</p>
+            <h2>امنیت وبهوک ربات تلگرام و بله (Secret Token)</h2>
+            <p class="description">نقطه پایان <code>/iramo/v1/bot/webhook</code> با مقایسه ثابت‌زمان <code>hash_equals</code> محافظت می‌شود و درخواست‌های فاقد Secret معتبر خطای <strong>403 Forbidden</strong> می‌گیرند.</p>
             <table class="form-table">
                 <tr>
                     <th>Secret اختصاصی وبهوک (۳۲ کاراکتر)</th>

@@ -2,8 +2,8 @@
 Theme Name:   iRamoAi Modern Theme
 Theme URI:    https://iramo.ai
 Author:       iRamoAi Engineering
-Description:  قالب بومی، سبک و راست‌به‌چپ (RTL) وردپرس و المنتور پرو برای iRamoAi — پیاده‌سازی کامل صفحات عمومی با HTML/CSS/PHP برای سئو و سرعت بالا، سازگار با Theme Builder المنتور پرو و پنل کاربری ری‌اکت.
-Version:      2.5.0
+Description:  قالب بومی، سبک و راست‌به‌چپ (RTL) وردپرس و المنتور پرو برای iRamoAi — پیاده‌سازی استاندارد با سلسله‌مراتب قالب وردپرس، پشتیبانی کامل از Theme Builder و Loop Builder المنتور پرو و ووکامرس.
+Version:      3.0.0
 Requires at least: 6.0
 Requires PHP: 7.4
 Text Domain:  iramo-ai-theme
@@ -170,9 +170,13 @@ html.dark .iramo-logo-dark { display: block; }
 
 .iramo-brand-text {
   font-weight: 800;
-  font-size: 16px;
+  font-size: 17px;
   letter-spacing: -0.02em;
   color: var(--iramo-ink);
+}
+
+.iramo-brand-text .accent-ai {
+  color: var(--iramo-accent);
 }
 
 @media (max-width: 390px) {
@@ -185,7 +189,10 @@ html.dark .iramo-logo-dark { display: block; }
   display: none;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--iramo-surface-alt);
+  border: 1px solid var(--iramo-border-subtle);
   align-items: center;
   gap: 4px;
 }
@@ -199,20 +206,27 @@ html.dark .iramo-logo-dark { display: block; }
 .iramo-nav-list a {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 6px 13px;
   border-radius: 999px;
+  border: 1px solid transparent;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--iramo-muted);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
-.iramo-nav-list a:hover,
+.iramo-nav-list a:hover {
+  color: var(--iramo-ink);
+}
+
 .iramo-nav-list .current-menu-item > a,
 .iramo-nav-list a.is-active {
   color: var(--iramo-primary);
-  background: var(--iramo-primary-soft);
+  font-weight: 700;
+  background: var(--iramo-surface);
+  border-color: var(--iramo-border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 .iramo-header-actions {
@@ -262,26 +276,39 @@ html.dark .iramo-logo-dark { display: block; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 999px;
-  background: var(--iramo-accent);
-  color: var(--iramo-accent-fg);
+  background: var(--iramo-primary);
+  color: #FFFFFF;
+  border: 1px solid transparent;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   white-space: nowrap;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+  transition: background-color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
 @media (min-width: 640px) {
   .iramo-panel-cta {
     padding: 7px 16px;
-    font-size: 13px;
+    font-size: 12.5px;
   }
 }
 
 .iramo-panel-cta:hover {
-  background: var(--iramo-accent-hover);
+  background: var(--iramo-primary-hover);
+  color: #FFFFFF;
   transform: translateY(-1px);
+}
+
+html.dark .iramo-panel-cta {
+  background: #0A261C;
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #6EE7B7;
+}
+
+html.dark .iramo-panel-cta:hover {
+  background: #0E3326;
 }
 
 .iramo-panel-cta .label-full { display: none; }
@@ -477,8 +504,18 @@ html.dark .iramo-logo-dark { display: block; }
   }
 }
 
+.iramo-hero-eyebrow,
+.iramo-el-eyebrow .elementor-heading-title {
+  margin: 0 0 8px;
+  font-family: var(--font-fa);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iramo-primary) !important;
+  letter-spacing: 0.01em;
+}
+
 .iramo-hero-title {
-  margin: 14px 0 14px;
+  margin: 8px 0 14px;
   font-size: 25px;
   line-height: 1.38;
   font-weight: 900;
@@ -495,7 +532,7 @@ html.dark .iramo-logo-dark { display: block; }
 
 @media (min-width: 1024px) {
   .iramo-hero-title {
-    font-size: 46px;
+    font-size: 44px;
     line-height: 1.24;
   }
 }
@@ -566,7 +603,7 @@ html.dark .iramo-logo-dark { display: block; }
 
 .iramo-hero-media {
   position: relative;
-  border-radius: 24px;
+  border-radius: 22px;
   overflow: hidden;
   border: 1px solid var(--iramo-border);
   box-shadow: var(--iramo-shadow-lg);
@@ -577,13 +614,22 @@ html.dark .iramo-logo-dark { display: block; }
 @media (min-width: 1024px) {
   .iramo-hero-media {
     aspect-ratio: 4 / 3;
+    min-height: 380px;
   }
 }
 
-.iramo-hero-media img {
+.iramo-hero-media .elementor-widget-container,
+.iramo-hero-media .elementor-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+
+.elementor .iramo-hero-media img,
+.iramo-hero-media img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block;
 }
 
 .iramo-hero-float-chip {
@@ -947,6 +993,81 @@ html.dark .iramo-logo-dark { display: block; }
   transform: translateY(-2px);
 }
 
+.iramo-footer-logo-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--iramo-surface-alt);
+  border: 1px solid var(--iramo-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.iramo-footer-logo-box img {
+  width: 100%;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+.iramo-footer-tagline {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--iramo-primary);
+}
+
+.iramo-social-caption {
+  margin: 14px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--iramo-subtle);
+}
+
+.iramo-newsletter-card {
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--iramo-surface-alt);
+  border: 1px solid var(--iramo-border-subtle);
+}
+
+.iramo-newsletter-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.iramo-newsletter-input-wrap svg {
+  position: absolute;
+  inset-inline-start: 11px;
+  color: var(--iramo-subtle);
+  pointer-events: none;
+}
+
+.iramo-newsletter-input-wrap .iramo-input {
+  padding-inline-start: 34px;
+  padding-block: 9px;
+  font-size: 12.5px;
+  background: var(--iramo-surface);
+}
+
+.iramo-newsletter-trust {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--iramo-border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--iramo-muted);
+}
+
 .iramo-newsletter-form {
   display: flex;
   flex-direction: column;
@@ -957,6 +1078,7 @@ html.dark .iramo-logo-dark { display: block; }
 @media (min-width: 380px) {
   .iramo-newsletter-form {
     flex-direction: row;
+    align-items: center;
   }
 }
 
@@ -996,11 +1118,14 @@ html.dark .iramo-logo-dark { display: block; }
   }
   .iramo-footer .iramo-logo-link {
     justify-content: center;
+    flex-direction: column;
   }
   .iramo-footer .iramo-brand-text {
     display: inline-block;
   }
   .iramo-footer .iramo-footer-about-text,
+  .iramo-footer .iramo-footer-tagline,
+  .iramo-footer .iramo-social-caption,
   .iramo-footer .iramo-el-footer-about p,
   .iramo-footer .iramo-el-desc p {
     margin-inline: auto !important;
@@ -1016,6 +1141,9 @@ html.dark .iramo-logo-dark { display: block; }
   .iramo-footer .iramo-newsletter-form {
     max-width: 360px;
     margin-inline: auto;
+    justify-content: center;
+  }
+  .iramo-footer .iramo-newsletter-trust {
     justify-content: center;
   }
 }
@@ -1132,8 +1260,8 @@ html.dark .iramo-logo-dark { display: block; }
   margin-bottom: 0 !important;
 }
 
-.iramo-el-hero-title .elementor-heading-title {
-  margin: 14px 0 14px;
+.elementor-widget-heading.iramo-el-hero-title .elementor-heading-title {
+  margin: 8px 0 14px;
   font-family: var(--font-fa);
   font-size: 25px;
   line-height: 1.38;
@@ -1142,19 +1270,19 @@ html.dark .iramo-logo-dark { display: block; }
   letter-spacing: -0.02em;
 }
 @media (min-width: 640px) {
-  .iramo-el-hero-title .elementor-heading-title {
+  .elementor-widget-heading.iramo-el-hero-title .elementor-heading-title {
     font-size: 36px;
     line-height: 1.28;
   }
 }
 @media (min-width: 1024px) {
-  .iramo-el-hero-title .elementor-heading-title {
-    font-size: 46px;
+  .elementor-widget-heading.iramo-el-hero-title .elementor-heading-title {
+    font-size: 44px;
     line-height: 1.24;
   }
 }
 
-.iramo-el-sec-title .elementor-heading-title {
+.elementor-widget-heading.iramo-el-sec-title .elementor-heading-title {
   margin: 8px 0 0;
   font-family: var(--font-fa);
   font-size: 21px;
@@ -1162,12 +1290,12 @@ html.dark .iramo-logo-dark { display: block; }
   color: var(--iramo-ink);
 }
 @media (min-width: 640px) {
-  .iramo-el-sec-title .elementor-heading-title {
+  .elementor-widget-heading.iramo-el-sec-title .elementor-heading-title {
     font-size: 26px;
   }
 }
 
-.iramo-el-card-title .elementor-heading-title {
+.elementor-widget-heading.iramo-el-card-title .elementor-heading-title {
   margin: 12px 0 8px;
   font-family: var(--font-fa);
   font-size: 21px;
@@ -1175,10 +1303,10 @@ html.dark .iramo-logo-dark { display: block; }
   color: var(--iramo-ink);
 }
 
-.iramo-el-footer-title .elementor-heading-title {
+.elementor-widget-heading.iramo-el-footer-title .elementor-heading-title {
   margin: 0;
   font-family: var(--font-fa);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--iramo-ink);
 }
@@ -1208,7 +1336,7 @@ html.dark .iramo-logo-dark { display: block; }
   font-size: 13px;
   line-height: 1.85;
   color: var(--iramo-muted);
-  max-width: 380px;
+  max-width: 400px;
 }
 
 .iramo-loop-media-16x9,
@@ -1218,10 +1346,12 @@ html.dark .iramo-logo-dark { display: block; }
   border-radius: 14px;
 }
 
+.elementor .iramo-loop-media-16x9 img,
 .iramo-loop-media-16x9 img {
   width: 100% !important;
+  height: auto !important;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  object-fit: cover !important;
   border-radius: 14px;
 }
 
@@ -1229,4 +1359,48 @@ html.dark .iramo-logo-dark { display: block; }
 .e-con.iramo-card {
   height: 100%;
 }
+
+/* ============================================================
+   Standard WooCommerce Account, Cart & Checkout RTL Styling
+   ============================================================ */
+.woocommerce-account .woocommerce {
+  display: grid;
+  gap: 24px;
+}
+@media (min-width: 900px) {
+  .woocommerce-account .woocommerce {
+    grid-template-columns: 260px 1fr;
+    align-items: start;
+  }
+}
+.woocommerce-MyAccount-navigation ul {
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  background: var(--iramo-surface);
+  border: 1px solid var(--iramo-border-subtle);
+  border-radius: 18px;
+  display: grid;
+  gap: 4px;
+}
+.woocommerce-MyAccount-navigation li a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--iramo-muted);
+}
+.woocommerce-MyAccount-navigation li.is-active a,
+.woocommerce-MyAccount-navigation li a:hover {
+  background: var(--iramo-primary-soft);
+  color: var(--iramo-primary);
+}
+.woocommerce-MyAccount-content {
+  background: var(--iramo-surface);
+  border: 1px solid var(--iramo-border-subtle);
+  border-radius: 18px;
+  padding: 24px;
+}
+
 

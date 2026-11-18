@@ -156,6 +156,7 @@ export default function App() {
       : null;
   const wpDemoCleared = wpRoot?.dataset.demoCleared === '1';
   const wpRestUrl = wpRoot?.dataset.restUrl || '';
+  const wpHomeUrl = wpRoot?.dataset.homeUrl || '';
   const initialWpNonce = wpRoot?.dataset.wpNonce || '';
 
   let wpUser: UserProfile | null = null;
@@ -184,6 +185,10 @@ export default function App() {
     wpRestUrl ? wpUser : saved.user ?? null
   );
   const rawWpView = wpRoot?.dataset.view || '';
+  const isDedicatedWpPanel = Boolean(
+    wpRestUrl &&
+      (rawWpView === 'panel' || rawWpView === 'lms' || rawWpView === 'course')
+  );
   const resolvedInitialPage: SitePage = (() => {
     switch (rawWpView) {
       case 'products':
@@ -609,13 +614,25 @@ export default function App() {
     }
   };
 
+  const handleBackToWebsite = () => {
+    if (wpRestUrl && wpHomeUrl) {
+      window.location.href = wpHomeUrl;
+      return;
+    }
+    handleNavigatePage('home');
+  };
+
   const handleLogout = () => {
     if (wpRestUrl) {
       postWpEndpoint('auth/logout', {});
     }
     setCurrentUser(null);
     setActiveCourseId(null);
-    setSitePage('home');
+    if (isDedicatedWpPanel) {
+      setAuthModalOpen(true);
+    } else {
+      setSitePage('home');
+    }
   };
 
   const handleToggleLessonComplete = (lessonId: string) => {
@@ -726,7 +743,78 @@ export default function App() {
 
   const latestEnrolledCourses = courses.filter((c) => c.enrolled);
 
-  // Render Public iRamoAi Website (Modern Light & Dark Modes supported)
+  // Dedicated WordPress /panel/ Auth Gate (Never render WebsiteShell/Homepage inside /panel/)
+  if (isDedicatedWpPanel && (!currentUser || sitePage !== 'lms')) {
+    const isFa = lang === 'fa';
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-[var(--iramo-canvas)] dark:bg-[#050C0A] text-slate-900 dark:text-slate-100 relative overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(5,150,105,0.10),transparent_55%)]"
+        />
+        <div className="relative z-10 w-full max-w-md rounded-2xl p-6 sm:p-8 bg-white dark:bg-[#0B1613] border border-slate-200 dark:border-emerald-500/25 shadow-lg text-center space-y-5">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--iramo-primary-soft)] border border-[var(--iramo-primary-border)] text-[var(--iramo-primary)] font-extrabold text-xl flex items-center justify-center mx-auto">
+            {siteConfig.brandTitle.slice(0, 2)}
+          </div>
+          <div className="space-y-1.5">
+            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">
+              {isFa
+                ? `ورود به پنل کاربری ${siteConfig.brandTitle}`
+                : `Sign In to ${siteConfig.brandTitle} Panel`}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              {isFa
+                ? 'برای دسترسی به دوره‌های آموزشی، لایسنس نرم‌افزارها، تکالیف و اتصال ربات وارد حساب کاربری خود شوید.'
+                : 'Sign in to access your enrolled courses, software licenses, assignments, and bot sync.'}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="w-full py-3 px-5 rounded-xl bg-[var(--iramo-primary)] hover:bg-[var(--iramo-primary-hover)] text-white text-sm font-bold transition-colors cursor-pointer"
+            >
+              {isFa ? 'ورود / عضویت در پنل کاربری' : 'Sign In / Create Account'}
+            </button>
+            <div className="flex items-center justify-between gap-2 pt-2 text-xs">
+              <a
+                href={wpHomeUrl || '/'}
+                className="text-slate-600 dark:text-slate-300 hover:text-[var(--iramo-primary)] font-semibold"
+              >
+                {isFa ? '← بازگشت به صفحه اصلی سایت' : '← Back to Website'}
+              </a>
+              <button
+                type="button"
+                onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              >
+                {theme === 'dark'
+                  ? isFa
+                    ? 'حالت روشن'
+                    : 'Light Mode'
+                  : isFa
+                  ? 'حالت تیره'
+                  : 'Dark Mode'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <AuthModal
+          open={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          lang={lang}
+          brandTitle={siteConfig.brandTitle}
+          authChannels={siteConfig.authChannels}
+          wpRestUrl={wpRestUrl}
+          wpNonce={wpNonce}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      </div>
+    );
+  }
+
+  // Render Public iRamoAi Website (Standalone SPA / [iramo_site] shortcode)
   if (sitePage !== 'lms' || !currentUser) {
     return (
       <>
@@ -851,7 +939,7 @@ export default function App() {
         latestCourses={latestEnrolledCourses}
         onOpenCourse={(c) => setActiveCourseId(c.id)}
         onOpenStudyPlanner={() => setStudyPlannerOpen(true)}
-        onBackToWebsite={() => handleNavigatePage('home')}
+        onBackToWebsite={handleBackToWebsite}
         onLogout={handleLogout}
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}

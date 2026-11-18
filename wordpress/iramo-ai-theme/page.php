@@ -10,13 +10,15 @@ get_header();
 
 $is_el = false;
 if ( class_exists( '\\Elementor\\Plugin' ) ) {
-    $doc = \Elementor\Plugin::$instance->documents->get( get_the_ID() );
-    if ( $doc && $doc->is_built_with_elementor() ) {
+    $pid      = get_the_ID();
+    $doc      = \Elementor\Plugin::$instance->documents->get( $pid );
+    $has_data = ! empty( get_post_meta( $pid, '_elementor_data', true ) );
+    if ( $has_data && ( ( $doc && $doc->is_built_with_elementor() ) || get_post_meta( $pid, '_elementor_edit_mode', true ) === 'builder' ) ) {
         $is_el = true;
     }
 }
 ?>
-<main id="primary" class="iramo-main-wrap">
+<main id="primary" class="<?php echo $is_el ? 'iramo-home-main' : 'iramo-main-wrap'; ?>">
     <?php
     while ( have_posts() ) :
         the_post();

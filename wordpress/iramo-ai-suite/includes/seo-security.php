@@ -142,7 +142,7 @@ add_action( 'wp_head', function() {
                 'url'   => home_url( '/' ),
             ],
         ];
-    } elseif ( is_singular( [ 'iramo_article', 'post' ] ) ) {
+    } elseif ( is_singular( 'post' ) ) {
         $pid = get_queried_object_id();
         $schema = [
             '@context'      => 'https://schema.org',

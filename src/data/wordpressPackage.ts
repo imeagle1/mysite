@@ -24,10 +24,7 @@ import wpThemeSingleProductPhp from '../../wordpress/iramo-ai-theme/single-iramo
 import wpThemeSingleWcProductPhp from '../../wordpress/iramo-ai-theme/single-product.php?raw';
 import wpThemeArchiveCoursePhp from '../../wordpress/iramo-ai-theme/archive-iramo_course.php?raw';
 import wpThemeSingleCoursePhp from '../../wordpress/iramo-ai-theme/single-iramo_course.php?raw';
-import wpThemeArchiveArticlePhp from '../../wordpress/iramo-ai-theme/archive-iramo_article.php?raw';
-import wpThemeSingleArticlePhp from '../../wordpress/iramo-ai-theme/single-iramo_article.php?raw';
 import wpTheme404Php from '../../wordpress/iramo-ai-theme/404.php?raw';
-import wpThemeCanvasTemplatePhp from '../../wordpress/iramo-ai-theme/templates/template-canvas.php?raw';
 import wpThemeJs from '../../wordpress/iramo-ai-theme/assets/iramo-theme.js?raw';
 import wpElementorCanvasJson from '../../wordpress/iramo-ai-theme/elementor-templates/iramo-canvas-template.json?raw';
 
@@ -46,7 +43,6 @@ export const WP_THEME_HEADER_PHP = wpThemeHeaderPhp;
 export const WP_THEME_FOOTER_PHP = wpThemeFooterPhp;
 export const WP_THEME_FRONT_PAGE_PHP = wpThemeFrontPagePhp;
 export const WP_THEME_INDEX_PHP = wpThemeIndexPhp;
-export const WP_THEME_CANVAS_TEMPLATE_PHP = wpThemeCanvasTemplatePhp;
 export const ELEMENTOR_TEMPLATE_JSON = wpElementorCanvasJson;
 
 export const WP_THEME_FILES: Record<string, string> = {
@@ -68,10 +64,7 @@ export const WP_THEME_FILES: Record<string, string> = {
   'single-product.php': wpThemeSingleWcProductPhp,
   'archive-iramo_course.php': wpThemeArchiveCoursePhp,
   'single-iramo_course.php': wpThemeSingleCoursePhp,
-  'archive-iramo_article.php': wpThemeArchiveArticlePhp,
-  'single-iramo_article.php': wpThemeSingleArticlePhp,
   '404.php': wpTheme404Php,
-  'templates/template-canvas.php': wpThemeCanvasTemplatePhp,
   'assets/iramo-theme.js': wpThemeJs,
   'elementor-templates/iramo-canvas-template.json': wpElementorCanvasJson,
 };
@@ -124,11 +117,8 @@ jobs:
       - name: TypeScript typecheck
         run: npm run lint
 
-      - name: Build WordPress Assets Bundle
-        run: npm run build:wp
-
-      - name: Package Theme & Plugin ZIPs
-        run: node scripts/package-wordpress.mjs
+      - name: Package Pure WordPress Theme & Plugin ZIPs
+        run: npm run package:wp
 
       - name: Upload Downloadable ZIP Artifacts
         uses: actions/upload-artifact@v4
